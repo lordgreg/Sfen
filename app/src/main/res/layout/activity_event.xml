@@ -9,28 +9,27 @@
     android:dividerPadding="5dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Event Name"
         android:id="@+id/textView"
         android:autoText="false"
-        android:enabled="false"
-        android:linksClickable="false"
-        android:longClickable="false"
-        android:singleLine="false" />
+        style="?android:attr/listSeparatorTextViewStyle" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
         android:id="@+id/event_name" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Conditions"
+        style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView2" />
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="10dp">
 
         <!-- Note that this LinearLayout has the "animateLayoutChanges" property set to true.
              This tells the framework to automatically animate child views (in this case, rows)
@@ -46,12 +45,13 @@
     </ScrollView>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Actions"
+        style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView3" />
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="10dp">
 
         <!-- Note that this LinearLayout has the "animateLayoutChanges" property set to true.
              This tells the framework to automatically animate child views (in this case, rows)

@@ -10,16 +10,6 @@
     android:divider="?android:dividerVertical"
     android:dividerPadding="8dp">
 
-    <ImageButton
-        android:id="@+id/condition_icon"
-        android:src="@android:drawable/ic_menu_add"
-        android:layout_width="48dp"
-        android:layout_height="match_parent"
-        android:background="?android:selectableItemBackground"
-        android:contentDescription="Remove Item"
-        android:adjustViewBounds="false"
-        android:cropToPadding="false" />
-
     <LinearLayout
         android:layout_margin="5dp"
         android:orientation="vertical"
