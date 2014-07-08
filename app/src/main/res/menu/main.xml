@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.gregor.myapplication.Main" >
+    <item android:id="@+id/action_add_new"
+        android:icon="@drawable/ic_add"
+        android:title="add"
+        android:orderInCategory="100"
+        android:showAsAction="always" />
+
+</menu>
