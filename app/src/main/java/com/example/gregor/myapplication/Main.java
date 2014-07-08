@@ -20,6 +20,12 @@ public class Main extends Activity {
 
 
     // SINGLETON INSTANCE
+
+    /**
+     * Singleton function that returns the current instance of our class
+     * if it does not exist, it creates new instance.
+     * @return instance of current class
+     */
     public static Main getInstance() {
         if (sInstance == null) {
             return new Main();
