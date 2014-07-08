@@ -10,7 +10,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_event">Event</string>
     <string name="error_select_condition">You must select at least one condition!</string>
-    <string name="error">Error</string>
+    <string name="error">Oops!</string>
     <string name="ok">OK</string>
     <string name="action_new">New action</string>
     <string name="action_new_sub">Click here to add new action.</string>

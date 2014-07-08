@@ -7,12 +7,10 @@
     android:padding="10dp"
     android:id="@+id/condition_pick">
 
-    <ListView
+
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/listView"
-        android:layout_gravity="center_horizontal"
-        tools:listitem="@android:layout/simple_list_item_2" />
-
-
+        android:id="@+id/container_dialog_options"></LinearLayout>
 </LinearLayout>

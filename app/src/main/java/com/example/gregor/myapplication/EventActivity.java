@@ -10,12 +10,129 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EventActivity extends Activity {
-    private ViewGroup mContainerCondition, mContainerAction;
+    private ViewGroup mContainerCondition, mContainerAction, mContainerOptions;
     private TextView eventName;
+
+    // conditions array with icons
+    Map<String, Integer> opt_conditions = new HashMap<String, Integer>() {{
+       put("Location", android.R.drawable.ic_dialog_map);
+       put("Time", android.R.drawable.ic_menu_today);
+       put("Message", android.R.drawable.ic_dialog_email);
+    }};
+
+    private void openConditions() {
+        // container for condition in dialog
+
+        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        builderSingle.setIcon(R.drawable.ic_launcher);
+        builderSingle.setTitle("Select One Name:-");
+
+        // add all options from hashmap to string[]
+        String[] options = new String[opt_conditions.size()];
+        int i = 0;
+        for (String key : opt_conditions.keySet()) {
+            //System.out.println( key );
+            options[i++] = key;
+        }
+         //   options[i] = opt_conditions.keySet().con
+        //}
+
+
+
+
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                this,
+                R.layout.dialog_pick_single);
+
+        arrayAdapter.addAll(options);
+                    builderSingle.setView(inflater.inflate(R.layout.dialog_pick_condition, null))
+                // Add action buttons
+                .setPositiveButton("test", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // sign in the user ...
+                    }
+                });
+
+        AlertDialog alert = builderSingle.create();
+        alert.show();
+
+        //builderSingle.show();
+
+
+
+        //setContentView( R.layout.dialog_pick_condition );
+//        final LayoutInflater factory = getLayoutInflater();
+//        final View textEntryView = factory.inflate(R.layout.dialog_pick_condition, null);
+        //landmarkEditNameView = (EditText) textEntryView.findViewById(R.id.landmark_name_dialog_edit);
+        //mContainerOptions = (ViewGroup) findViewById(R.id.container_dialog_options);
+
+        //View mySubview = getLayoutInflater().inflate(R.layout.dialog_pick_condition, mContainerOptions);
+        //mContainerOptions = LayoutInflater.from(this).inflate(R.id.container_dialog_options, this);
+        //mContents = LayoutInflater.from(ctx).inflate(R.layout.mycustomview, this).
+        //mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
+
+        //final ViewGroup newOption = (ViewGroup) LayoutInflater.from(getApplicationContext()).inflate(
+        //        R.layout.dialog_pick_single, mContainerOptions, false);
+        //        final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
+        //          R.layout.condition_action_header, mContainerCondition, false);
+
+        //((TextView) newOption.findViewById(android.R.id.text1)).setText("test");
+        //((ImageButton) newOption.findViewById(R.id.dialog_icon)).setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_today));
+
+        // container is now filled.
+        //String a = "b";
+        //mContainerOptions.addView(newOption, 0);
+
+
+        //setContentView( R.layout.activity_event );
+/*
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Get the layout inflater
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        builder.setView(inflater.inflate(R.layout.dialog_pick_condition, null))
+                // Add action buttons
+                .setPositiveButton("test", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // sign in the user ...
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+
+*/
+        //ListAdapter adapter = new ArrayAdapter<String>(
+         //       getApplicationContext(), R.layout.list_row, items)
+
+        //ListAdapter adapter = new ArrayAdapter<String>(this, R.layout.dialog_pick_single, opt_conditions);
+/*
+        // dialog now
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pick a tile set");
+        builder.setAdapter(arrayAdapter,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog,
+                                        int item) {
+                        //Toast.makeText(MyApp.this, "You selected: " + items[item],Toast.LENGTH_LONG).show();
+                        //dialog.dismiss();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();*/
+    }
 
 
 
@@ -28,10 +145,7 @@ public class EventActivity extends Activity {
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
         mContainerAction = (ViewGroup) findViewById(R.id.action_container);
 
-        //System.out.println("test: "+ Main.getInstance().eventName);
-        //Main.getInstance().temp = "YOLO";
 
-        // adding header single items here
         // CONDITION
         final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.condition_action_header, mContainerCondition, false);
@@ -43,6 +157,7 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                openConditions();
                 Toast.makeText(getBaseContext(), "picking new condition", Toast.LENGTH_SHORT).show();
             }
         });
@@ -97,6 +212,7 @@ public class EventActivity extends Activity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(getString(R.string.error_select_condition))
                         .setIcon(R.drawable.ic_launcher)
+                        //.setIcon(android.R.drawable.ic_notification_clear_all)
                         .setTitle(getString(R.string.error))
                         .setCancelable(false)
                         .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {

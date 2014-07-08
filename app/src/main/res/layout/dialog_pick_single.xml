@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal"
+    android:padding="6dip"
+    android:showDividers="middle"
+    android:divider="?android:dividerVertical"
+    android:dividerPadding="8dp"
+    android:gravity="left|center_vertical">
+
+    <ImageButton
+        android:id="@+id/dialog_icon"
+        android:src="@android:drawable/ic_menu_edit"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="Remove Item"
+        android:adjustViewBounds="false"
+        android:cropToPadding="false" />
+
+    <TextView android:id="@android:id/text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Condition title" />
+</LinearLayout>
