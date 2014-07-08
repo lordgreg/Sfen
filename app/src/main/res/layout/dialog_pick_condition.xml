@@ -5,7 +5,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    android:id="@+id/">
+    android:id="@+id/condition_pick">
 
     <TextView
         android:layout_width="fill_parent"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/listView"
         android:layout_gravity="center_horizontal"
-        tools:listitem="@android:layout/simple_list_item_2" />
+        tools:listitem="@android:layout/simple_list_item_single_choice" />
 
 
 </LinearLayout>

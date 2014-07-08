@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.google.analytics.tracking.android.EasyTracker;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +80,22 @@ public class Main extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // adding instance of Analytics object
+        EasyTracker.getInstance(this).activityStart(this);
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // finishing analytics activity.
+        EasyTracker.getInstance(this).activityStop(this);  // Add this method.
     }
 
 
