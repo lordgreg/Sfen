@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,11 +30,8 @@ public class EventActivity extends Activity {
     private void openConditions() {
         // container for condition in dialog
 
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
-
-        builderSingle.setIcon(R.drawable.ic_launcher);
-        builderSingle.setTitle("Select One Name:-");
 
         // add all options from hashmap to string[]
         String[] options = new String[opt_conditions.size()];
@@ -47,15 +43,17 @@ public class EventActivity extends Activity {
          //   options[i] = opt_conditions.keySet().con
         //}
 
+        final View dialogView = inflater.inflate(R.layout.dialog_pick_condition, null);
+        mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.container_dialog_options);
 
+        final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
+                R.layout.dialog_pick_single, mContainerOptions, false);
 
+        mContainerOptions.addView(newView, 0);
+        //mContainerOptions.addView(newView, 0);
+        //mContainerOptions.addView(newView, 0);
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                this,
-                R.layout.dialog_pick_single);
-
-        arrayAdapter.addAll(options);
-                    builderSingle.setView(inflater.inflate(R.layout.dialog_pick_condition, null))
+        builder.setView(dialogView)
                 // Add action buttons
                 .setPositiveButton("test", new DialogInterface.OnClickListener() {
                     @Override
@@ -64,18 +62,9 @@ public class EventActivity extends Activity {
                     }
                 });
 
-        AlertDialog alert = builderSingle.create();
+        AlertDialog alert = builder.create();
         alert.show();
 
-        //builderSingle.show();
-
-
-
-        //setContentView( R.layout.dialog_pick_condition );
-//        final LayoutInflater factory = getLayoutInflater();
-//        final View textEntryView = factory.inflate(R.layout.dialog_pick_condition, null);
-        //landmarkEditNameView = (EditText) textEntryView.findViewById(R.id.landmark_name_dialog_edit);
-        //mContainerOptions = (ViewGroup) findViewById(R.id.container_dialog_options);
 
         //View mySubview = getLayoutInflater().inflate(R.layout.dialog_pick_condition, mContainerOptions);
         //mContainerOptions = LayoutInflater.from(this).inflate(R.id.container_dialog_options, this);
