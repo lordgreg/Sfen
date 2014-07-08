@@ -16,12 +16,14 @@ import java.util.Map;
 public class Main extends Activity {
     private static Main sInstance = null;
     private ViewGroup mContainerView;
+
+    // Map with options. Instead of creating more variables to use around
+    // activities, I've created HashMap; putting settings here if needed.
     Map options = new HashMap();
 
-
-    // SINGLETON INSTANCE
-
     /**
+     * SINGLETON INSTANCE
+     *
      * Singleton function that returns the current instance of our class
      * if it does not exist, it creates new instance.
      * @return instance of current class
