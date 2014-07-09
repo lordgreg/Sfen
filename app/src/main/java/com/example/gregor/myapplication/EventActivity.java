@@ -2,8 +2,6 @@ package com.example.gregor.myapplication;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,22 +14,34 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EventActivity extends Activity {
+    private static EventActivity sInstance = null;
     private ViewGroup mContainerCondition, mContainerAction;
     private TextView eventName;
+    private GoogleMap map;
 
     // list of possible Conditions in Options
-    ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
+    static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
         add(new DialogOptions("Location", "Entering/leaving location", R.drawable.ic_map, DialogOptions.type.LOCATION));
         add(new DialogOptions("Time", "Time range", R.drawable.ic_time, DialogOptions.type.TIMERANGE));
         add(new DialogOptions("Days", "Day(s) of week.", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
         add(new DialogOptions("Wifi", "Connected/disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI));
     }};
 
+    /**
+     * OPENS DIALOG WITH POSSIBLE CONDITIONS
+     *
+     * depending on choice, we will get forwarded to sub-dialog
+     */
     private void openConditions() {
         // container for condition in dialog
 
@@ -74,9 +84,7 @@ public class EventActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     alert.dismiss();
-                    Toast.makeText(Main.getInstance().getApplicationContext(),
-                            "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
-
+                    openSubDialog(opt);
                 }
             });
 
@@ -88,8 +96,99 @@ public class EventActivity extends Activity {
 
     }
 
-    private void openSubDialog() {
+    private void openSubDialog(DialogOptions opt) {
 
+        // NEW LOCATION DIALOG
+        if (opt.getOptionType() == DialogOptions.type.LOCATION) {
+            Toast.makeText(Main.getInstance().getApplicationContext(),
+                    "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = this.getLayoutInflater();
+
+            // create MAP object
+            //findFragmentById()
+
+            // Getting reference to the SupportMapFragment of activity_main.xml
+            //MapFragment fm = (MapFragment) this.getFragmentManager().findFragmentById(R.id.map);
+            final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
+            //dialogMap.
+            //GoogleMap map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+            // map.setMyLocationEnabled(true);
+
+            builder.setView(dialogMap)
+                    .setIcon(getResources().getDrawable(R.drawable.ic_launcher))
+                    .setTitle("Pick location")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    })
+
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+
+                            // always remove map after closing dialog if we don't want to get
+                            // exceptions on how we got a duplicate!
+                            // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
+                            MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+                            if (f != null) {
+                                getFragmentManager().beginTransaction().remove(f).commit();
+                            }
+                            //alert.dismiss();
+                        }
+                    });
+
+            // open the dialog now :)
+            builder.show();
+
+
+            AndroidLocation loc;
+            loc = new AndroidLocation(getApplicationContext());
+
+            if (loc.isError()) {
+                Toast.makeText(this, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
+                //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
+            }
+            else {
+                //txtView.append("("+ loc.getProvider() +") Lat: "+ loc.getLatitude() +", Long: "+ loc.getLongitude() +"\n");
+                //googleMap.setMyLocationEnabled(true);
+                // Try to obtain the map from the SupportMapFragment.
+/*                    String uri = String.format(Locale.ENGLISH, "geo:%f,%f", loc.getLatitude(), loc.getLongitude());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    startActivity(intent);*/
+                LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
+
+                map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+
+
+                Circle circle = map.addCircle(new CircleOptions()
+                                .center(myLocation)
+                                .radius(100)
+                                .strokeWidth(2)
+                                .strokeColor(0xff0099FF)
+                                .fillColor(0x550099FF)
+                );
+                //map.addCircle(circle);
+
+                map.setMyLocationEnabled(true);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+                //map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+
+            }
+
+
+
+
+            //map.setMyLocationEnabled(true);
+            //map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+
+
+
+        }
     }
 
 
@@ -99,9 +198,10 @@ public class EventActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
-
-        //DialogOptions[] dialogOptionses = new DialogOptions[];
-        //dialogOptionses[0] = new DialogOptions("test", "test", 1);
+        // set singleton instance
+        if (sInstance == null) {
+            sInstance = this;
+        }
 
 
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
@@ -120,7 +220,7 @@ public class EventActivity extends Activity {
             @Override
             public void onClick(View view) {
                 openConditions();
-                Toast.makeText(getBaseContext(), "picking new condition", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(), "picking new condition", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -197,5 +297,20 @@ public class EventActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * SINGLETON INSTANCE
+     *
+     * Singleton function that returns the current instance of our class
+     * if it does not exist, it creates new instance.
+     * @return instance of current class
+     */
+    public static EventActivity getInstance() {
+        if (sInstance == null) {
+            return new EventActivity();
+        }
+        else
+            return sInstance;
     }
 }

@@ -23,26 +23,12 @@ public class Main extends Activity {
     // activities, I've created HashMap; putting settings here if needed.
     Map options = new HashMap();
 
-    /**
-     * SINGLETON INSTANCE
-     *
-     * Singleton function that returns the current instance of our class
-     * if it does not exist, it creates new instance.
-     * @return instance of current class
-     */
-    public static Main getInstance() {
-        if (sInstance == null) {
-            return new Main();
-        }
-        else
-            return sInstance;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // set singleton instance
         if (sInstance == null) {
             sInstance = this;
         }
@@ -141,4 +127,20 @@ public class Main extends Activity {
         options.put("eventName", "");
 
     }
+
+    /**
+     * SINGLETON INSTANCE
+     *
+     * Singleton function that returns the current instance of our class
+     * if it does not exist, it creates new instance.
+     * @return instance of current class
+     */
+    public static Main getInstance() {
+        if (sInstance == null) {
+            return new Main();
+        }
+        else
+            return sInstance;
+    }
+
 }
