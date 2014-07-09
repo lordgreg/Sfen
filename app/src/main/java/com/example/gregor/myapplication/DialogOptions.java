@@ -10,7 +10,7 @@ public class DialogOptions {
     private String title;
     private String description;
     private int icon;
-    public enum type {CONDITION, ACTION};
+    public enum type {LOCATION, WIFI, TIMERANGE, DAYSOFWEEK};
     private type optionType;
 
     public DialogOptions() {
