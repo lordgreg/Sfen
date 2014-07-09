@@ -20,6 +20,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
@@ -28,6 +30,9 @@ public class EventActivity extends Activity {
     private ViewGroup mContainerCondition, mContainerAction;
     private TextView eventName;
     private GoogleMap map;
+    Marker marker = null;
+    Circle circle = null;
+
 
     // list of possible Conditions in Options
     static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
@@ -100,8 +105,10 @@ public class EventActivity extends Activity {
 
         // NEW LOCATION DIALOG
         if (opt.getOptionType() == DialogOptions.type.LOCATION) {
+            //Toast.makeText(Main.getInstance().getApplicationContext(),
+            //        "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
             Toast.makeText(Main.getInstance().getApplicationContext(),
-                    "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
+                    "Click on map to mark your desired location.", Toast.LENGTH_LONG).show();
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             LayoutInflater inflater = this.getLayoutInflater();
@@ -165,14 +172,39 @@ public class EventActivity extends Activity {
                 map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
 
-                Circle circle = map.addCircle(new CircleOptions()
-                                .center(myLocation)
+                map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                        if (marker != null) {
+                            marker.remove();
+                        }
+                        if(circle != null) {
+                            circle.remove();
+                        }
+
+                        // redraw radius circle and marker
+
+                        marker = map.addMarker(new MarkerOptions().position(latLng));
+                        circle = map.addCircle(new CircleOptions()
+                                .center(latLng)
                                 .radius(100)
                                 .strokeWidth(2)
                                 .strokeColor(0xff0099FF)
                                 .fillColor(0x550099FF)
-                );
-                //map.addCircle(circle);
+                        );
+
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+                        //map.setLocationSource();
+                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(HAMBURG, 15));
+
+                        // Zoom in, animating the camera.
+                        //map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+
+                    }
+                });
+
 
                 map.setMyLocationEnabled(true);
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
