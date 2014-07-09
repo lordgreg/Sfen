@@ -20,7 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
-        android:id="@+id/event_name" />
+        android:id="@+id/event_name"
+        android:singleLine="true" />
 
     <TextView
         android:layout_width="fill_parent"

@@ -16,5 +16,8 @@
     <string name="action_new_sub">Click here to add new action.</string>
     <string name="condition_new">New condition</string>
     <string name="condition_new_sub">Click here to add new condition.</string>
+    <string name="option_location">Location</string>
+    <string name="option_time">Time</string>
+    <string name="option_message">Message</string>
 
 </resources>

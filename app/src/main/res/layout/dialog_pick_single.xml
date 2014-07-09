@@ -4,10 +4,10 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
-    android:padding="6dip"
+    android:padding="2dip"
     android:showDividers="middle"
     android:divider="?android:dividerVertical"
-    android:dividerPadding="8dp"
+    android:dividerPadding="2dp"
     android:gravity="left|center_vertical">
 
     <ImageButton
@@ -20,9 +20,24 @@
         android:adjustViewBounds="false"
         android:cropToPadding="false" />
 
-    <TextView android:id="@android:id/text1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Condition title" />
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:layout_width="0dip"
+        android:layout_weight="1"
+        android:layout_height="fill_parent">
+
+        <TextView android:id="@android:id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Condition title"
+            android:textStyle="bold" />
+
+        <TextView android:id="@android:id/text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="This is the condition description" />
+
+    </LinearLayout>
 </LinearLayout>

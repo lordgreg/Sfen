@@ -2,6 +2,7 @@ package com.example.gregor.myapplication;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,9 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,11 +23,12 @@ public class EventActivity extends Activity {
     private ViewGroup mContainerCondition, mContainerAction, mContainerOptions;
     private TextView eventName;
 
-    // conditions array with icons
-    Map<String, Integer> opt_conditions = new HashMap<String, Integer>() {{
-       put("Location", android.R.drawable.ic_dialog_map);
-       put("Time", android.R.drawable.ic_menu_today);
-       put("Message", android.R.drawable.ic_dialog_email);
+    // list of possible Conditions in Options
+    ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
+        add(new DialogOptions("Location", "Entering/leaving location", R.drawable.ic_map, DialogOptions.type.CONDITION));
+        add(new DialogOptions("Time", "Time range", R.drawable.ic_time, DialogOptions.type.CONDITION));
+        add(new DialogOptions("Days", "Day(s) of week.", R.drawable.ic_date, DialogOptions.type.CONDITION));
+        add(new DialogOptions("Wifi", "Connected/disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.CONDITION));
     }};
 
     private void openConditions() {
@@ -33,94 +37,58 @@ public class EventActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
 
-        // add all options from hashmap to string[]
-        String[] options = new String[opt_conditions.size()];
-        int i = 0;
-        for (String key : opt_conditions.keySet()) {
-            //System.out.println( key );
-            options[i++] = key;
-        }
-         //   options[i] = opt_conditions.keySet().con
-        //}
-
         final View dialogView = inflater.inflate(R.layout.dialog_pick_condition, null);
-        mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.container_dialog_options);
+        mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
 
-        final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
-                R.layout.dialog_pick_single, mContainerOptions, false);
+        // fill all options in container
+        ViewGroup newRow;
+        DialogOptions opt;
+        for (int i = 0; i < optConditions.size(); i++)
+        //for (String key : opt_conditions.keySet())
+        {
+            //opt = optConditions[i];
+            opt = optConditions.get(i);
 
-        mContainerOptions.addView(newView, 0);
-        //mContainerOptions.addView(newView, 0);
-        //mContainerOptions.addView(newView, 0);
+            newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
+
+            ((TextView) newRow.findViewById(android.R.id.text1)).setText(opt.getTitle());
+            ((TextView) newRow.findViewById(android.R.id.text2)).setText(opt.getDescription());
+            ((ImageButton) newRow.findViewById(R.id.dialog_icon))
+                    .setImageDrawable(getResources().getDrawable(opt.getIcon()));
+            //((TextView) newRow.findViewById(android.R.id.text2)).setText(getString(R.string.condition_new_sub));
+            mContainerOptions.addView(newRow);
+
+            newRow = null;
+        }
+
+        /*mContainerOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("id: "+ v.getId());
+                System.out.println("tag: "+ v.getTag());
+            }
+        });
+        */
+
 
         builder.setView(dialogView)
+                .setIcon(getResources().getDrawable(R.drawable.ic_launcher))
+                .setTitle("Pick condition")
                 // Add action buttons
-                .setPositiveButton("test", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // sign in the user ...
+
                     }
                 });
+
+
 
         AlertDialog alert = builder.create();
         alert.show();
 
 
-        //View mySubview = getLayoutInflater().inflate(R.layout.dialog_pick_condition, mContainerOptions);
-        //mContainerOptions = LayoutInflater.from(this).inflate(R.id.container_dialog_options, this);
-        //mContents = LayoutInflater.from(ctx).inflate(R.layout.mycustomview, this).
-        //mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
-
-        //final ViewGroup newOption = (ViewGroup) LayoutInflater.from(getApplicationContext()).inflate(
-        //        R.layout.dialog_pick_single, mContainerOptions, false);
-        //        final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
-        //          R.layout.condition_action_header, mContainerCondition, false);
-
-        //((TextView) newOption.findViewById(android.R.id.text1)).setText("test");
-        //((ImageButton) newOption.findViewById(R.id.dialog_icon)).setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_today));
-
-        // container is now filled.
-        //String a = "b";
-        //mContainerOptions.addView(newOption, 0);
-
-
-        //setContentView( R.layout.activity_event );
-/*
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Get the layout inflater
-        LayoutInflater inflater = this.getLayoutInflater();
-
-        builder.setView(inflater.inflate(R.layout.dialog_pick_condition, null))
-                // Add action buttons
-                .setPositiveButton("test", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        // sign in the user ...
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
-
-*/
-        //ListAdapter adapter = new ArrayAdapter<String>(
-         //       getApplicationContext(), R.layout.list_row, items)
-
-        //ListAdapter adapter = new ArrayAdapter<String>(this, R.layout.dialog_pick_single, opt_conditions);
-/*
-        // dialog now
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Pick a tile set");
-        builder.setAdapter(arrayAdapter,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog,
-                                        int item) {
-                        //Toast.makeText(MyApp.this, "You selected: " + items[item],Toast.LENGTH_LONG).show();
-                        //dialog.dismiss();
-                    }
-                });
-        AlertDialog alert = builder.create();
-        alert.show();*/
     }
 
 
@@ -129,6 +97,10 @@ public class EventActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
+
+
+        //DialogOptions[] dialogOptionses = new DialogOptions[];
+        //dialogOptionses[0] = new DialogOptions("test", "test", 1);
 
 
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
@@ -214,7 +186,7 @@ public class EventActivity extends Activity {
 
                 return false;
             }
-            Log.d("info", "number of conditions: "+ mContainerCondition.getChildCount());
+            Log.d("info", "number of dialogOptionses: "+ mContainerCondition.getChildCount());
 
             eventName = (TextView) findViewById(R.id.event_name);
 
