@@ -15,7 +15,7 @@ public class DialogOptions {
     public enum type {LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, DAYSOFWEEK};
     private type optionType;
     private int maxNumber;
-    private HashMap<String, String> settings;
+    private HashMap<String, String> settings = new HashMap<String, String>();
 
     public DialogOptions() {
         super();

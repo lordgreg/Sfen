@@ -59,6 +59,17 @@ public class EventActivity extends Activity {
      */
     private void openConditions() {
         // container for condition in dialog
+/*
+        if (conditions.size() > 0) {
+            for (int i = 0; i < conditions.size(); i++) {
+                Log.d("conditions",
+                        conditions.get(i).getTitle() +", "+
+                        conditions.get(i).getOptionType() +", "+
+                        conditions.get(i).getSettings().toString() +", "
+                );
+            }
+        }
+        */
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         inflater = this.getLayoutInflater();
@@ -111,135 +122,187 @@ public class EventActivity extends Activity {
 
     }
 
-    private void openSubDialog(DialogOptions opt) {
+    private void openSubDialog(final DialogOptions opt) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
 
         // NEW LOCATION DIALOG
-        if (opt.getOptionType() == DialogOptions.type.LOCATION_ENTER ||
-                opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) {
-            //Toast.makeText(Main.getInstance().getApplicationContext(),
-            //        "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
+        switch(opt.getOptionType()) {
+            case LOCATION_ENTER:
+            case LOCATION_LEAVE:
+//        if (opt.getOptionType() == DialogOptions.type.LOCATION_ENTER ||
+//                opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) {
+                //Toast.makeText(Main.getInstance().getApplicationContext(),
+                //        "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
 
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            LayoutInflater inflater = this.getLayoutInflater();
 
-            // create MAP object
-            final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
 
-            builder.setView(dialogMap)
-                    .setIcon(getResources().getDrawable(R.drawable.ic_launcher))
-                    .setTitle("Pick location")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                // create MAP object
+                final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
 
-                            if (marker == null) {
-                                Toast.makeText(getBaseContext(), "No marker, don't continue!", Toast.LENGTH_SHORT).show();
-                                return ;
-                            }
+                builder.setView(dialogMap)
+                        .setIcon(getResources().getDrawable(R.drawable.ic_launcher))
+                        .setTitle("Pick location")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                            dialogInterface.dismiss();
+                                dialogInterface.dismiss();
 
-                            // add new row to conditions now
-                            final ViewGroup newRow = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(
-                                    R.layout.condition_single_item, mContainerCondition, false);
-
-                            ((TextView) newRow.findViewById(android.R.id.text1)).setText("Location");
-                            ((TextView) newRow.findViewById(android.R.id.text2))
-                                    .setText("Latitude: "+ String.format("%.2f", marker.getPosition().latitude) +", Longitude: "+ String.format("%.2f", marker.getPosition().longitude));
-
-                            ((ImageButton) newRow.findViewById(R.id.condition_icon))
-                                    .setImageDrawable(getResources().getDrawable(R.drawable.ic_map));
-
-                            newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    //mContainerView.removeView(newView);
-                                    mContainerCondition.removeView(newRow);
+                                if (marker == null) {
+                                    Toast.makeText(Main.getInstance().getApplicationContext(),
+                                            "Listen, you have to click on map to add marker!", Toast.LENGTH_LONG).show();
                                 }
-                            });
+                                else {
 
-                            mContainerCondition.addView(newRow, 0);
+                                    // this is amazing! we've managed to click and make a marker, lets add condition to list of conditions, ya?
+                                    final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+                                    cond.setSetting("latitude", ""+ marker.getPosition().latitude);
+                                    cond.setSetting("longitude", ""+ marker.getPosition().longitude);
+                                    conditions.add(cond);
 
-                            // always remove map after closing dialog if we don't want to get
-                            // exceptions on how we got a duplicate!
-                            // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
-                            MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-                            if (f != null) {
-                                getFragmentManager().beginTransaction().remove(f).commit();
+                                    // add new row to conditions now
+                                    final ViewGroup newRow = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(
+                                            R.layout.condition_single_item, mContainerCondition, false);
+
+                                    ((TextView) newRow.findViewById(android.R.id.text1)).setText(  ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
+                                    ((TextView) newRow.findViewById(android.R.id.text2))
+                                            .setText("Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
+
+                                    ((ImageButton) newRow.findViewById(R.id.condition_icon))
+                                            .setImageDrawable(getResources().getDrawable(R.drawable.ic_map));
+
+                                    newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            //mContainerView.removeView(newView);
+                                            mContainerCondition.removeView(newRow);
+                                            conditions.remove(cond);
+                                        }
+                                    });
+
+                                    mContainerCondition.addView(newRow, 0);
+
+
+
+
+                                }
+
+                                // always remove map after closing dialog if we don't want to get
+                                // exceptions on how we got a duplicate!
+                                // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
+                                MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+                                if (f != null) {
+                                    getFragmentManager().beginTransaction().remove(f).commit();
+                                }
+                                marker = null;
+                                circle = null;
                             }
-                        }
-                    })
 
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
+                        })
 
-                            // always remove map after closing dialog if we don't want to get
-                            // exceptions on how we got a duplicate!
-                            // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
-                            MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-                            if (f != null) {
-                                getFragmentManager().beginTransaction().remove(f).commit();
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+
+                                // always remove map after closing dialog if we don't want to get
+                                // exceptions on how we got a duplicate!
+                                // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
+                                MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+                                if (f != null) {
+                                    getFragmentManager().beginTransaction().remove(f).commit();
+                                }
+                                marker = null;
+                                circle = null;
+                                //alert.dismiss();
                             }
-                            //alert.dismiss();
-                        }
-                    });
+                        });
 
-            // open the dialog now :)
-            builder.show();
+                // open the dialog now :)
+                builder.show();
 
 
-            AndroidLocation loc;
-            loc = new AndroidLocation(getApplicationContext());
-            LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
+                AndroidLocation loc;
+                loc = new AndroidLocation(getApplicationContext());
+                LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
 
-            // it is possible we cannot find current location. if so, allow user to continue anyways!
-            if (loc.isError()) {
-                Toast.makeText(this, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
-                //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
-                myLocation = new LatLng(65.9667, -18.5333);
-            }
-            else {
-                Toast.makeText(Main.getInstance().getApplicationContext(),
-                        "Click on map to mark your desired location.", Toast.LENGTH_LONG).show();
-            }
-
-            map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-
-
-            map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-                    if (marker != null) {
-                        marker.remove();
-                    }
-                    if(circle != null) {
-                        circle.remove();
-                    }
-
-                    // redraw radius circle and marker
-
-                    marker = map.addMarker(new MarkerOptions().position(latLng));
-                    circle = map.addCircle(new CircleOptions()
-                                    .center(latLng)
-                                    .radius(100)
-                                    .strokeWidth(2)
-                                    .strokeColor(0xff0099FF)
-                                    .fillColor(0x550099FF)
-                    );
-
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-
+                // it is possible we cannot find current location. if so, allow user to continue anyways!
+                if (loc.isError()) {
+                    Toast.makeText(this, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
+                    //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
+                    myLocation = new LatLng(65.9667, -18.5333);
                 }
-            });
+                else {
+                    Toast.makeText(Main.getInstance().getApplicationContext(),
+                            "Click on map to mark your desired location.", Toast.LENGTH_SHORT).show();
+                }
+
+                map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
 
-            map.setMyLocationEnabled(true);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+                map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                        if (marker != null) {
+                            marker.remove();
+                        }
+                        if(circle != null) {
+                            circle.remove();
+                        }
 
+                        // redraw radius circle and marker
+
+                        marker = map.addMarker(new MarkerOptions().position(latLng));
+                        circle = map.addCircle(new CircleOptions()
+                                        .center(latLng)
+                                        .radius(100)
+                                        .strokeWidth(2)
+                                        .strokeColor(0xff0099FF)
+                                        .fillColor(0x550099FF)
+                        );
+
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+                    }
+                });
+
+
+                map.setMyLocationEnabled(true);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+
+                break;
+
+            /**
+             * DAYSOFWEEK SUBDIALOG
+             */
+            case DAYSOFWEEK:
+                String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+                builder
+                        .setTitle("Pick day(s)")
+                        .setMultiChoiceItems(days, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+
+                            }
+                        });
+                //builder.create();
+                builder.show();
+
+                break;
+
+            /**
+             * DEFAULT SWITCH/CASE CALL
+             */
+            default:
+                break;
         }
+
+
+        //}
+
     }
 
 
@@ -363,7 +426,7 @@ public class EventActivity extends Activity {
 
             return false;
         }
-        Log.d("info", "number of dialogOptionses: "+ mContainerCondition.getChildCount());
+        Log.d("info", "number of dialogOptions: "+ mContainerCondition.getChildCount());
 
         eventName = (TextView) findViewById(R.id.event_name);
 
