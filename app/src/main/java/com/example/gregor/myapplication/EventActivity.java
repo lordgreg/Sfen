@@ -107,9 +107,6 @@ public class EventActivity extends Activity {
         if (opt.getOptionType() == DialogOptions.type.LOCATION) {
             //Toast.makeText(Main.getInstance().getApplicationContext(),
             //        "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
-            Toast.makeText(Main.getInstance().getApplicationContext(),
-                    "Click on map to mark your desired location.", Toast.LENGTH_LONG).show();
-
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             LayoutInflater inflater = this.getLayoutInflater();
 
@@ -161,6 +158,10 @@ public class EventActivity extends Activity {
                 //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
             }
             else {
+
+                Toast.makeText(Main.getInstance().getApplicationContext(),
+                        "Click on map to mark your desired location.", Toast.LENGTH_LONG).show();
+
                 //txtView.append("("+ loc.getProvider() +") Lat: "+ loc.getLatitude() +", Long: "+ loc.getLongitude() +"\n");
                 //googleMap.setMyLocationEnabled(true);
                 // Try to obtain the map from the SupportMapFragment.
