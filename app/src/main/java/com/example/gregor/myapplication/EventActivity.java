@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,22 +25,34 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class EventActivity extends Activity {
     private static EventActivity sInstance = null;
-    private ViewGroup mContainerCondition, mContainerAction;
+    protected ViewGroup mContainerCondition, mContainerAction;
     private TextView eventName;
     private GoogleMap map;
     Marker marker = null;
     Circle circle = null;
+    LayoutInflater inflater;
+
+    // placeholder for current Event
+    private Event event;
+
+    // arrays for conditions and actions
+    protected ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
+    protected ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
 
     // list of possible Conditions in Options
     static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
-        add(new DialogOptions("Location", "Entering/leaving location", R.drawable.ic_map, DialogOptions.type.LOCATION));
+        add(new DialogOptions("Entering Location", "Entering location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
+        add(new DialogOptions("Leaving Location", "Leaving location", R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
         add(new DialogOptions("Time", "Time range", R.drawable.ic_time, DialogOptions.type.TIMERANGE));
-        add(new DialogOptions("Days", "Day(s) of week.", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
-        add(new DialogOptions("Wifi", "Connected/disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI));
+        add(new DialogOptions("Days", "Day(s) of week", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
+        add(new DialogOptions("Connecting to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
+        add(new DialogOptions("Disconnecting from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
     }};
 
     /**
@@ -47,11 +60,11 @@ public class EventActivity extends Activity {
      *
      * depending on choice, we will get forwarded to sub-dialog
      */
+    /*
     private void openConditions() {
-        // container for condition in dialog
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
+        inflater = this.getLayoutInflater();
 
         final View dialogView = inflater.inflate(R.layout.dialog_pick_condition, null);
         ViewGroup mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
@@ -100,75 +113,119 @@ public class EventActivity extends Activity {
         alert.show();
 
     }
+*/
+    protected void openSubDialog(final DialogOptions opt) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
 
-    private void openSubDialog(DialogOptions opt) {
 
-        // NEW LOCATION DIALOG
-        if (opt.getOptionType() == DialogOptions.type.LOCATION) {
-            //Toast.makeText(Main.getInstance().getApplicationContext(),
-            //        "i just clicked "+ opt.getTitle() +" of type "+ opt.getOptionType(), Toast.LENGTH_LONG).show();
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            LayoutInflater inflater = this.getLayoutInflater();
+        switch(opt.getOptionType()) {
 
-            // create MAP object
-            //findFragmentById()
+            // NEW LOCATION ENTER/LEAVE DIALOG
+            case LOCATION_ENTER:
+            case LOCATION_LEAVE:
 
-            // Getting reference to the SupportMapFragment of activity_main.xml
-            //MapFragment fm = (MapFragment) this.getFragmentManager().findFragmentById(R.id.map);
-            final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
-            //dialogMap.
-            //GoogleMap map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-            // map.setMyLocationEnabled(true);
 
-            builder.setView(dialogMap)
-                    .setIcon(getResources().getDrawable(R.drawable.ic_launcher))
-                    .setTitle("Pick location")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                // create MAP object
+                final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
 
-                        }
-                    })
+                builder.setView(dialogMap)
+                        .setIcon(getResources().getDrawable(R.drawable.ic_launcher))
+                        .setTitle("Pick location")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
+                                dialogInterface.dismiss();
 
-                            // always remove map after closing dialog if we don't want to get
-                            // exceptions on how we got a duplicate!
-                            // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
-                            MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-                            if (f != null) {
-                                getFragmentManager().beginTransaction().remove(f).commit();
+                                if (marker == null) {
+                                    Toast.makeText(Main.getInstance().getApplicationContext(),
+                                            "Listen, you have to click on map to add marker!", Toast.LENGTH_LONG).show();
+                                }
+                                else {
+
+                                    // this is amazing! we've managed to click and make a marker, lets add condition to list of conditions, ya?
+                                    final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+                                    cond.setSetting("latitude", ""+ marker.getPosition().latitude);
+                                    cond.setSetting("longitude", ""+ marker.getPosition().longitude);
+                                    conditions.add(cond);
+
+                                    // add new row to conditions now
+                                    final ViewGroup newRow = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(
+                                            R.layout.condition_single_item, mContainerCondition, false);
+
+                                    ((TextView) newRow.findViewById(android.R.id.text1)).setText(  ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
+                                    ((TextView) newRow.findViewById(android.R.id.text2))
+                                            .setText("Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
+
+                                    ((ImageButton) newRow.findViewById(R.id.condition_icon))
+                                            .setImageDrawable(getResources().getDrawable(R.drawable.ic_map));
+
+                                    newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            //mContainerView.removeView(newView);
+                                            mContainerCondition.removeView(newRow);
+                                            conditions.remove(cond);
+                                        }
+                                    });
+
+                                    mContainerCondition.addView(newRow, 0);
+
+
+
+
+                                }
+
+                                // always remove map after closing dialog if we don't want to get
+                                // exceptions on how we got a duplicate!
+                                // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
+                                MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+                                if (f != null) {
+                                    getFragmentManager().beginTransaction().remove(f).commit();
+                                }
+                                marker = null;
+                                circle = null;
                             }
-                            //alert.dismiss();
-                        }
-                    });
 
-            // open the dialog now :)
-            builder.show();
+                        })
+
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+
+                                // always remove map after closing dialog if we don't want to get
+                                // exceptions on how we got a duplicate!
+                                // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
+                                MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+                                if (f != null) {
+                                    getFragmentManager().beginTransaction().remove(f).commit();
+                                }
+                                marker = null;
+                                circle = null;
+                                //alert.dismiss();
+                            }
+                        });
+
+                // open the dialog now :)
+                builder.show();
 
 
-            AndroidLocation loc;
-            loc = new AndroidLocation(getApplicationContext());
-
-            if (loc.isError()) {
-                Toast.makeText(this, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
-                //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
-            }
-            else {
-
-                Toast.makeText(Main.getInstance().getApplicationContext(),
-                        "Click on map to mark your desired location.", Toast.LENGTH_LONG).show();
-
-                //txtView.append("("+ loc.getProvider() +") Lat: "+ loc.getLatitude() +", Long: "+ loc.getLongitude() +"\n");
-                //googleMap.setMyLocationEnabled(true);
-                // Try to obtain the map from the SupportMapFragment.
-/*                    String uri = String.format(Locale.ENGLISH, "geo:%f,%f", loc.getLatitude(), loc.getLongitude());
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    startActivity(intent);*/
+                AndroidLocation loc;
+                loc = new AndroidLocation(getApplicationContext());
                 LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
+
+                // it is possible we cannot find current location. if so, allow user to continue anyways!
+                if (loc.isError()) {
+                    Toast.makeText(this, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
+                    //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
+                    myLocation = new LatLng(65.9667, -18.5333);
+                }
+                else {
+                    Toast.makeText(Main.getInstance().getApplicationContext(),
+                            "Click on map to mark your desired location.", Toast.LENGTH_SHORT).show();
+                }
 
                 map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
@@ -188,20 +245,14 @@ public class EventActivity extends Activity {
 
                         marker = map.addMarker(new MarkerOptions().position(latLng));
                         circle = map.addCircle(new CircleOptions()
-                                .center(latLng)
-                                .radius(100)
-                                .strokeWidth(2)
-                                .strokeColor(0xff0099FF)
-                                .fillColor(0x550099FF)
+                                        .center(latLng)
+                                        .radius(100)
+                                        .strokeWidth(2)
+                                        .strokeColor(0xff0099FF)
+                                        .fillColor(0x550099FF)
                         );
 
                         map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-
-                        //map.setLocationSource();
-                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(HAMBURG, 15));
-
-                        // Zoom in, animating the camera.
-                        //map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
 
                     }
                 });
@@ -209,19 +260,118 @@ public class EventActivity extends Activity {
 
                 map.setMyLocationEnabled(true);
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
-                //map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
 
-            }
+                break;
+
+            /**
+             * DAYSOFWEEK SUBDIALOG
+             */
+            case DAYSOFWEEK:
+                final String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+                // storage for selected days
+                final ArrayList<Integer> mSelectedDays = new ArrayList<Integer>();
+
+                builder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Pick day(s)")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // TODO: add day picker now.
+
+                                // we cannot continue if we didn't pick any days, right?
+                                if (mSelectedDays.size() == 0) {
+                                    Toast.makeText(Main.getInstance().getApplicationContext(),
+                                            "Good job sport! And which days did you pick?", Toast.LENGTH_LONG).show();
+
+                                } else {
+                                    // lets sort the days first
+                                    Collections.sort(mSelectedDays);
+
+                                    // ..also, get selected days into string
+                                    String allDays = "";
+                                    for (int i = 0; i < mSelectedDays.size(); i++) {
+                                        allDays += days[mSelectedDays.get(i)];
+
+                                        if ((i + 1) != mSelectedDays.size()) {
+                                            allDays += ", ";
+                                        }
+                                    }
 
 
+                                    // save condition & create new row
+                                    final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+                                    cond.setSetting("selectedDays", mSelectedDays.toString());
+                                    conditions.add(cond);
 
+                                    // add new row to conditions now
+                                    final ViewGroup newRow = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(
+                                            R.layout.condition_single_item, mContainerCondition, false);
 
-            //map.setMyLocationEnabled(true);
-            //map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+                                    ((TextView) newRow.findViewById(android.R.id.text1)).setText("Days ("+ mSelectedDays.size() +")");
+                                    ((TextView) newRow.findViewById(android.R.id.text2))
+                                            .setText(allDays);
+                                    ((TextView) newRow.findViewById(android.R.id.text2))
+                                            .setMovementMethod(new ScrollingMovementMethod());
 
+                                    ((ImageButton) newRow.findViewById(R.id.condition_icon))
+                                            .setImageDrawable(getResources().getDrawable(opt.getIcon()));
 
+                                    newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "clicked "+ cond.getTitle() + ", "+ cond.getOptionType(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
 
+                                    newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            mContainerCondition.removeView(newRow);
+                                            conditions.remove(cond);
+                                        }
+                                    });
+
+                                    mContainerCondition.addView(newRow, 0);
+                                }
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // just close the dialog if we didn't select the days
+                            }
+                        })
+                        .setMultiChoiceItems(days, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                // selecting/removing choices
+                                if (isChecked) {
+                                    mSelectedDays.add(which);
+                                } else {
+                                    mSelectedDays.remove(which);
+                                }
+
+                            }
+                        });
+                //builder.create();
+                builder.show();
+
+                break;
+
+            /**
+             * DEFAULT SWITCH/CASE CALL
+             */
+            default:
+                break;
         }
+
+
+        //}
+
     }
 
 
@@ -235,6 +385,9 @@ public class EventActivity extends Activity {
         if (sInstance == null) {
             sInstance = this;
         }
+
+        // define Util class
+        Util util = new Util(this);
 
 
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
@@ -252,7 +405,9 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openConditions();
+                Util.openDialogConditions(sInstance, optConditions);
+                //util
+                //openConditions();
                 //Toast.makeText(getBaseContext(), "picking new condition", Toast.LENGTH_SHORT).show();
             }
         });
@@ -299,35 +454,7 @@ public class EventActivity extends Activity {
             return true;
         }
         if (id == R.id.action_save) {
-            // before saving, we have to ensure we have at least one condition and one activity.
-            // if there's only one in ListView, it means its the one from "add new activity".
-            int num = mContainerCondition.getChildCount();
-
-            if (num <= 1) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(getString(R.string.error_select_condition))
-                        .setIcon(R.drawable.ic_launcher)
-                        //.setIcon(android.R.drawable.ic_notification_clear_all)
-                        .setTitle(getString(R.string.error))
-                        .setCancelable(false)
-                        .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //do things
-                            }
-                        });
-                AlertDialog alert = builder.create();
-                alert.show();
-
-                return false;
-            }
-            Log.d("info", "number of dialogOptionses: "+ mContainerCondition.getChildCount());
-
-            eventName = (TextView) findViewById(R.id.event_name);
-
-            Main.getInstance().options.put("eventSave", "1");
-            Main.getInstance().options.put("eventName", eventName.getText().toString());
-            finish();
-            return true;
+            return saveEvent();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -345,5 +472,58 @@ public class EventActivity extends Activity {
         }
         else
             return sInstance;
+    }
+
+
+    /**
+     * Saving event!
+     */
+    private boolean saveEvent() {
+
+        // container for condition in dialog
+/*
+        if (conditions.size() > 0) {
+            for (int i = 0; i < conditions.size(); i++) {
+                Log.d("conditions",
+                        conditions.get(i).getTitle() +", "+
+                        conditions.get(i).getOptionType() +", "+
+                        conditions.get(i).getSettings().toString() +", "
+                );
+            }
+        }
+        */
+
+        // before saving, we have to ensure we have at least one condition and one activity.
+        // if there's only one in ListView, it means its the one from "add new activity".
+        int num = mContainerCondition.getChildCount();
+
+        if (num <= 1) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(getString(R.string.error_select_condition))
+                    .setIcon(R.drawable.ic_launcher)
+                            //.setIcon(android.R.drawable.ic_notification_clear_all)
+                    .setTitle(getString(R.string.error))
+                    .setCancelable(false)
+                    .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            //do things
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+
+            return false;
+        }
+        Log.d("info", "number of dialogOptions: "+ mContainerCondition.getChildCount());
+
+        eventName = (TextView) findViewById(R.id.event_name);
+
+        Main.getInstance().options.put("eventSave", "1");
+        Main.getInstance().options.put("eventName", eventName.getText().toString());
+
+
+        finish();
+        return true;
+
     }
 }

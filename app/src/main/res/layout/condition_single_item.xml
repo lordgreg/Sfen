@@ -7,12 +7,14 @@
     android:padding="6dip"
     android:showDividers="middle"
     android:divider="?android:dividerVertical"
+    android:id="@+id/condition_single_container"
     android:dividerPadding="8dp">
 
     <ImageButton
         android:id="@+id/condition_icon"
         android:src="@android:drawable/ic_menu_edit"
         android:layout_width="48dp"
+        android:clickable="false"
         android:layout_height="match_parent"
         android:background="?android:selectableItemBackground"
         android:contentDescription="Remove Item"
@@ -20,6 +22,7 @@
         android:cropToPadding="false" />
 
     <LinearLayout
+
         android:layout_margin="5dp"
         android:orientation="vertical"
         android:layout_width="0dip"
@@ -35,6 +38,7 @@
         <TextView android:id="@android:id/text2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:text="This is the condition description" />
 
     </LinearLayout>

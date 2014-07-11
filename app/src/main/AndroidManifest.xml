@@ -53,6 +53,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.gregor.myapplication.Main" />
         </activity>
+
+        <service android:name=".BackgroundService" />
     </application>
 
 </manifest>
