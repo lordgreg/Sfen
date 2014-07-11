@@ -39,9 +39,7 @@ public class Main extends Activity {
         setContentView(R.layout.activity_main);
 
         // set singleton instance
-        if (sInstance == null) {
-            sInstance = this;
-        }
+        sInstance = this;
 
         // create notification manager
         mNM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -54,6 +52,9 @@ public class Main extends Activity {
         // set container for our events
         mContainerView = (ViewGroup) findViewById(R.id.container);
 
+
+        // TODO: fetch events from settings of some sort and fill our listview
+
     }
 
 
@@ -61,7 +62,7 @@ public class Main extends Activity {
     protected void onResume() {
         super.onResume();
         if (options.get("eventSave") == "1") {
-            addNew();
+            addNewEvent();
         }
     }
 
@@ -80,7 +81,7 @@ public class Main extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_add_new) {
-            startActivity(new Intent(Main.this, EventActivity.class));
+            startActivity(new Intent(this, EventActivity.class));
 
             return true;
         }
@@ -98,13 +99,15 @@ public class Main extends Activity {
                             stopService(bgService);
                             mNM.cancel(1337);
                             finish();
+
                         }
                     })
 
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            return;
+                            dialogInterface.dismiss();
+                            //return;
                         }
                     });
 
@@ -155,8 +158,9 @@ public class Main extends Activity {
 
     /**
      * add new item wizard
+     * TODO: recode the method since it will get the object
      */
-    private void addNew() {
+    private void addNewEvent() {
         //Toast.makeText(this, "yolo", Toast.LENGTH_SHORT).show();
 
         // add new item

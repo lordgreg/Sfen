@@ -21,7 +21,8 @@ public class BackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Toast.makeText(this, "Service created.", Toast.LENGTH_LONG).show();
-        Main.getInstance().setNotification(getString(R.string.app_name), "", R.drawable.ic_launcher);
+        //Main.getInstance().setNotification(getString(R.string.app_name), "", R.drawable.ic_launcher);
+        Util.showNotification(getString(R.string.app_name), "", R.drawable.ic_launcher);
 
         return START_STICKY;
     }

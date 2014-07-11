@@ -3,7 +3,12 @@ package com.example.gregor.myapplication;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,46 +35,46 @@ import java.util.Collections;
 public class Util extends Activity {
 
     // create marker
-    static Marker marker = null;
-    static Circle circle = null;
-    static GoogleMap map;
+    private static Marker marker = null;
+    private static Circle circle = null;
+    private static GoogleMap map;
 
-/**
- * OPENS DIALOG WITH POSSIBLE CONDITIONS
- *
- * depending on choice, we will get forwarded to sub-dialog
- *
- * @param context context from our parent activity (usually EventActivity
- * @param optConditions array of conditions defined in EventActivity
- */
+    // days
+    final static String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
+    /**
+     * OPENS DIALOG WITH POSSIBLE CONDITIONS
+     *
+     * depending on choice, we will get forwarded to sub-dialog
+     *
+     * @param context context from our parent activity (usually EventActivity
+     * @param optConditions array of conditions defined in EventActivity
+     */
     protected static void openDialogConditions(final Activity context, final ArrayList<DialogOptions> optConditions) {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = LayoutInflater.from(context);
 
+        final LayoutInflater inflater = LayoutInflater.from(context);
         final View dialogView = inflater.inflate(R.layout.dialog_pick_condition, null);
-        ViewGroup mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
+        final ViewGroup mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
 
         builder.setView(dialogView)
                 .setIcon(context.getResources().getDrawable(R.drawable.ic_launcher))
                 .setTitle("Pick condition")
-                        // Add action buttons
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        // sign in the user ...
-
+                        // canceling main dialog
+                        dialog.dismiss();
                     }
                 });
 
-        final AlertDialog alert = builder.create();
+        final AlertDialog dialog = builder.create();
 
         // fill all options in container
         ViewGroup newRow;
-        //DialogOptions opt;
-        for (int i = 0; i < optConditions.size(); i++)
-        {
+
+        for (int i = 0; i < optConditions.size(); i++) {
             final DialogOptions opt = optConditions.get(i);
 
             newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
@@ -83,18 +88,17 @@ public class Util extends Activity {
             newRow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    alert.dismiss();
+                    dialog.dismiss();
+
                     openSubDialog(context, opt);
-                    //EventActivity.getInstance().openSubDialog(opt);
                 }
             });
 
             newRow = null;
+
+            dialog.show();
+
         }
-
-
-        alert.show();
-
     }
 
 
@@ -103,14 +107,8 @@ public class Util extends Activity {
      */
     protected static void openSubDialog(final Activity context, final DialogOptions opt) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = LayoutInflater.from(context);
-        //FragmentManager fm = (Activity)context;
-        //final FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
-
+        final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
-        //final FragmentManager fm = context.getFr
-
-
 
         switch(opt.getOptionType()) {
 
@@ -120,7 +118,7 @@ public class Util extends Activity {
 
                 // create MAP object
                 final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
-                //GoogleMap map;
+
 
                 builder.setView(dialogMap)
                         .setIcon(context.getResources().getDrawable(R.drawable.ic_launcher))
@@ -128,15 +126,12 @@ public class Util extends Activity {
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+                            public void onClick(DialogInterface dialog, int i) {
 
-
-
-                                dialogInterface.dismiss();
+                                dialog.dismiss();
 
                                 if (marker == null) {
-                                    Toast.makeText(Main.getInstance().getApplicationContext(),
-                                            "Listen, you have to click on map to add marker!", Toast.LENGTH_LONG).show();
+                                    showMessageBox("Click on map to add a location!", true);
                                 }
                                 else {
 
@@ -168,9 +163,6 @@ public class Util extends Activity {
 
                                     EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
 
-
-
-
                                 }
 
                                 // always remove map after closing dialog if we don't want to get
@@ -188,22 +180,19 @@ public class Util extends Activity {
 
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
 
                                 // always remove map after closing dialog if we don't want to get
                                 // exceptions on how we got a duplicate!
                                 // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
-                                //FragmentManager fm = EventActivity.getInstance();
-                                //FragmentManager fm = (FragmentActivity)context.getSupportFragmentManager();
-
                                 MapFragment f = (MapFragment) fm.findFragmentById(R.id.map);
                                 if (f != null) {
                                     fm.beginTransaction().remove(f).commit();
                                 }
                                 //marker = null;
                                 //circle = null;
-                                //alert.dismiss();
+
                             }
                         });
 
@@ -217,22 +206,20 @@ public class Util extends Activity {
 
                 // it is possible we cannot find current location. if so, allow user to continue anyways!
                 if (loc.isError()) {
-                    Toast.makeText(context, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
+                    showMessageBox(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), true);
+                    //Toast.makeText(context, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
                     //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
                     myLocation = new LatLng(65.9667, -18.5333);
                 }
                 else {
-                    Toast.makeText(Main.getInstance().getApplicationContext(),
-                            "Click on map to mark your desired location.", Toast.LENGTH_SHORT).show();
+                    showMessageBox("Click on map to mark your desired location.", false);
                 }
 
                 map = ((MapFragment) fm.findFragmentById(R.id.map)).getMap();
 
-
                 map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
                     public void onMapClick(LatLng latLng) {
-                        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
                         if (marker != null) {
                             marker.remove();
                         }
@@ -241,7 +228,6 @@ public class Util extends Activity {
                         }
 
                         // redraw radius circle and marker
-
                         marker = map.addMarker(new MarkerOptions().position(latLng));
                         circle = map.addCircle(new CircleOptions()
                                         .center(latLng)
@@ -266,7 +252,6 @@ public class Util extends Activity {
              * DAYSOFWEEK SUBDIALOG
              */
             case DAYSOFWEEK:
-                final String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
                 // storage for selected days
                 final ArrayList<Integer> mSelectedDays = new ArrayList<Integer>();
@@ -278,11 +263,12 @@ public class Util extends Activity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // TODO: add day picker now.
+                                dialog.dismiss();
+
 
                                 // we cannot continue if we didn't pick any days, right?
                                 if (mSelectedDays.size() == 0) {
-                                    Toast.makeText(Main.getInstance().getApplicationContext(),
-                                            "Good job sport! And which days did you pick?", Toast.LENGTH_LONG).show();
+                                    showMessageBox("Good job sport! And which days did you pick?", true);
 
                                 } else {
                                     // lets sort the days first
@@ -291,7 +277,7 @@ public class Util extends Activity {
                                     // ..also, get selected days into string
                                     String allDays = "";
                                     for (int i = 0; i < mSelectedDays.size(); i++) {
-                                        allDays += days[mSelectedDays.get(i)];
+                                        allDays += sDays[mSelectedDays.get(i)];
 
                                         if ((i + 1) != mSelectedDays.size()) {
                                             allDays += ", ";
@@ -320,14 +306,16 @@ public class Util extends Activity {
                                     newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            Toast.makeText(context,
-                                                    "clicked "+ cond.getTitle() + ", "+ cond.getOptionType(), Toast.LENGTH_SHORT).show();
+                                            // TODO: clicking our newly added condition
+                                            showMessageBox("clicked "+ cond.getTitle() + ", "+ cond.getOptionType(), true);
                                         }
                                     });
 
                                     newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
+                                            // when clicking recycle bin at condition, remove it from view and
+                                            // from array of all conditions
                                             EventActivity.getInstance().mContainerCondition.removeView(newRow);
                                             EventActivity.getInstance().conditions.remove(cond);
                                         }
@@ -342,9 +330,11 @@ public class Util extends Activity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // just close the dialog if we didn't select the days
+                                dialog.dismiss();
+
                             }
                         })
-                        .setMultiChoiceItems(days, null, new DialogInterface.OnMultiChoiceClickListener() {
+                        .setMultiChoiceItems(sDays, null, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 // selecting/removing choices
@@ -356,7 +346,7 @@ public class Util extends Activity {
 
                             }
                         });
-                //builder.create();
+
                 builder.show();
 
                 break;
@@ -365,15 +355,51 @@ public class Util extends Activity {
              * DEFAULT SWITCH/CASE CALL
              */
             default:
+
                 break;
         }
 
 
-        //}
-
     }
 
 
+    /**
+     * Shows Toast, nothing else to see here, move along...
+     *
+     * @param message
+     * @param showLong
+     */
+    protected static void showMessageBox(String message, boolean showLong) {
+        Toast.makeText(Main.getInstance().getApplicationContext(),
+                message,
+                ((showLong) ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT)
+        ).show();
+    }
+
+    /**
+     * create/update Notification
+     *
+     * @param title is the title of notification
+     * @param description is the description (bottom line)
+     * @param icon well, its obvious, isn't it? o_O
+     */
+    protected static void showNotification(String title, String description, int icon) {
+        NotificationManager mNM = (NotificationManager) Main.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification note = new Notification(icon, title, System.currentTimeMillis());
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent pi = PendingIntent.getActivity(Main.getInstance(), 0,
+                new Intent(Main.getInstance(), Main.class), 0);
+
+        note.setLatestEventInfo(Main.getInstance(), title, description, pi);
+        note.flags |= Notification.FLAG_NO_CLEAR;
+
+        if (mNM == null) {
+            mNM = (NotificationManager) Main.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+
+        mNM.notify(1337, note);
+    }
 
 
 }
