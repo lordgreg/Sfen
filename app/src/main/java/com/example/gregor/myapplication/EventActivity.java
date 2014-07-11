@@ -4,29 +4,20 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class EventActivity extends Activity {
     private static EventActivity sInstance = null;
@@ -114,6 +105,7 @@ public class EventActivity extends Activity {
 
     }
 */
+    /*
     protected void openSubDialog(final DialogOptions opt) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -262,10 +254,11 @@ public class EventActivity extends Activity {
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
 
                 break;
-
+*/
             /**
              * DAYSOFWEEK SUBDIALOG
              */
+    /*
             case DAYSOFWEEK:
                 final String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
@@ -361,10 +354,11 @@ public class EventActivity extends Activity {
                 builder.show();
 
                 break;
-
+*/
             /**
              * DEFAULT SWITCH/CASE CALL
              */
+    /*
             default:
                 break;
         }
@@ -374,7 +368,7 @@ public class EventActivity extends Activity {
 
     }
 
-
+*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -387,7 +381,7 @@ public class EventActivity extends Activity {
         }
 
         // define Util class
-        Util util = new Util(this);
+        //Util util = new Util(this);
 
 
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
@@ -406,7 +400,6 @@ public class EventActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Util.openDialogConditions(sInstance, optConditions);
-                //util
                 //openConditions();
                 //Toast.makeText(getBaseContext(), "picking new condition", Toast.LENGTH_SHORT).show();
             }
@@ -481,7 +474,7 @@ public class EventActivity extends Activity {
     private boolean saveEvent() {
 
         // container for condition in dialog
-/*
+
         if (conditions.size() > 0) {
             for (int i = 0; i < conditions.size(); i++) {
                 Log.d("conditions",
@@ -491,7 +484,7 @@ public class EventActivity extends Activity {
                 );
             }
         }
-        */
+
 
         // before saving, we have to ensure we have at least one condition and one activity.
         // if there's only one in ListView, it means its the one from "add new activity".
