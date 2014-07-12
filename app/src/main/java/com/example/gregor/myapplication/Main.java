@@ -27,7 +27,7 @@ public class Main extends Activity {
     private static Intent bgService = null;
     private ViewGroup mContainerView;
     NotificationManager mNM = null;
-    private ArrayList<Event> events;
+    protected ArrayList<Event> events = new ArrayList<Event>();
 
     // Map with options. Instead of creating more variables to use around
     // activities, I've created HashMap; putting settings here if needed.
@@ -40,6 +40,9 @@ public class Main extends Activity {
 
         // set singleton instance
         sInstance = this;
+
+        // set events array
+        //events =
 
         // create notification manager
         mNM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -61,8 +64,13 @@ public class Main extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (options.get("eventSave") == "1") {
+        /*if (options.get("eventSave") == "1") {
             addNewEvent();
+        }*/
+        // check if our events array is >0
+        // if so, call refreshView command.
+        if (events.size() > 0) {
+            refreshEventsView();
         }
     }
 
@@ -197,6 +205,44 @@ public class Main extends Activity {
         // clear variables in options
         options.put("eventSave", "");
         options.put("eventName", "");
+
+    }
+
+    /**
+     * after resuming the app, we will usually come to the main activity with nothing on it.
+     * this function will take care of that! go through events array and fill it up, yo?
+     */
+    private void refreshEventsView() {
+        // if events array is empty, show "add new event" textview
+        if (events.size() == 0) {
+            findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+        }
+        else {
+            findViewById(android.R.id.empty).setVisibility(View.GONE);
+        }
+
+        // fill the events from array
+        for (final Event e : events) {
+            final ViewGroup newRow = (ViewGroup) LayoutInflater.from(this).inflate(
+                    R.layout.main_single_item, mContainerView, false);
+
+            ((TextView) newRow.findViewById(android.R.id.text1)).setText(e.getName());
+
+            // add delete button event
+            newRow.findViewById(R.id.single_delete).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // delete row AND spot in events
+                    mContainerView.removeView(newRow);
+                    events.remove(e);
+
+                }
+            });
+
+            // add new row to container
+            mContainerView.addView(newRow, 0);
+        }
+
 
     }
 

@@ -1,8 +1,6 @@
 package com.example.gregor.myapplication;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,10 +44,6 @@ public class EventActivity extends Activity {
 
         // set singleton instance
         sInstance = this;
-
-        // define Util class
-        //Util util = new Util(this);
-
 
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
         mContainerAction = (ViewGroup) findViewById(R.id.action_container);
@@ -139,7 +133,6 @@ public class EventActivity extends Activity {
     private boolean saveEvent() {
 
         // container for condition in dialog
-
         if (conditions.size() > 0) {
             for (int i = 0; i < conditions.size(); i++) {
                 Log.d("conditions",
@@ -149,10 +142,25 @@ public class EventActivity extends Activity {
                 );
             }
         }
+        // if we have 0 conditions, we SHALL NOT PASS!
+        else {
+            Util.showMessageBox(getString(R.string.error_select_condition), true);
+
+            return  false;
+        }
+
+
+        // do we have event name?
+        if (((TextView) findViewById(R.id.event_name)).getText().length() == 0) {
+            Util.showMessageBox("And you think you can get away without entering Event name?", true);
+            return false;
+        }
 
 
         // before saving, we have to ensure we have at least one condition and one activity.
         // if there's only one in ListView, it means its the one from "add new activity".
+        // TODO: delete this part if everything else is okay.
+        /*
         int num = mContainerCondition.getChildCount();
 
         if (num <= 1) {
@@ -176,8 +184,23 @@ public class EventActivity extends Activity {
 
         eventName = (TextView) findViewById(R.id.event_name);
 
-        Main.getInstance().options.put("eventSave", "1");
-        Main.getInstance().options.put("eventName", eventName.getText().toString());
+*/
+
+        // if we got to this part, we are good to go and we have add new Event to Events array
+        event = new Event();
+        event.setName(((TextView) findViewById(R.id.event_name)).getText().toString());
+        event.setConditions(conditions);
+        // TODO: after generating actions array, fill event with them
+        //event.setActions(actions);
+        event.setEnabled(true);
+        // TODO: add one or all settings for current event if needed
+        // event.setSetting("this", "test");
+
+        // finally, save event to events array
+        Main.getInstance().events.add(event);
+
+        //Main.getInstance().options.put("eventSave", "1");
+        //Main.getInstance().options.put("eventName", eventName.getText().toString());
 
 
         finish();

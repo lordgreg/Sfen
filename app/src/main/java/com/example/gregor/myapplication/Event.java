@@ -14,7 +14,7 @@ import java.util.HashMap;
  */
 public class Event {
     private String name;
-    private boolean status;
+    private boolean enabled;
 
     private ArrayList<DialogOptions> conditions;
     private ArrayList<DialogOptions> actions;
@@ -33,12 +33,10 @@ public class Event {
         this.name = name;
     }
 
-    public boolean isStatus() {
-        return status;
-    }
+    public boolean isEnabled() { return enabled; }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public ArrayList<DialogOptions> getConditions() {
@@ -63,5 +61,13 @@ public class Event {
 
     public String getSetting(String key) {
         return settings.get(key);
+    }
+
+    public void setSettings(HashMap<String, String>settings) {
+        this.settings = settings;
+    }
+
+    public HashMap<String, String>getSettings() {
+        return settings;
     }
 }
