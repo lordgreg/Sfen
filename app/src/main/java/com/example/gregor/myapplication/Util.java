@@ -139,6 +139,12 @@ public class Util extends Activity {
                                     final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
                                     cond.setSetting("latitude", ""+ marker.getPosition().latitude);
                                     cond.setSetting("longitude", ""+ marker.getPosition().longitude);
+
+                                    cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
+                                    cond.setSetting("text2", "Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
+
+                                    addNewCondition(context, cond);
+                                    /*
                                     EventActivity.getInstance().conditions.add(cond);
 
                                     // add new row to conditions now
@@ -162,6 +168,7 @@ public class Util extends Activity {
                                     });
 
                                     EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
+                                    */
 
                                 }
 
@@ -274,7 +281,7 @@ public class Util extends Activity {
                                     // lets sort the days first
                                     Collections.sort(mSelectedDays);
 
-                                    // ..also, get selected days into string
+                                    // Get selected days to string so we will show that in description line
                                     String allDays = "";
                                     for (int i = 0; i < mSelectedDays.size(); i++) {
                                         allDays += sDays[mSelectedDays.get(i)];
@@ -285,10 +292,18 @@ public class Util extends Activity {
                                     }
 
 
+
                                     // save condition & create new row
                                     final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                    //EventActivity.getInstance().conditions.add(cond);
+
                                     cond.setSetting("selectedDays", mSelectedDays.toString());
-                                    EventActivity.getInstance().conditions.add(cond);
+                                    cond.setSetting("text1", "Days ("+ mSelectedDays.size() +")");
+                                    cond.setSetting("text2", allDays);
+
+                                    addNewCondition(context, cond);
+                                    /*
 
                                     // add new row to conditions now
                                     final ViewGroup newRow = (ViewGroup) LayoutInflater.from(context).inflate(
@@ -322,6 +337,7 @@ public class Util extends Activity {
                                     });
 
                                     EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
+                                    */
                                 }
 
                             }
@@ -341,7 +357,7 @@ public class Util extends Activity {
                                 if (isChecked) {
                                     mSelectedDays.add(which);
                                 } else {
-                                    mSelectedDays.remove(which);
+                                    mSelectedDays.remove(mSelectedDays.indexOf(which));
                                 }
 
                             }
@@ -376,6 +392,7 @@ public class Util extends Activity {
         ).show();
     }
 
+
     /**
      * create/update Notification
      *
@@ -401,5 +418,77 @@ public class Util extends Activity {
         mNM.notify(1337, note);
     }
 
+
+    /**
+     * ADD NEW CONDITION
+     *
+     * @param cond condition to be added
+     */
+    protected static void addNewCondition(final Activity context, final DialogOptions cond) {
+        // add condition to list of conditions of Event
+        // TODO: if adding NEW, this isn't problem
+        // TODO: but if adding from existing, we need to save condition somewhere else (temp condition array)!
+        if (EventActivity.getInstance().isUpdating) {
+            EventActivity.getInstance().updatedConditions.add(cond);
+        }
+        else {
+            EventActivity.getInstance().conditions.add(cond);
+        }
+
+        // get options that we need for interface
+        String title = cond.getSetting("text1");
+        String description = cond.getSetting("text2");
+        int icon = cond.getIcon();
+
+        // add new row to conditions now
+        final ViewGroup newRow = (ViewGroup) LayoutInflater.from(context).inflate(
+                R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
+
+        ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
+        ((TextView) newRow.findViewById(android.R.id.text2))
+                .setText(description);
+        ((TextView) newRow.findViewById(android.R.id.text2))
+                .setMovementMethod(new ScrollingMovementMethod());
+
+        ((ImageButton) newRow.findViewById(R.id.condition_icon))
+                .setImageDrawable(context.getResources().getDrawable(icon));
+
+        newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: clicking our newly added condition
+                showMessageBox("clicked "+ cond.getTitle() + ", "+ cond.getOptionType(), true);
+            }
+        });
+
+        newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // when clicking recycle bin at condition, remove it from view and
+                // from array of all conditions
+
+                EventActivity.getInstance().mContainerCondition.removeView(newRow);
+
+                // remove from conditions, depending on if we're adding to new event
+                // or existing event
+                if (EventActivity.getInstance().isUpdating) {
+                    EventActivity.getInstance().updatedConditions.remove(
+                            EventActivity.getInstance().updatedConditions.indexOf(cond)
+                    );
+
+                    // we changed something, so set the changed boolean
+                    EventActivity.getInstance().isChanged = true;
+                }
+                else {
+                    EventActivity.getInstance().conditions.remove(
+                            EventActivity.getInstance().conditions.indexOf(cond)
+                    );
+                }
+
+            }
+        });
+
+        EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
+    }
 
 }

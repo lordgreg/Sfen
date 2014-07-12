@@ -11,15 +11,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 
 public class EventActivity extends Activity {
     private static EventActivity sInstance = null;
     protected ViewGroup mContainerCondition, mContainerAction;
-    private TextView eventName;
+
+    // containers if we're editing activity
+    protected boolean isUpdating = false;
+    protected boolean isChanged = false;
+    protected int updateKey = -1;
+    protected ArrayList<DialogOptions> updatedConditions;
+    protected ArrayList<DialogOptions> updatedActions;
+
 
     // placeholder for current Event
-    private Event event;
+    private Event event = null;
 
     // arrays for conditions and actions
     protected ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
@@ -83,6 +92,22 @@ public class EventActivity extends Activity {
 
         mContainerAction.addView(newAction, 0);
 
+
+
+        // stop! hammertime!
+        // lets check if we got any event passed to us!
+        if (getIntent().getStringExtra("sEvent") != null) {
+            isUpdating = true;
+
+            event = (new Gson()).fromJson(getIntent().getExtras().getString("sEvent"), Event.class);
+            updateKey = getIntent().getIntExtra("sEventIndexKey", -1);
+            updatedConditions = new ArrayList<DialogOptions>();
+            updatedActions = new ArrayList<DialogOptions>();
+
+            //Log.e("EVENT FROM OBJ", event.getName() + " with " + event.getConditions().size() + " conditions- key from all events: " + updateKey);
+            refreshView();
+        }
+
     }
 
 
@@ -100,10 +125,28 @@ public class EventActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_cancel) {
-            Main.getInstance().options.put("eventSave", "0");
 
-            finish();
-            return true;
+            // if we changed activity and we want to cancel it now,
+            // we should probably ask user if he's sure, right?
+            if (isChanged) {
+                if (saveEvent()) {
+                    Log.e("changed", "it got changed.");
+                    Main.getInstance().options.put("eventSave", "1");
+                    //finish();
+                    return true;
+                }
+                else
+                    return false;
+            }
+
+            // nothing changed, just close the activity
+            else {
+                Main.getInstance().options.put("eventSave", "0");
+                finish();
+                return true;
+            }
+
+
         }
         if (id == R.id.action_save) {
             return saveEvent();
@@ -143,11 +186,13 @@ public class EventActivity extends Activity {
             }
         }
         // if we have 0 conditions, we SHALL NOT PASS!
-        else {
+        if (conditions.size() == 0) {
             Util.showMessageBox(getString(R.string.error_select_condition), true);
 
-            return  false;
+            return false;
         }
+
+        Log.e("cond", "cond size: "+ conditions.size());
 
 
         // do we have event name?
@@ -156,38 +201,12 @@ public class EventActivity extends Activity {
             return false;
         }
 
-
-        // before saving, we have to ensure we have at least one condition and one activity.
-        // if there's only one in ListView, it means its the one from "add new activity".
-        // TODO: delete this part if everything else is okay.
-        /*
-        int num = mContainerCondition.getChildCount();
-
-        if (num <= 1) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(getString(R.string.error_select_condition))
-                    .setIcon(R.drawable.ic_launcher)
-                            //.setIcon(android.R.drawable.ic_notification_clear_all)
-                    .setTitle(getString(R.string.error))
-                    .setCancelable(false)
-                    .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //do things
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
-
-            return false;
-        }
-        Log.d("info", "number of dialogOptions: "+ mContainerCondition.getChildCount());
-
-        eventName = (TextView) findViewById(R.id.event_name);
-
-*/
-
         // if we got to this part, we are good to go and we have add new Event to Events array
-        event = new Event();
+        // if we're editing event, just update it, otherwise create new object
+        if (isUpdating == false) {
+            event = new Event();
+        }
+
         event.setName(((TextView) findViewById(R.id.event_name)).getText().toString());
         event.setConditions(conditions);
         // TODO: after generating actions array, fill event with them
@@ -196,15 +215,50 @@ public class EventActivity extends Activity {
         // TODO: add one or all settings for current event if needed
         // event.setSetting("this", "test");
 
-        // finally, save event to events array
-        Main.getInstance().events.add(event);
+        // finally, save/update event to events array
+        if (isUpdating) {
+            //events.set(events.indexOf(e), e);
+            Main.getInstance().events.set(updateKey, event);
+        }
+        else {
+            Main.getInstance().events.add(event);
+        }
 
-        //Main.getInstance().options.put("eventSave", "1");
+        // lets create option from main activity that we're actually saving event
+        Main.getInstance().options.put("eventSave", "1");
         //Main.getInstance().options.put("eventName", eventName.getText().toString());
 
 
         finish();
         return true;
+
+    }
+
+
+    /**
+     * refreshView is used only if we passed event from other activity
+     * and would like to populate entries in eventactivity
+     *
+     * we have to update name, conditions and actions!
+     */
+    public void refreshView() {
+        // clear containers
+        //mContainerCondition.removeAllViews();
+        //mContainerAction.removeAllViews();
+        //conditions = event.getConditions();
+
+        ((TextView) findViewById(R.id.event_name)).setText(event.getName());
+
+        // add all conditions to container
+        //ArrayList<DialogOptions> tempConditions = event.getConditions();
+        //conditions = event.getConditions();
+        //Util.addNewCondition(sInstance, conditions.get(0));
+        for (DialogOptions cond : event.getConditions()) {
+            Util.addNewCondition(sInstance, cond);
+        }
+
+        conditions = updatedConditions;
+
 
     }
 }

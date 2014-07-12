@@ -2,21 +2,45 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:listPreferredItemHeightSmall"
+    android:layout_height="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
     android:showDividers="middle"
     android:divider="?android:dividerVertical"
     android:dividerPadding="8dp"
     android:gravity="center">
 
-    <TextView android:id="@android:id/text1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <LinearLayout
+        android:id="@+id/event_container"
+        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:layout_width="0dip"
+        android:gravity="center"
         android:layout_weight="1"
-        android:text="New Text"
-        style="?android:textAppearanceMedium"
-        android:paddingLeft="?android:listPreferredItemPaddingLeft" />
+        android:layout_height="fill_parent">
 
+        <TextView android:id="@android:id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Condition title" />
+
+        <TextView android:id="@android:id/text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="This is event description" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/single_edit"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:src="@android:drawable/ic_menu_manage"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="Edit Item"
+        android:adjustViewBounds="false"
+        android:cropToPadding="false" />
+<!--
     <ImageButton
         android:id="@+id/single_delete"
         android:layout_width="48dp"
@@ -26,6 +50,6 @@
         android:contentDescription="Remove Item"
         android:adjustViewBounds="false"
         android:cropToPadding="false" />
-
+-->
 
 </LinearLayout>

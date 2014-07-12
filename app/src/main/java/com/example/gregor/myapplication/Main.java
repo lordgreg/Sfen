@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,9 +18,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Main extends Activity {
@@ -41,9 +45,6 @@ public class Main extends Activity {
         // set singleton instance
         sInstance = this;
 
-        // set events array
-        //events =
-
         // create notification manager
         mNM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -57,6 +58,8 @@ public class Main extends Activity {
 
 
         // TODO: fetch events from settings of some sort and fill our listview
+        events = getEventsFromPreferences();
+        refreshEventsView();
 
     }
 
@@ -64,16 +67,11 @@ public class Main extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        /*if (options.get("eventSave") == "1") {
-            addNewEvent();
-        }*/
-        // check if our events array is >0
-        // if so, call refreshView command.
-        if (events.size() > 0) {
+        if (options.get("eventSave") == "1") {
+            //addNewEvent();
             refreshEventsView();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,77 +141,15 @@ public class Main extends Activity {
     }
 
 
-    //@Override
-    /**
-     * instead of stopping application, lets create new background activity and
-     * put the app in notification
-     */
-    /*
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        super.onKeyDown(keyCode, event);
-
-        // run this only if we press home or back button
-        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
-
-            Log.d("test", "keypress");
-
-
-
-        }
-
-        return false;
-    }*/
-
-    /**
-     * add new item wizard
-     * TODO: recode the method since it will get the object
-     */
-    private void addNewEvent() {
-        //Toast.makeText(this, "yolo", Toast.LENGTH_SHORT).show();
-
-        // add new item
-
-        // lets clear the empty item first
-        if (findViewById(android.R.id.empty).getVisibility() == View.VISIBLE) {
-            findViewById(android.R.id.empty).setVisibility(View.GONE);
-        }
-
-        final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
-                R.layout.main_single_item, mContainerView, false);
-
-        ((TextView) newView.findViewById(android.R.id.text1)).setText(options.get("eventName").toString());
-
-
-        // set listener for delete button
-        newView.findViewById(R.id.single_delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove the row from its parent (the container view).
-                // Because mContainerView has android:animateLayoutChanges set to true,
-                // this removal is automatically animated.
-                mContainerView.removeView(newView);
-
-                // If there are no rows remaining, show the empty view.
-                if (mContainerView.getChildCount() == 0) {
-                    findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-        mContainerView.addView(newView, 0);
-
-        // clear variables in options
-        options.put("eventSave", "");
-        options.put("eventName", "");
-
-    }
-
     /**
      * after resuming the app, we will usually come to the main activity with nothing on it.
      * this function will take care of that! go through events array and fill it up, yo?
      */
     private void refreshEventsView() {
-        // if events array is empty, show "add new event" textview
+        // always clear container first
+        mContainerView.removeAllViews();
+
+         // if events array is empty, show "add new event" textview
         if (events.size() == 0) {
             findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
         }
@@ -227,23 +163,139 @@ public class Main extends Activity {
                     R.layout.main_single_item, mContainerView, false);
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(e.getName());
+            ((TextView) newRow.findViewById(android.R.id.text2)).setText((e.isEnabled()) ? "Enabled" : "Disabled");
+
+            // add on long press event
+            newRow.findViewById(R.id.event_container).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    // array of options
+                    final String[] sOptions = {"Edit", ((e.isEnabled()) ? "Disable" : "Enable"), "Delete"};
+                    // show dialog with more options for single event
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
+                    builder
+                            //.setMessage("Service will be stopped and Events won't be triggered.\n\nAre you sure?")
+                            //.setIcon(getResources().getDrawable(R.drawable.ic_launcher))
+                            .setTitle(e.getName())
+                            .setItems(sOptions, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    // The 'which' argument contains the index position
+                                    // of the selected item
+                                    // 0 edit, 1 enable/disable, 2 delete
+                                    if (which == 1) {
+                                        if (e.isEnabled())
+                                            e.setEnabled(false);
+                                        else
+                                            e.setEnabled(true);
+
+                                        // update events array
+                                        events.set(events.indexOf(e), e);
+                                        updateEventsFromPreferences();
+                                        refreshEventsView();
+
+                                    }
+                                    if (which == 2) {
+                                        // delete row AND spot in events
+                                        mContainerView.removeView(newRow);
+                                        events.remove(e);
+                                        updateEventsFromPreferences();
+                                    }
+
+                                }
+                            })
+
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    //return;
+                                }
+                            });
+
+                    // open the dialog now :)
+                    builder.show();
+
+                    return true;
+                }
+            });
+
+            // EDIT EVENT > open Event activity and pass event object to it!
+            newRow.findViewById(R.id.single_edit).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //startActivity(new Intent(this, EventActivity.class));
+                    Intent i = new Intent(getApplicationContext(), EventActivity.class);
+                    i.putExtra("sEvent", (new Gson().toJson(e)));
+                    i.putExtra("sEventIndexKey", events.indexOf(e));
+                    startActivity(i);
+                }
+            });
 
             // add delete button event
+            /*
             newRow.findViewById(R.id.single_delete).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     // delete row AND spot in events
                     mContainerView.removeView(newRow);
                     events.remove(e);
-
+                    updateEventsFromPreferences();
                 }
-            });
+            });*/
 
             // add new row to container
             mContainerView.addView(newRow, 0);
+
+            // update preferences
+            updateEventsFromPreferences();
+
         }
 
 
+    }
+
+    /**
+     * update preferences with events
+     */
+    private void updateEventsFromPreferences() {
+        // preferences object
+        SharedPreferences mPrefs = getPreferences(MODE_PRIVATE);
+
+        // retrieve object from preferences
+        Gson gson = new Gson();
+        String json = mPrefs.getString("events", "");
+
+        // store all to preferences again
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        json = gson.toJson(events);
+        prefsEditor.putString("events", json);
+        prefsEditor.commit();
+
+    }
+
+    /**
+     * get from preferences
+     */
+    private ArrayList<Event> getEventsFromPreferences() {
+        // preferences object
+        SharedPreferences mPrefs = getPreferences(MODE_PRIVATE);
+
+        // retrieve object from preferences
+        Gson gson = new Gson();
+        String json = mPrefs.getString("events", "");
+
+        //protected ArrayList<Event> events = new ArrayList<Event>();
+        ArrayList<Event> eventsPrefs = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
+
+        // if preferences exist and current evets array don't
+        if (eventsPrefs != null) {
+            if (eventsPrefs.size() > 0) {
+                events = eventsPrefs;
+            }
+        }
+
+        return eventsPrefs;
     }
 
     /**

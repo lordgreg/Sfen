@@ -9,5 +9,12 @@
     <item android:id="@+id/action_exit"
         android:title="Exit"
         />
+    <item android:id="@+id/action_export"
+        android:title="Export settings"
+        />
+    <item android:id="@+id/action_import"
+        android:title="Import settings"
+        />
+
 
 </menu>
