@@ -57,7 +57,7 @@ public class Main extends Activity {
         mContainerView = (ViewGroup) findViewById(R.id.container);
 
 
-        // TODO: fetch events from settings of some sort and fill our listview
+        // fetch events from settings of some sort and fill our listview
         events = getEventsFromPreferences();
         refreshEventsView();
 
@@ -281,6 +281,9 @@ public class Main extends Activity {
         // preferences object
         SharedPreferences mPrefs = getPreferences(MODE_PRIVATE);
 
+        // return object
+        ArrayList<Event> returnObj = new ArrayList<Event>();
+
         // retrieve object from preferences
         Gson gson = new Gson();
         String json = mPrefs.getString("events", "");
@@ -291,11 +294,12 @@ public class Main extends Activity {
         // if preferences exist and current evets array don't
         if (eventsPrefs != null) {
             if (eventsPrefs.size() > 0) {
-                events = eventsPrefs;
+                returnObj = eventsPrefs;
             }
         }
 
-        return eventsPrefs;
+        return returnObj;
+
     }
 
     /**

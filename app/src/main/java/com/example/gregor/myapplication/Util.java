@@ -9,7 +9,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.text.method.ScrollingMovementMethod;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Gregor on 11.7.2014.
@@ -144,31 +146,6 @@ public class Util extends Activity {
                                     cond.setSetting("text2", "Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
 
                                     addNewCondition(context, cond);
-                                    /*
-                                    EventActivity.getInstance().conditions.add(cond);
-
-                                    // add new row to conditions now
-                                    final ViewGroup newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                                            R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
-
-                                    ((TextView) newRow.findViewById(android.R.id.text1)).setText(  ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
-                                    ((TextView) newRow.findViewById(android.R.id.text2))
-                                            .setText("Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
-
-                                    ((ImageButton) newRow.findViewById(R.id.condition_icon))
-                                            .setImageDrawable(context.getResources().getDrawable(R.drawable.ic_map));
-
-                                    newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            //mContainerView.removeView(newView);
-                                            EventActivity.getInstance().mContainerCondition.removeView(newRow);
-                                            EventActivity.getInstance().conditions.remove(cond);
-                                        }
-                                    });
-
-                                    EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
-                                    */
 
                                 }
 
@@ -303,41 +280,7 @@ public class Util extends Activity {
                                     cond.setSetting("text2", allDays);
 
                                     addNewCondition(context, cond);
-                                    /*
 
-                                    // add new row to conditions now
-                                    final ViewGroup newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                                            R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
-
-                                    ((TextView) newRow.findViewById(android.R.id.text1)).setText("Days ("+ mSelectedDays.size() +")");
-                                    ((TextView) newRow.findViewById(android.R.id.text2))
-                                            .setText(allDays);
-                                    ((TextView) newRow.findViewById(android.R.id.text2))
-                                            .setMovementMethod(new ScrollingMovementMethod());
-
-                                    ((ImageButton) newRow.findViewById(R.id.condition_icon))
-                                            .setImageDrawable(context.getResources().getDrawable(opt.getIcon()));
-
-                                    newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            // TODO: clicking our newly added condition
-                                            showMessageBox("clicked "+ cond.getTitle() + ", "+ cond.getOptionType(), true);
-                                        }
-                                    });
-
-                                    newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            // when clicking recycle bin at condition, remove it from view and
-                                            // from array of all conditions
-                                            EventActivity.getInstance().mContainerCondition.removeView(newRow);
-                                            EventActivity.getInstance().conditions.remove(cond);
-                                        }
-                                    });
-
-                                    EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
-                                    */
                                 }
 
                             }
@@ -366,6 +309,97 @@ public class Util extends Activity {
                 builder.show();
 
                 break;
+
+            /**
+             * WIFI Access Points
+             */
+            case WIFI_CONNECT:
+            case WIFI_DISCONNECT:
+                final ArrayList<Integer> mSelectedWifi = new ArrayList<Integer>();
+
+                //(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)
+                WifiManager mManager = (WifiManager) Main.getInstance().getSystemService(Context.WIFI_SERVICE);
+                List<WifiConfiguration> wifiList = mManager.getConfiguredNetworks();
+
+                List<String> mWifiArray = new ArrayList<String>();
+
+
+                for (WifiConfiguration single : wifiList) {
+                    //Log.e("wifi", ">>> "+ single.toString());
+                    //myString.substring(1, myString.length()-1);
+                    mWifiArray.add(single.SSID.substring(1, single.SSID.length()-1));
+                }
+                final String[] stringArray = mWifiArray.toArray(new String[mWifiArray.size()]);
+
+                builder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Pick Wifi")
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // just close the dialog if we didn't select the days
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // close dialog
+                                dialogInterface.dismiss();
+
+                                // we cannot continue if we didn't pick any days, right?
+                                if (mSelectedWifi.size() == 0) {
+                                    showMessageBox("You almost made it! Next time, pick at least one option.", true);
+
+                                } else {
+
+                                    // Get selected days to string so we will show that in description line
+                                    String allDays = "";
+                                    for (i = 0; i < mSelectedWifi.size(); i++) {
+                                        allDays += stringArray[mSelectedWifi.get(i)];
+
+                                        if ((i + 1) != mSelectedWifi.size()) {
+                                            allDays += ", ";
+                                        }
+                                    }
+
+                                    // save condition & create new row
+                                    final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                    //EventActivity.getInstance().conditions.add(cond);
+
+                                    cond.setSetting("selectedWifi", mSelectedWifi.toString());
+                                    //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                                    cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.WIFI_CONNECT) ? "Connecting to " : "Disconnecting from ") + "Wifi");
+                                    cond.setSetting("text2", allDays);
+
+                                    addNewCondition(context, cond);
+
+                                }
+
+
+                            }
+                        })
+
+                        .setMultiChoiceItems(stringArray, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                // selecting/removing choices
+                                if (isChecked) {
+                                    mSelectedWifi.add(which);
+                                } else {
+                                    mSelectedWifi.remove(mSelectedWifi.indexOf(which));
+                                }
+
+                            }
+                        });
+
+                builder.show();
+                //mManager.getConfiguredNetworks();
+
+
+            break;
 
             /**
              * DEFAULT SWITCH/CASE CALL
@@ -447,8 +481,8 @@ public class Util extends Activity {
         ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
         ((TextView) newRow.findViewById(android.R.id.text2))
                 .setText(description);
-        ((TextView) newRow.findViewById(android.R.id.text2))
-                .setMovementMethod(new ScrollingMovementMethod());
+        //((TextView) newRow.findViewById(android.R.id.text2))
+        //        .setMovementMethod(new ScrollingMovementMethod());
 
         ((ImageButton) newRow.findViewById(R.id.condition_icon))
                 .setImageDrawable(context.getResources().getDrawable(icon));

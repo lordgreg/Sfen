@@ -1,13 +1,16 @@
 package com.example.gregor.myapplication;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -130,7 +133,7 @@ public class EventActivity extends Activity {
             // we should probably ask user if he's sure, right?
             if (isChanged) {
                 if (saveEvent()) {
-                    Log.e("changed", "it got changed.");
+                    //Log.e("changed", "it got changed.");
                     Main.getInstance().options.put("eventSave", "1");
                     //finish();
                     return true;
@@ -176,6 +179,7 @@ public class EventActivity extends Activity {
     private boolean saveEvent() {
 
         // container for condition in dialog
+        /*
         if (conditions.size() > 0) {
             for (int i = 0; i < conditions.size(); i++) {
                 Log.d("conditions",
@@ -185,14 +189,13 @@ public class EventActivity extends Activity {
                 );
             }
         }
+        */
         // if we have 0 conditions, we SHALL NOT PASS!
         if (conditions.size() == 0) {
             Util.showMessageBox(getString(R.string.error_select_condition), true);
 
             return false;
         }
-
-        Log.e("cond", "cond size: "+ conditions.size());
 
 
         // do we have event name?
@@ -211,7 +214,7 @@ public class EventActivity extends Activity {
         event.setConditions(conditions);
         // TODO: after generating actions array, fill event with them
         //event.setActions(actions);
-        event.setEnabled(true);
+        event.setEnabled(((Switch) findViewById(R.id.event_enabled)).isChecked());
         // TODO: add one or all settings for current event if needed
         // event.setSetting("this", "test");
 
@@ -242,12 +245,8 @@ public class EventActivity extends Activity {
      * we have to update name, conditions and actions!
      */
     public void refreshView() {
-        // clear containers
-        //mContainerCondition.removeAllViews();
-        //mContainerAction.removeAllViews();
-        //conditions = event.getConditions();
-
         ((TextView) findViewById(R.id.event_name)).setText(event.getName());
+        ((Switch) findViewById(R.id.event_enabled)).setChecked(event.isEnabled());
 
         // add all conditions to container
         //ArrayList<DialogOptions> tempConditions = event.getConditions();
@@ -260,5 +259,81 @@ public class EventActivity extends Activity {
         conditions = updatedConditions;
 
 
+    }
+
+
+    /**
+     * EDIT NAME HANDLER
+     *
+     * from xml: android:onClick="editName"
+     */
+    public void onClickEventName(View v) {
+        // (ViewGroup) LayoutInflater.from(this).inflate(
+        //R.layout.condition_action_header, mContainerCondition, false);
+        //ViewGroup promptView = (ViewGroup) LayoutInflater.from(sInstance)
+        View promptView = getLayoutInflater().inflate(R.layout.dialog_prompt_text, null);
+        final EditText eventName = ((EditText) promptView.findViewById(R.id.prompt_text));
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
+
+        // updating or new?
+        if (isUpdating) {
+           eventName.setText(((TextView)findViewById(R.id.event_name)).getText());
+            //((TextView) findViewById(R.id.event_name)).setText(event.getName());
+        }
+        else {
+            eventName.setText("Enter event name");
+        }
+
+        // select all text in edittext
+        eventName.setSelectAllOnFocus(true);
+
+        builder
+                .setView(promptView)
+                .setIcon(R.drawable.ic_launcher)
+                .setTitle("Pick name")
+
+                //.setView(findViewById())
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // just close the dialog if we didn't select the days
+                        dialog.dismiss();
+
+                    }
+                })
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // close dialog
+                        dialogInterface.dismiss();
+
+                        if (eventName.getText().length() > 0) {
+                            ((TextView) findViewById(R.id.event_name)).setText(eventName.getText());
+                        }
+                        else {
+                            Util.showMessageBox("Event name cannot be empty.", false);
+                        }
+                    }
+                });
+
+        builder.show();
+
+    }
+
+    /**
+     * EDIT TOGGLE EVENT
+     */
+    public void onClickEventEnabled(View v) {
+        // get switch id
+        Switch s = (Switch) findViewById(R.id.event_enabled);
+
+        //Util.showMessageBox("clicked toggle field: "+ s.isChecked(), false);
+
+
+        // if we are updating, update our event with proper toggle
+        if (isUpdating) {
+            event.setEnabled(s.isChecked());
+        }
     }
 }

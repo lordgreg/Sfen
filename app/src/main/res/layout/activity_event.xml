@@ -20,10 +20,37 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Event Name"
+        android:text="Main settings"
         android:id="@+id/textView"
         android:autoText="false"
         style="?android:attr/listSeparatorTextViewStyle" />
+
+
+    <TextView
+        style="@android:style/Widget.ListView"
+        android:text="Event Name"
+        android:id="@+id/event_name"
+        android:onClick="onClickEventName"
+        android:clickable="true"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Switch
+        android:onClick="onClickEventEnabled"
+        android:clickable="true"
+        android:id="@+id/event_enabled"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:text="Enabled"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true" />
+
+
+    <!--
+    parent="@android:style/Widget.Button"
 
     <EditText
         android:layout_width="match_parent"
@@ -31,6 +58,7 @@
         android:paddingBottom="10dp"
         android:id="@+id/event_name"
         android:singleLine="true" />
+        -->
 
     <TextView
         android:layout_width="fill_parent"
