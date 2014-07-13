@@ -24,7 +24,6 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Main extends Activity {
     private static Main sInstance = null;
@@ -35,7 +34,7 @@ public class Main extends Activity {
 
     // Map with options. Instead of creating more variables to use around
     // activities, I've created HashMap; putting settings here if needed.
-    Map options = new HashMap();
+    HashMap<String, String> options = new HashMap<String, String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

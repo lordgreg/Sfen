@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -40,16 +41,17 @@ public class Util extends Activity {
     private static Marker marker = null;
     private static Circle circle = null;
     private static GoogleMap map;
+    private static boolean sBoolean;
 
     // days
     final static String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
     /**
      * OPENS DIALOG WITH POSSIBLE CONDITIONS
-     *
+     * <p/>
      * depending on choice, we will get forwarded to sub-dialog
      *
-     * @param context context from our parent activity (usually EventActivity
+     * @param context       context from our parent activity (usually EventActivity
      * @param optConditions array of conditions defined in EventActivity
      */
     protected static void openDialogConditions(final Activity context, final ArrayList<DialogOptions> optConditions) {
@@ -112,7 +114,7 @@ public class Util extends Activity {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
 
-        switch(opt.getOptionType()) {
+        switch (opt.getOptionType()) {
 
             // NEW LOCATION ENTER/LEAVE DIALOG
             case LOCATION_ENTER:
@@ -134,13 +136,12 @@ public class Util extends Activity {
 
                                 if (marker == null) {
                                     showMessageBox("Click on map to add a location!", true);
-                                }
-                                else {
+                                } else {
 
                                     // this is amazing! we've managed to click and make a marker, lets add condition to list of conditions, ya?
                                     final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
-                                    cond.setSetting("latitude", ""+ marker.getPosition().latitude);
-                                    cond.setSetting("longitude", ""+ marker.getPosition().longitude);
+                                    cond.setSetting("latitude", "" + marker.getPosition().latitude);
+                                    cond.setSetting("longitude", "" + marker.getPosition().longitude);
 
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
                                     cond.setSetting("text2", "Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
@@ -190,12 +191,11 @@ public class Util extends Activity {
 
                 // it is possible we cannot find current location. if so, allow user to continue anyways!
                 if (loc.isError()) {
-                    showMessageBox(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), true);
+                    showMessageBox(loc.getError() + ((loc.getProvider() != "") ? " (" + loc.getProvider() + ")" : ""), true);
                     //Toast.makeText(context, loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : ""), Toast.LENGTH_LONG).show();
                     //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
                     myLocation = new LatLng(65.9667, -18.5333);
-                }
-                else {
+                } else {
                     showMessageBox("Click on map to mark your desired location.", false);
                 }
 
@@ -207,7 +207,7 @@ public class Util extends Activity {
                         if (marker != null) {
                             marker.remove();
                         }
-                        if(circle != null) {
+                        if (circle != null) {
                             circle.remove();
                         }
 
@@ -269,14 +269,13 @@ public class Util extends Activity {
                                     }
 
 
-
                                     // save condition & create new row
                                     final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
                                     //EventActivity.getInstance().conditions.add(cond);
 
                                     cond.setSetting("selectedDays", mSelectedDays.toString());
-                                    cond.setSetting("text1", "Days ("+ mSelectedDays.size() +")");
+                                    cond.setSetting("text1", "Days (" + mSelectedDays.size() + ")");
                                     cond.setSetting("text2", allDays);
 
                                     addNewCondition(context, cond);
@@ -327,7 +326,7 @@ public class Util extends Activity {
                 for (WifiConfiguration single : wifiList) {
                     //Log.e("wifi", ">>> "+ single.toString());
                     //myString.substring(1, myString.length()-1);
-                    mWifiArray.add(single.SSID.substring(1, single.SSID.length()-1));
+                    mWifiArray.add(single.SSID.substring(1, single.SSID.length() - 1));
                 }
                 final String[] stringArray = mWifiArray.toArray(new String[mWifiArray.size()]);
 
@@ -399,7 +398,7 @@ public class Util extends Activity {
                 //mManager.getConfiguredNetworks();
 
 
-            break;
+                break;
 
             /**
              * DEFAULT SWITCH/CASE CALL
@@ -430,9 +429,9 @@ public class Util extends Activity {
     /**
      * create/update Notification
      *
-     * @param title is the title of notification
+     * @param title       is the title of notification
      * @param description is the description (bottom line)
-     * @param icon well, its obvious, isn't it? o_O
+     * @param icon        well, its obvious, isn't it? o_O
      */
     protected static void showNotification(String title, String description, int icon) {
         NotificationManager mNM = (NotificationManager) Main.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -464,8 +463,7 @@ public class Util extends Activity {
         // TODO: but if adding from existing, we need to save condition somewhere else (temp condition array)!
         if (EventActivity.getInstance().isUpdating) {
             EventActivity.getInstance().updatedConditions.add(cond);
-        }
-        else {
+        } else {
             EventActivity.getInstance().conditions.add(cond);
         }
 
@@ -491,7 +489,7 @@ public class Util extends Activity {
             @Override
             public void onClick(View v) {
                 // TODO: clicking our newly added condition
-                showMessageBox("clicked "+ cond.getTitle() + ", "+ cond.getOptionType(), true);
+                showMessageBox("clicked " + cond.getTitle() + ", " + cond.getOptionType(), false);
             }
         });
 
@@ -512,8 +510,7 @@ public class Util extends Activity {
 
                     // we changed something, so set the changed boolean
                     EventActivity.getInstance().isChanged = true;
-                }
-                else {
+                } else {
                     EventActivity.getInstance().conditions.remove(
                             EventActivity.getInstance().conditions.indexOf(cond)
                     );
@@ -523,6 +520,55 @@ public class Util extends Activity {
         });
 
         EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
+    }
+
+    /**
+     * SHOW YES/NO DIALOG
+     *
+     * @param context
+     * @param question is the message we're passing to user
+     * @param options possible options (hashmap keys):
+     *                "title" sets title
+     *                "positiveButton" sets positive button string
+     *                "negativeButton" sets negative button string
+     *                "icon" (converts to int) sets icon for dialog
+     * @return returns true/false depending on which button did user pressed.
+     * @return returns the proper value in Main.options array.
+     */
+    protected static void showYesNoDialog(final Activity context, String question, HashMap<String, String> options) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        final FragmentManager fm = context.getFragmentManager();
+        sBoolean = false;
+
+        final String title = (options.get("title") != null) ? options.get("title") : "Question";
+        final String positiveButton = (options.get("positiveButton") != null) ? options.get("positiveButton") : "Yes";
+        final String negativeButton = (options.get("negativeButton") != null) ? options.get("negativeButton") : "No";
+        final int icon = (options.get("icon") != null) ? Integer.parseInt(options.get("icon")) : R.drawable.ic_launcher;
+
+        builder.setIcon(R.drawable.ic_launcher);
+        builder.setTitle("Question");
+        builder.setMessage(question);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                sBoolean = true;
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                sBoolean = false;
+            }
+        });
+
+        builder.show();
+
+
+        Main.getInstance().options.put("showYesNoDialog", ""+ sBoolean);
+        sBoolean = false;
     }
 
 }

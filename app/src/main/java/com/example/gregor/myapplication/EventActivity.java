@@ -107,12 +107,14 @@ public class EventActivity extends Activity {
             updatedConditions = new ArrayList<DialogOptions>();
             updatedActions = new ArrayList<DialogOptions>();
 
+            getActionBar().setTitle("Editing "+ event.getName());
+            //getActionBar().
+
             //Log.e("EVENT FROM OBJ", event.getName() + " with " + event.getConditions().size() + " conditions- key from all events: " + updateKey);
             refreshView();
         }
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -127,10 +129,34 @@ public class EventActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_cancel) {
 
+        if (id == android.R.id.home ||
+            id == R.id.action_cancel) {
+/*
+            Log.e("changed", "updating: "+ isUpdating +", changed: "+ isChanged);
             // if we changed activity and we want to cancel it now,
             // we should probably ask user if he's sure, right?
+            if (isChanged) {
+                Util.showYesNoDialog(sInstance, "You've made changes to event. Cancel anyway?",
+                        new HashMap<String, String>());
+                boolean dialogBool = Boolean.getBoolean(Main.getInstance().options.get("showYesNoDialog"));
+
+                Log.e("changed", "dialog bool: "+ dialogBool);
+                if (dialogBool) {
+                    Main.getInstance().options.put("eventSave", "0");
+                }
+                else
+                    return false;
+            }
+
+            // nothing changed, just close the activity
+            else {
+                Main.getInstance().options.put("eventSave", "0");
+                finish();
+                return true;
+            }
+            */
+         /*
             if (isChanged) {
                 if (saveEvent()) {
                     //Log.e("changed", "it got changed.");
@@ -148,6 +174,10 @@ public class EventActivity extends Activity {
                 finish();
                 return true;
             }
+*/
+            Main.getInstance().options.put("eventSave", "0");
+            finish();
+            return true;
 
 
         }
@@ -310,6 +340,10 @@ public class EventActivity extends Activity {
 
                         if (eventName.getText().length() > 0) {
                             ((TextView) findViewById(R.id.event_name)).setText(eventName.getText());
+
+                            // updating event? changed then.
+                            if (isUpdating)
+                                isChanged = true;
                         }
                         else {
                             Util.showMessageBox("Event name cannot be empty.", false);
@@ -334,6 +368,7 @@ public class EventActivity extends Activity {
         // if we are updating, update our event with proper toggle
         if (isUpdating) {
             event.setEnabled(s.isChecked());
+            isChanged = true;
         }
     }
 }
