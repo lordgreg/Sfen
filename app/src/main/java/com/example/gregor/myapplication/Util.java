@@ -322,6 +322,11 @@ public class Util extends Activity {
 
                 List<String> mWifiArray = new ArrayList<String>();
 
+                if (wifiList == null) {
+                    showMessageBox("Wifi is disabled. Please turn it on first.", false);
+                    return ;
+                }
+
 
                 for (WifiConfiguration single : wifiList) {
                     //Log.e("wifi", ">>> "+ single.toString());
