@@ -20,5 +20,6 @@
     <string name="option_location">Location</string>
     <string name="option_time">Time</string>
     <string name="option_message">Message</string>
+    <string name="title_activity_log">Log</string>
 
 </resources>
