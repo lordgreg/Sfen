@@ -307,7 +307,7 @@ public class EventActivity extends Activity {
         final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
 
         // updating or new?
-        if (isUpdating) {
+        if (isUpdating || isChanged) {
            eventName.setText(((TextView)findViewById(R.id.event_name)).getText());
             //((TextView) findViewById(R.id.event_name)).setText(event.getName());
         }
@@ -342,7 +342,8 @@ public class EventActivity extends Activity {
                             ((TextView) findViewById(R.id.event_name)).setText(eventName.getText());
 
                             // updating event? changed then.
-                            if (isUpdating)
+                            // actually, tell that we've updated anyways
+                            //if (isUpdating)
                                 isChanged = true;
                         }
                         else {

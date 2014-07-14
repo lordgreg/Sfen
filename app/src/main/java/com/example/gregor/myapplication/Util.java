@@ -11,11 +11,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,10 +29,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * Created by Gregor on 11.7.2014.
@@ -308,6 +315,73 @@ public class Util extends Activity {
                 builder.show();
 
                 break;
+
+            /**
+             * TIME RANGE DIALOG
+             */
+        case TIMERANGE:
+
+            // create MAP object
+            final View timerangeView = inflater.inflate(R.layout.dialog_sub_timerange, null);
+
+            final DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+
+            // set 24hour format
+            final TimePicker timeFrom = (TimePicker) timerangeView.findViewById(R.id.time_from);
+            final TimePicker timeTo = (TimePicker) timerangeView.findViewById(R.id.time_to);
+            //((TimePicker) timerangeView.findViewById(R.id.time_from)).setIs24HourView(true);
+            //((TimePicker) timerangeView.findViewById(R.id.time_to)).setIs24HourView(true);
+            timeFrom.setIs24HourView(true);
+            timeTo.setIs24HourView(true);
+
+
+            builder
+                    .setView(timerangeView)
+                    .setIcon(R.drawable.ic_launcher)
+
+                    .setTitle("" + dateFormat.format(new Date()))
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+
+                            // always always always always always always always always always
+                            // always dismiss and clearFocus if you want to retrieve input time
+                            // instead of current time.
+                            timeFrom.clearFocus();
+                            timeTo.clearFocus();
+
+                            // add new condition
+                            final DialogOptions cond = new DialogOptions(opt.getTitle(),
+                                    opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                            cond.setSetting("fromHour", timeFrom.getCurrentHour().toString());
+                            cond.setSetting("fromMinute", timeFrom.getCurrentMinute().toString());
+                            cond.setSetting("toHour", timeTo.getCurrentHour().toString());
+                            cond.setSetting("toMinute", timeTo.getCurrentMinute().toString());
+                            cond.setSetting("text1", "Time range");
+                            cond.setSetting("text2", "From " +
+                                    String.format("%02d", timeFrom.getCurrentHour()) +":"+
+                                    String.format("%02d", timeFrom.getCurrentMinute())
+                                    +" to "+
+                                    String.format("%02d", timeTo.getCurrentHour()) +":"+
+                                    String.format("%02d", timeTo.getCurrentMinute())
+                                    +"");
+
+                            addNewCondition(context, cond);
+
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                           dialog.dismiss();
+                        }
+                    });
+
+            builder.show();
+
+            break;
 
             /**
              * WIFI Access Points
