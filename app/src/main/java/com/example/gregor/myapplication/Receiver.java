@@ -3,8 +3,6 @@ package com.example.gregor.myapplication;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.util.Log;
 
 /**
@@ -14,10 +12,13 @@ public class Receiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
 
+        Log.e("broadcast", "RECIEVED: "+ action);
+        BackgroundService.getInstance().EventFinder(context, intent);
         /**
          * For all possible broadcasts, we have to check if we have any Event
          * that matches all the conditions, right-io?
          */
+        /*
         if (action.equals("android.net.wifi.supplicant.CONNECTION_CHANGE")) {
 
             // CONNECTED to WIFI?
@@ -39,6 +40,8 @@ public class Receiver extends BroadcastReceiver {
 
 
         }
-
+*/
     }
+
+
 }

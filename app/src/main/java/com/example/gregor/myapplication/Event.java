@@ -15,11 +15,20 @@ import java.util.HashMap;
 public class Event {
     private String name;
     private boolean enabled;
+    private boolean running;
 
     private ArrayList<DialogOptions> conditions;
     private ArrayList<DialogOptions> actions;
 
     private HashMap<String, String> settings;
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 
     public Event() {
         super();

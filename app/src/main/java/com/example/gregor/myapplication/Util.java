@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,16 +27,15 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
 
 /**
  * Created by Gregor on 11.7.2014.
@@ -281,7 +279,7 @@ public class Util extends Activity {
 
                                     //EventActivity.getInstance().conditions.add(cond);
 
-                                    cond.setSetting("selectedDays", mSelectedDays.toString());
+                                    cond.setSetting("selectedDays", (new Gson().toJson(mSelectedDays)));
                                     cond.setSetting("text1", "Days (" + mSelectedDays.size() + ")");
                                     cond.setSetting("text2", allDays);
 
@@ -433,9 +431,11 @@ public class Util extends Activity {
                                 } else {
 
                                     // Get selected days to string so we will show that in description line
+                                    ArrayList<String> mSelectedSSID = new ArrayList<String>();
                                     String allDays = "";
                                     for (i = 0; i < mSelectedWifi.size(); i++) {
                                         allDays += stringArray[mSelectedWifi.get(i)];
+                                        mSelectedSSID.add(stringArray[mSelectedWifi.get(i)]);
 
                                         if ((i + 1) != mSelectedWifi.size()) {
                                             allDays += ", ";
@@ -445,9 +445,8 @@ public class Util extends Activity {
                                     // save condition & create new row
                                     final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
-                                    //EventActivity.getInstance().conditions.add(cond);
 
-                                    cond.setSetting("selectedWifi", mSelectedWifi.toString());
+                                    cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                                     //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.WIFI_CONNECT) ? "Connecting to " : "Disconnecting from ") + "Wifi");
                                     cond.setSetting("text2", allDays);

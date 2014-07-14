@@ -204,7 +204,7 @@ public class EventActivity extends Activity {
 
 
     /**
-     * Saving event!
+     * Saving/updating event!
      */
     private boolean saveEvent() {
 
@@ -261,6 +261,12 @@ public class EventActivity extends Activity {
         Main.getInstance().options.put("eventSave", "1");
         //Main.getInstance().options.put("eventName", eventName.getText().toString());
 
+
+        // at the end, send broadcast, if the event is enabled
+        if (event.isEnabled() && !event.isRunning()) {
+            // sending broadcast that we've enabled event
+            Main.getInstance().sendBroadcast("EVENT_ENABLED");
+        }
 
         finish();
         return true;
@@ -369,6 +375,7 @@ public class EventActivity extends Activity {
         // if we are updating, update our event with proper toggle
         if (isUpdating) {
             event.setEnabled(s.isChecked());
+
             isChanged = true;
         }
     }

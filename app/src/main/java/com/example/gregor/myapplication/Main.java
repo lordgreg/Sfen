@@ -185,8 +185,11 @@ public class Main extends Activity {
                                     if (which == 1) {
                                         if (e.isEnabled())
                                             e.setEnabled(false);
-                                        else
+                                        else {
                                             e.setEnabled(true);
+                                            // sending broadcast that we've enabled event
+                                            sendBroadcast("EVENT_ENABLED");
+                                        }
 
                                         // update events array
                                         events.set(events.indexOf(e), e);
@@ -335,6 +338,19 @@ public class Main extends Activity {
 
         mNM.notify(1337, note);
 
+    }
+
+
+    /**
+     * SEND NEW BROADCAST
+     */
+    protected void sendBroadcast(String broadcast) {
+        if (broadcast.length() > 0) {
+            Intent intent = new Intent();
+            //android.util.Log.e("send broadcast", sInstance.getClass().getPackage().getName() +"."+ broadcast);
+            intent.setAction(sInstance.getClass().getPackage().getName() +"."+ broadcast);
+            sendBroadcast(intent);
+        }
     }
 
 }
