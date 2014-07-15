@@ -12,7 +12,13 @@ public class DialogOptions {
     private String title;
     private String description;
     private int icon;
-    public enum type {LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, DAYSOFWEEK};
+    public enum type {
+        // conditions
+        LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, DAYSOFWEEK,
+
+        // actions
+        ACT_NOTIFICATION, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT
+    };
     private type optionType;
     private int maxNumber;
     private HashMap<String, String> settings = new HashMap<String, String>();

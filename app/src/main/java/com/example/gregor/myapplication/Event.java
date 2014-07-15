@@ -17,6 +17,7 @@ public class Event {
     private boolean enabled;
     private boolean running;
     private boolean matchAllConditions;
+    private boolean forceRun = false;
 
     public boolean isMatchAllConditions() {
         return matchAllConditions;
@@ -26,8 +27,8 @@ public class Event {
         this.matchAllConditions = matchAllConditions;
     }
 
-    private ArrayList<DialogOptions> conditions;
-    private ArrayList<DialogOptions> actions;
+    private ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
+    private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
     private HashMap<String, String> settings;
 

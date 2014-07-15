@@ -13,7 +13,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -49,6 +48,15 @@ public class EventActivity extends Activity {
         add(new DialogOptions("Disconnecting from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
     }};
 
+    // list of possible Actions in Options
+    //context.getResources().getDrawable(R.drawable.ic_launcher)
+    static final ArrayList<DialogOptions> optActions = new ArrayList<DialogOptions>() {{
+        add(new DialogOptions("Show notification", "Will show notification in notification area", android.R.drawable.ic_dialog_info, DialogOptions.type.ACT_NOTIFICATION));
+        //add(new DialogOptions("Show dialog with text", "Dialog window with specific text will be shown", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_DIALOGWITHTEXT));
+        //add(new DialogOptions("Play sound", "Play specific sound", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_PLAYSOUND));
+        //add(new DialogOptions("Open application", "Opens specified application", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_OPENAPPLICATION));
+    }};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +69,6 @@ public class EventActivity extends Activity {
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
         mContainerAction = (ViewGroup) findViewById(R.id.action_container);
 
-
         // CONDITION
         final ViewGroup newView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.condition_action_header, mContainerCondition, false);
@@ -73,7 +80,7 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    Util.openDialogConditions(sInstance, optConditions);
+                    Util.openDialog(sInstance, optConditions, "Pick condition");
             }
         });
 
@@ -81,7 +88,7 @@ public class EventActivity extends Activity {
 
         // ACTION
         final ViewGroup newAction = (ViewGroup) LayoutInflater.from(this).inflate(
-                R.layout.condition_action_header, mContainerCondition, false);
+                R.layout.condition_action_header, mContainerAction, false);
 
         ((TextView) newAction.findViewById(android.R.id.text1)).setText(getString(R.string.action_new));
         ((TextView) newAction.findViewById(android.R.id.text2)).setText(getString(R.string.action_new_sub));
@@ -90,7 +97,8 @@ public class EventActivity extends Activity {
         newAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
+                Util.openDialog(sInstance, optActions, "Pick action");
             }
         });
 
@@ -221,6 +229,14 @@ public class EventActivity extends Activity {
             }
         }
         */
+
+        // do we have event name?
+        if (((TextView) findViewById(R.id.event_name)).getText().length() == 0) {
+            Util.showMessageBox("And you think you can get away without entering Event name?", true);
+            return false;
+        }
+
+
         // if we have 0 conditions, we SHALL NOT PASS!
         if (conditions.size() == 0) {
             Util.showMessageBox(getString(R.string.error_select_condition), true);
@@ -228,12 +244,13 @@ public class EventActivity extends Activity {
             return false;
         }
 
+        // if we have 0 conditions, we SHALL NOT PASS!
+        if (actions.size() == 0) {
+            Util.showMessageBox("Funny, really. Now, add at least one action, ok?", true);
 
-        // do we have event name?
-        if (((TextView) findViewById(R.id.event_name)).getText().length() == 0) {
-            Util.showMessageBox("And you think you can get away without entering Event name?", true);
             return false;
         }
+
 
         // if we got to this part, we are good to go and we have add new Event to Events array
         // if we're editing event, just update it, otherwise create new object
@@ -243,8 +260,7 @@ public class EventActivity extends Activity {
 
         event.setName(((TextView) findViewById(R.id.event_name)).getText().toString());
         event.setConditions(conditions);
-        // TODO: after generating actions array, fill event with them
-        //event.setActions(actions);
+        event.setActions(actions);
         event.setEnabled(((Switch) findViewById(R.id.event_enabled)).isChecked());
         // TODO: add one or all settings for current event if needed
         // event.setSetting("this", "test");
@@ -264,7 +280,7 @@ public class EventActivity extends Activity {
 
 
         // at the end, send broadcast, if the event is enabled
-        if (event.isEnabled() && !event.isRunning()) {
+        if (event.isEnabled()/* && !event.isRunning()*/) {
             // sending broadcast that we've enabled event
             Main.getInstance().sendBroadcast("EVENT_ENABLED");
         }
@@ -297,6 +313,13 @@ public class EventActivity extends Activity {
 
         conditions = updatedConditions;
 
+        // also, would be great if we add all actions to container, no?
+        ArrayList<DialogOptions> allAct = event.getActions();
+        for (DialogOptions act : event.getActions()) {
+            Util.addNewAction(sInstance, act);
+        }
+
+        actions = updatedActions;
 
     }
 

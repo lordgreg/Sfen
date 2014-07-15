@@ -25,12 +25,13 @@ import java.util.List;
  */
 public class BackgroundService extends Service {
     final Receiver receiver = new Receiver();
+    protected String receiverAction = "";
 
     private static BackgroundService sInstance = null;
 
     // list of all allowable broadcasts
     private static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
-        add("WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION");
+        add(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
         add(getClass().getPackage().getName() +".EVENT_ENABLED");
     }};
 
@@ -53,12 +54,14 @@ public class BackgroundService extends Service {
         IntentFilter intentFilter = new IntentFilter();
 
         // add allowable broadcasts
+        /*
         for (int i = 0; i < sBroadcasts.size(); i++) {
             //Log.e("adding broad to intent", sBroadcasts.get(i));
             intentFilter.addAction(sBroadcasts.get(i));
         }
-        //intentFilter.addAction(getPackageName() +".EVENT_ENABLED");
-        //intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        */
+        intentFilter.addAction(getClass().getPackage().getName() +".EVENT_ENABLED");
+        intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
         registerReceiver(receiver, intentFilter);
 
         // check, for the first time of our app history, if we have a candidate..
@@ -109,14 +112,19 @@ public class BackgroundService extends Service {
     protected void EventFinder(Context context, Intent intent) {
         // loop through all events, check only the enabled ones..
         for (Event e : Main.getInstance().events) {
-            if (e.isEnabled() & !e.isRunning()) {
+            if (e.isEnabled() /* & !e.isRunning() */) {
                 // if it is still not running, then, we have a candidate to check conditions..
                 if (areEventConditionsMet(context, intent, e)) {
+                    // lets set event as running
+                    e.setRunning(true);
 
                     // wow. conditions are met! you know what that means?
                     // we trigger actions!
                     Util.showMessageBox("Run actions huey!", false);
+                    runEventActions(context, intent, e);
 
+
+                    // TODO: store action to log.
                 }
             }
         }
@@ -125,6 +133,7 @@ public class BackgroundService extends Service {
     private boolean areEventConditionsMet(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
         boolean ret = false;
+        final String action = intent.getAction();
 
         ArrayList<DialogOptions> conditions = e.getConditions();
 
@@ -133,7 +142,7 @@ public class BackgroundService extends Service {
 
 //Log.e("event", e.getName() +", condition number: "+ e.getConditions().size());
         for (DialogOptions cond : conditions) {
-//Log.e("cond", "current condition "+ cond.getTitle());
+Log.e("cond", "current condition "+ cond.getTitle());
             switch (cond.getOptionType()) {
                 case DAYSOFWEEK:
 
@@ -166,35 +175,47 @@ public class BackgroundService extends Service {
 
                 case WIFI_CONNECT:
 
-                    // are we even connected?
-                    if (!intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, true)) {
-                        return false;
+                    System.out.println("action was: "+ receiverAction);
+                    // did we just connect to wifi?
+                    if (receiverAction.equals("android.net.wifi.supplicant.CONNECTION_CHANGE")) {
+
+                        // connected
+                        if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, true)) {
+
+                            // ok, we are connected, but is current SSID the one if array of desired?
+                            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                            //String ssid = wifiInfo.toString();
+                            String currentSsid = wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1);
+
+                            final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
+                                    new TypeToken<List<String>>(){}.getType());
+
+                            //System.out.println("array of ssdis: "+ ssid.toString());
+                            //System.out.println("is current wifi in array? "+ ssid.indexOf(currentSsid));
+                            // is it the correct one? is it????
+                            if (ssid.indexOf(currentSsid) == -1) {
+                                //return false;
+                                ret = false;
+                                conditionResults.add(false);
+                            }
+                            else {
+                                ret = true;
+                                conditionResults.add(true);
+                            }
+
+                        }
+
+                        // here could be disconnected.
+                        else{
+                            //return false;
+                            ret = false;
+                            conditionResults.add(false);
+                            break;
+                        }
                     }
 
-                    // ok, we are connected, but is current SSID the one if array of desired?
-                    WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                    //String ssid = wifiInfo.toString();
-                    String currentSsid = wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1);
 
-                    final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
-                            new TypeToken<List<String>>(){}.getType());
-
-                    //System.out.println("array of ssdis: "+ ssid.toString());
-                    //System.out.println("is current wifi in array? "+ ssid.indexOf(currentSsid));
-                    // is it the correct one? is it????
-                    if (ssid.indexOf(currentSsid) == -1) {
-                        //return false;
-                        ret = false;
-                        conditionResults.add(false);
-                    }
-                    else {
-                        ret = true;
-                        conditionResults.add(true);
-                    }
-
-
-                    //Log.e("test", ssid.toString());
 
                     break;
 
@@ -214,8 +235,6 @@ public class BackgroundService extends Service {
                         cEnd.add(Calendar.DATE, 1);
                         //cal.add(Calendar.DATE, 1);
                     }
-
-
 
                     //Log.e("test", "current date: "+ current.toString());
                     //Log.e("test", "start date: "+ cStart.getTime().toString());
@@ -268,5 +287,30 @@ public class BackgroundService extends Service {
         System.out.println("return result: "+ ret);
         return ret;
         //return false;
+    }
+
+
+    private void runEventActions(Context context, Intent intent, Event e) {
+        Gson gson = new Gson();
+
+        ArrayList<DialogOptions> actions = e.getActions();
+        // loop through all actions and run them
+        for (DialogOptions act : actions) {
+            System.out.println("action: "+ act.getTitle() +"("+ act.getOptionType() +")");
+
+            switch (act.getOptionType()) {
+
+                // popup notification!
+                case ACT_NOTIFICATION:
+                    Util.showNotification("Event triggered!", e.getName() +" ran "+ act.getTitle(), R.drawable.ic_launcher);
+
+                    break;
+
+                default:
+
+                    break;
+
+            }
+        }
     }
 }

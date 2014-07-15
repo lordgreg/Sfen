@@ -10,7 +10,8 @@ import android.util.Log;
  */
 public class Receiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
-        final String action = intent.getAction();
+        String action = intent.getAction();
+        BackgroundService.getInstance().receiverAction = action;
 
         Log.e("broadcast", "RECIEVED: "+ action);
         BackgroundService.getInstance().EventFinder(context, intent);

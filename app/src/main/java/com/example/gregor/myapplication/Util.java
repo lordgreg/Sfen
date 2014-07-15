@@ -57,9 +57,12 @@ public class Util extends Activity {
      * depending on choice, we will get forwarded to sub-dialog
      *
      * @param context       context from our parent activity (usually EventActivity
-     * @param optConditions array of conditions defined in EventActivity
+     * @param options array of conditions defined in EventActivity
+     * @param title shows title of dialog
      */
-    protected static void openDialogConditions(final Activity context, final ArrayList<DialogOptions> optConditions) {
+    protected static void openDialog(final Activity context,
+                                     final ArrayList<DialogOptions> options,
+                                     final String title) {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -69,7 +72,7 @@ public class Util extends Activity {
 
         builder.setView(dialogView)
                 .setIcon(context.getResources().getDrawable(R.drawable.ic_launcher))
-                .setTitle("Pick condition")
+                .setTitle(title)
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -83,8 +86,8 @@ public class Util extends Activity {
         // fill all options in container
         ViewGroup newRow;
 
-        for (int i = 0; i < optConditions.size(); i++) {
-            final DialogOptions opt = optConditions.get(i);
+        for (int i = 0; i < options.size(); i++) {
+            final DialogOptions opt = options.get(i);
 
             newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
 
@@ -317,69 +320,69 @@ public class Util extends Activity {
             /**
              * TIME RANGE DIALOG
              */
-        case TIMERANGE:
+            case TIMERANGE:
 
-            // create MAP object
-            final View timerangeView = inflater.inflate(R.layout.dialog_sub_timerange, null);
+                // create MAP object
+                final View timerangeView = inflater.inflate(R.layout.dialog_sub_timerange, null);
 
-            final DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+                final DateFormat dateFormat = new SimpleDateFormat("HH:mm");
 
-            // set 24hour format
-            final TimePicker timeFrom = (TimePicker) timerangeView.findViewById(R.id.time_from);
-            final TimePicker timeTo = (TimePicker) timerangeView.findViewById(R.id.time_to);
-            //((TimePicker) timerangeView.findViewById(R.id.time_from)).setIs24HourView(true);
-            //((TimePicker) timerangeView.findViewById(R.id.time_to)).setIs24HourView(true);
-            timeFrom.setIs24HourView(true);
-            timeTo.setIs24HourView(true);
+                // set 24hour format
+                final TimePicker timeFrom = (TimePicker) timerangeView.findViewById(R.id.time_from);
+                final TimePicker timeTo = (TimePicker) timerangeView.findViewById(R.id.time_to);
+                //((TimePicker) timerangeView.findViewById(R.id.time_from)).setIs24HourView(true);
+                //((TimePicker) timerangeView.findViewById(R.id.time_to)).setIs24HourView(true);
+                timeFrom.setIs24HourView(true);
+                timeTo.setIs24HourView(true);
 
 
-            builder
-                    .setView(timerangeView)
-                    .setIcon(R.drawable.ic_launcher)
+                builder
+                        .setView(timerangeView)
+                        .setIcon(R.drawable.ic_launcher)
 
-                    .setTitle("" + dateFormat.format(new Date()))
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+                        .setTitle("" + dateFormat.format(new Date()))
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
 
-                            // always always always always always always always always always
-                            // always dismiss and clearFocus if you want to retrieve input time
-                            // instead of current time.
-                            timeFrom.clearFocus();
-                            timeTo.clearFocus();
+                                // always always always always always always always always always
+                                // always dismiss and clearFocus if you want to retrieve input time
+                                // instead of current time.
+                                timeFrom.clearFocus();
+                                timeTo.clearFocus();
 
-                            // add new condition
-                            final DialogOptions cond = new DialogOptions(opt.getTitle(),
-                                    opt.getDescription(), opt.getIcon(), opt.getOptionType());
+                                // add new condition
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(),
+                                        opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
-                            cond.setSetting("fromHour", timeFrom.getCurrentHour().toString());
-                            cond.setSetting("fromMinute", timeFrom.getCurrentMinute().toString());
-                            cond.setSetting("toHour", timeTo.getCurrentHour().toString());
-                            cond.setSetting("toMinute", timeTo.getCurrentMinute().toString());
-                            cond.setSetting("text1", "Time range");
-                            cond.setSetting("text2", "From " +
-                                    String.format("%02d", timeFrom.getCurrentHour()) +":"+
-                                    String.format("%02d", timeFrom.getCurrentMinute())
-                                    +" to "+
-                                    String.format("%02d", timeTo.getCurrentHour()) +":"+
-                                    String.format("%02d", timeTo.getCurrentMinute())
-                                    +"");
+                                cond.setSetting("fromHour", timeFrom.getCurrentHour().toString());
+                                cond.setSetting("fromMinute", timeFrom.getCurrentMinute().toString());
+                                cond.setSetting("toHour", timeTo.getCurrentHour().toString());
+                                cond.setSetting("toMinute", timeTo.getCurrentMinute().toString());
+                                cond.setSetting("text1", "Time range");
+                                cond.setSetting("text2", "From " +
+                                        String.format("%02d", timeFrom.getCurrentHour()) +":"+
+                                        String.format("%02d", timeFrom.getCurrentMinute())
+                                        +" to "+
+                                        String.format("%02d", timeTo.getCurrentHour()) +":"+
+                                        String.format("%02d", timeTo.getCurrentMinute())
+                                        +"");
 
-                            addNewCondition(context, cond);
+                                addNewCondition(context, cond);
 
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                           dialog.dismiss();
-                        }
-                    });
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
 
-            builder.show();
+                builder.show();
 
-            break;
+                break;
 
             /**
              * WIFI Access Points
@@ -478,6 +481,28 @@ public class Util extends Activity {
 
                 break;
 
+
+            /**
+             * ACTION: SHOW NOTIFICATION
+             */
+        case ACT_NOTIFICATION:
+
+            // save action & create new row
+            final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+            //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+            //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+            cond.setSetting("text1", opt.getTitle());
+            cond.setSetting("text2", "yolo");
+
+            addNewAction(context, cond);
+
+
+
+            break;
+
+
+
             /**
              * DEFAULT SWITCH/CASE CALL
              */
@@ -537,8 +562,6 @@ public class Util extends Activity {
      */
     protected static void addNewCondition(final Activity context, final DialogOptions cond) {
         // add condition to list of conditions of Event
-        // TODO: if adding NEW, this isn't problem
-        // TODO: but if adding from existing, we need to save condition somewhere else (temp condition array)!
         if (EventActivity.getInstance().isUpdating) {
             EventActivity.getInstance().updatedConditions.add(cond);
         } else {
@@ -599,6 +622,76 @@ public class Util extends Activity {
 
         EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
     }
+
+
+    /**
+     * ADD NEW ACTION
+     *
+     * @param act condition to be added
+     */
+    protected static void addNewAction(final Activity context, final DialogOptions act) {
+        // add condition to list of conditions of Event
+        if (EventActivity.getInstance().isUpdating) {
+            EventActivity.getInstance().updatedActions.add(act);
+        } else {
+            EventActivity.getInstance().actions.add(act);
+        }
+
+        // get options that we need for interface
+        String title = act.getSetting("text1");
+        String description = act.getSetting("text2");
+        int icon = act.getIcon();
+
+        // add new row to conditions now
+        final ViewGroup newRow = (ViewGroup) LayoutInflater.from(context).inflate(
+                R.layout.condition_single_item, EventActivity.getInstance().mContainerAction, false);
+
+        ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
+        ((TextView) newRow.findViewById(android.R.id.text2))
+                .setText(description);
+        //((TextView) newRow.findViewById(android.R.id.text2))
+        //        .setMovementMethod(new ScrollingMovementMethod());
+
+        ((ImageButton) newRow.findViewById(R.id.condition_icon))
+                .setImageDrawable(context.getResources().getDrawable(icon));
+
+        newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: clicking our newly added action
+                showMessageBox("clicked " + act.getTitle() + ", " + act.getOptionType(), false);
+            }
+        });
+
+        newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // when clicking recycle bin at condition, remove it from view and
+                // from array of all conditions
+
+                EventActivity.getInstance().mContainerAction.removeView(newRow);
+
+                // remove from conditions, depending on if we're adding to new event
+                // or existing event
+                if (EventActivity.getInstance().isUpdating) {
+                    EventActivity.getInstance().updatedActions.remove(
+                            EventActivity.getInstance().updatedActions.indexOf(act)
+                    );
+
+                    // we changed something, so set the changed boolean
+                    EventActivity.getInstance().isChanged = true;
+                } else {
+                    EventActivity.getInstance().actions.remove(
+                            EventActivity.getInstance().actions.indexOf(act)
+                    );
+                }
+
+            }
+        });
+
+        EventActivity.getInstance().mContainerAction.addView(newRow, 0);
+    }
+
 
     /**
      * SHOW YES/NO DIALOG
