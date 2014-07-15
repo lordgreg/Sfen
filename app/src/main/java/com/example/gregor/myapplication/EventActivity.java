@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -283,6 +284,8 @@ public class EventActivity extends Activity {
     public void refreshView() {
         ((TextView) findViewById(R.id.event_name)).setText(event.getName());
         ((Switch) findViewById(R.id.event_enabled)).setChecked(event.isEnabled());
+        //((Switch) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
+        ((CheckBox) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
 
         // add all conditions to container
         //ArrayList<DialogOptions> tempConditions = event.getConditions();
@@ -375,6 +378,21 @@ public class EventActivity extends Activity {
         // if we are updating, update our event with proper toggle
         if (isUpdating) {
             event.setEnabled(s.isChecked());
+
+            isChanged = true;
+        }
+    }
+
+    /**
+     * EDIT CONDITION MATCH TOGGLE
+     */
+    public void onClickEventAllConditions(View v) {
+        //Switch s = (Switch) findViewById(R.id.event_allconditions);
+        CheckBox s = (CheckBox) findViewById(R.id.event_allconditions);
+
+        // if we are updating, update our event with proper toggle
+        if (isUpdating) {
+            event.setMatchAllConditions(s.isChecked());
 
             isChanged = true;
         }

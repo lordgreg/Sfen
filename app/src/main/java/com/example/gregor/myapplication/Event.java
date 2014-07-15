@@ -16,6 +16,15 @@ public class Event {
     private String name;
     private boolean enabled;
     private boolean running;
+    private boolean matchAllConditions;
+
+    public boolean isMatchAllConditions() {
+        return matchAllConditions;
+    }
+
+    public void setMatchAllConditions(boolean matchAllConditions) {
+        this.matchAllConditions = matchAllConditions;
+    }
 
     private ArrayList<DialogOptions> conditions;
     private ArrayList<DialogOptions> actions;

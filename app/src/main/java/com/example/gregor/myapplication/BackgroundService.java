@@ -111,7 +111,13 @@ public class BackgroundService extends Service {
         for (Event e : Main.getInstance().events) {
             if (e.isEnabled() & !e.isRunning()) {
                 // if it is still not running, then, we have a candidate to check conditions..
-                Log.e("finder", "Conditions met? "+ areEventConditionsMet(context, intent, e));
+                if (areEventConditionsMet(context, intent, e)) {
+
+                    // wow. conditions are met! you know what that means?
+                    // we trigger actions!
+                    Util.showMessageBox("Run actions huey!", false);
+
+                }
             }
         }
     }
@@ -121,9 +127,13 @@ public class BackgroundService extends Service {
         boolean ret = false;
 
         ArrayList<DialogOptions> conditions = e.getConditions();
-Log.e("event", e.getName() +", condition number: "+ e.getConditions().size());
+
+        // array with booleans for all conditions
+        ArrayList<Boolean> conditionResults = new ArrayList<Boolean>();
+
+//Log.e("event", e.getName() +", condition number: "+ e.getConditions().size());
         for (DialogOptions cond : conditions) {
-Log.e("cond", "current condition "+ cond.getTitle());
+//Log.e("cond", "current condition "+ cond.getTitle());
             switch (cond.getOptionType()) {
                 case DAYSOFWEEK:
 
@@ -140,12 +150,16 @@ Log.e("cond", "current condition "+ cond.getTitle());
 
                     // is current day in array of selected days?
                     // its not, so break the loop and return false
-                    if (days.indexOf(currentDay) == -1)
-                        return false;
+                    if (days.indexOf(currentDay) == -1) {
+                        //return false;
+                        ret = false;
+                        conditionResults.add(false);
+                    }
 
                     // it is, so fix return value for the next condition;
                     else {
                         ret = true;
+                        conditionResults.add(true);
                     }
 
                     break;
@@ -166,11 +180,18 @@ Log.e("cond", "current condition "+ cond.getTitle());
                     final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
                             new TypeToken<List<String>>(){}.getType());
 
+                    //System.out.println("array of ssdis: "+ ssid.toString());
+                    //System.out.println("is current wifi in array? "+ ssid.indexOf(currentSsid));
                     // is it the correct one? is it????
-                    if (ssid.indexOf(currentSsid) == -1)
-                        return false;
-                    else
+                    if (ssid.indexOf(currentSsid) == -1) {
+                        //return false;
+                        ret = false;
+                        conditionResults.add(false);
+                    }
+                    else {
                         ret = true;
+                        conditionResults.add(true);
+                    }
 
 
                     //Log.e("test", ssid.toString());
@@ -182,75 +203,38 @@ Log.e("cond", "current condition "+ cond.getTitle());
                     Calendar cStart = Calendar.getInstance();
                     Calendar cEnd = Calendar.getInstance();
 
-                    int fromHour = Integer.parseInt(cond.getSetting("fromHour"));
-                    int fromMinute = Integer.parseInt(cond.getSetting("fromMinute"));
-                    int toHour = Integer.parseInt(cond.getSetting("toHour"));
-                    int toMinute = Integer.parseInt(cond.getSetting("toMinute"));
-                    int currHour = cal.get(Calendar.HOUR_OF_DAY);
-                    int currMinute = cal.get(Calendar.MINUTE);
+                    cStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("fromHour")));
+                    cStart.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("fromMinute")));
 
+                    cEnd.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("toHour")));
+                    cEnd.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("toMinute")));
 
-                    cStart.set(Calendar.HOUR_OF_DAY, fromHour);
-                    cStart.set(Calendar.MINUTE, fromMinute);
-
-                    cEnd.set(Calendar.HOUR_OF_DAY, toHour);
-                    cEnd.set(Calendar.MINUTE, toMinute);
-                    cEnd.add(Calendar.DATE, 1);
-
-                    //cal.add(Calendar.DATE, 1);
-
-                    Date current = cal.getTime();
-
-                    /*
-                    try {
-                        Date start = new SimpleDateFormat("HH:mm").parse(cond.getSetting("fromHour") +":"+ cond.getSetting("fromMinute"));
-                        Date end = new SimpleDateFormat("HH:mm").parse(cond.getSetting("toHour") +":"+ cond.getSetting("toMinute"));
-                        Date tmp = new SimpleDateFormat("HH:mm:ss").parse(cal.get(Calendar.HOUR_OF_DAY) +":"+ cal.get(Calendar.MINUTE));
-
-                        cal.setTime(tmp);
-                        cal.add(Calendar.DATE, 1);
-                        cStart.setTime(start);
+                    // if end time is small than start time, usually means end date is after midnight
+                    if (cEnd.before(cStart)) {
                         cEnd.add(Calendar.DATE, 1);
-                        cEnd.setTime(end);
-                        System.out.println("-------- test2");
-
-
+                        //cal.add(Calendar.DATE, 1);
                     }
-                    catch (ParseException exception) {
-                        exception.getStackTrace();
-                    }
-*/
 
 
-                    Log.e("test", "current date: "+ current.toString());
-                    Log.e("test", "start date: "+ cStart.getTime().toString());
-                    Log.e("test", "end date: "+ cEnd.getTime().toString());
+
+                    //Log.e("test", "current date: "+ current.toString());
+                    //Log.e("test", "start date: "+ cStart.getTime().toString());
+                    //Log.e("test", "end date: "+ cEnd.getTime().toString());
 
 
-                    if (current.after(cStart.getTime()) && current.before(cEnd.getTime())) {
-                        System.out.println("--------"+ true);
+                    //Date current = cal.getTime();
+                    if (cal.after(cStart) && cal.before((cEnd))) {
+                    //if (current.after(cStart.getTime()) && current.before(cEnd.getTime())) {
                         ret = true;
+                        conditionResults.add(true);
                     }
 
-                    else
-                        return false;
-
-
-/*
-                    Log.e("test", "Current time: "+ currHour +":"+ currMinute);
-                    Log.e("test", "From "+ fromHour +":"+ fromMinute +" to "+ toHour +":"+ toMinute);
-                    // if current time in between selected times?
-                    if (
-                            // current time has to be >= start time
-                            (currHour >= fromHour && currMinute >= fromMinute) &&
-                            (currHour <= toHour && currMinute <= toMinute)
-                            ) {
-                        Log.e("time", "Time is in between two times.");
-                        ret = true;
+                    else {
+                        //return false;
+                        ret = false;
+                        conditionResults.add(false);
                     }
-                    else
-                        return false;
-*/
+
 
                     break;
             }
@@ -258,7 +242,31 @@ Log.e("cond", "current condition "+ cond.getTitle());
         }
 
 
+        // if we have to
+        System.out.println("match all? "+ e.isMatchAllConditions());
+        System.out.println(conditionResults.toString());
 
+        // if we matching all conditions, find if any returned false
+        if (e.isMatchAllConditions()) {
+            // nope, one returned false, so return false.
+            if (conditionResults.indexOf(false) != -1) {
+                ret = false;
+            }
+            else
+                ret = true;
+        }
+        // we need to match at least one condition
+        else {
+            // got at least one true result?
+            if (conditionResults.indexOf(true) != -1) {
+                ret = true;
+            }
+            else
+                ret = false;
+        }
+
+        System.out.println("return result: "+ ret);
         return ret;
+        //return false;
     }
 }

@@ -34,6 +34,7 @@
         android:clickable="true"
         android:padding="6dip"
         android:layout_margin="5dp"
+        android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -48,6 +49,18 @@
         android:layout_height="wrap_content"
         android:checked="true" />
 
+
+    <CheckBox
+        android:button="@null"
+        android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Match all conditions?"
+        android:onClick="onClickEventAllConditions"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:id="@+id/event_allconditions"
+        android:checked="true" />
 
     <!--
     parent="@android:style/Widget.Button"
