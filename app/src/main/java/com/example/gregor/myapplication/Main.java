@@ -29,7 +29,7 @@ public class Main extends Activity {
     private static Main sInstance = null;
     private static Intent bgService = null;
     private ViewGroup mContainerView;
-    NotificationManager mNM = null;
+    protected NotificationManager mNM = null;
     protected ArrayList<Event> events = new ArrayList<Event>();
 
     // Map with options. Instead of creating more variables to use around

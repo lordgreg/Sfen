@@ -14,7 +14,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +42,14 @@ public class BackgroundService extends Service {
         sInstance = this;
     }
 
+    /*
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        //Log.d("MyService", "About to execute MyTask");
+        //new MyTask().execute();
+    }
+    */
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -61,7 +68,8 @@ public class BackgroundService extends Service {
         }
         */
         intentFilter.addAction(getClass().getPackage().getName() +".EVENT_ENABLED");
-        intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+
         registerReceiver(receiver, intentFilter);
 
         // check, for the first time of our app history, if we have a candidate..
@@ -177,20 +185,22 @@ Log.e("cond", "current condition "+ cond.getTitle());
 
                     System.out.println("action was: "+ receiverAction);
                     // did we just connect to wifi?
-                    if (receiverAction.equals("android.net.wifi.supplicant.CONNECTION_CHANGE")) {
-
+                    if (receiverAction.equals("android.net.wifi.STATE_CHANGE")) {
                         // connected
                         if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, true)) {
 
-                            // ok, we are connected, but is current SSID the one if array of desired?
+                                                        // ok, we are connected, but is current SSID the one if array of desired?
                             WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                             //String ssid = wifiInfo.toString();
                             String currentSsid = wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1);
 
+
+                            //System.out.println(wifiInfo.toString());
                             final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
                                     new TypeToken<List<String>>(){}.getType());
 
+                            //System.out.println(currentSsid +" >>> "+ ssid.indexOf(currentSsid));
                             //System.out.println("array of ssdis: "+ ssid.toString());
                             //System.out.println("is current wifi in array? "+ ssid.indexOf(currentSsid));
                             // is it the correct one? is it????
@@ -211,7 +221,7 @@ Log.e("cond", "current condition "+ cond.getTitle());
                             //return false;
                             ret = false;
                             conditionResults.add(false);
-                            break;
+                            //break;
                         }
                     }
 
@@ -302,7 +312,7 @@ Log.e("cond", "current condition "+ cond.getTitle());
 
                 // popup notification!
                 case ACT_NOTIFICATION:
-                    Util.showNotification("Event triggered!", e.getName() +" ran "+ act.getTitle(), R.drawable.ic_launcher);
+                    Util.showNotification("Sfen - "+ e.getName(), act.getTitle(), R.drawable.ic_launcher);
 
                     break;
 

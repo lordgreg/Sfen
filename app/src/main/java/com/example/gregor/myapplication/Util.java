@@ -362,12 +362,12 @@ public class Util extends Activity {
                                 cond.setSetting("toMinute", timeTo.getCurrentMinute().toString());
                                 cond.setSetting("text1", "Time range");
                                 cond.setSetting("text2", "From " +
-                                        String.format("%02d", timeFrom.getCurrentHour()) +":"+
+                                        String.format("%02d", timeFrom.getCurrentHour()) + ":" +
                                         String.format("%02d", timeFrom.getCurrentMinute())
-                                        +" to "+
-                                        String.format("%02d", timeTo.getCurrentHour()) +":"+
+                                        + " to " +
+                                        String.format("%02d", timeTo.getCurrentHour()) + ":" +
                                         String.format("%02d", timeTo.getCurrentMinute())
-                                        +"");
+                                        + "");
 
                                 addNewCondition(context, cond);
 
@@ -538,6 +538,7 @@ public class Util extends Activity {
      */
     protected static void showNotification(String title, String description, int icon) {
         NotificationManager mNM = (NotificationManager) Main.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+        //NotificationManager mNM = Main.getInstance().mNM;
         Notification note = new Notification(icon, title, System.currentTimeMillis());
 
         // The PendingIntent to launch our activity if the user selects this notification
@@ -549,6 +550,7 @@ public class Util extends Activity {
 
         if (mNM == null) {
             mNM = (NotificationManager) Main.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+            //mNM.notify(1337, note);
         }
 
         mNM.notify(1337, note);
