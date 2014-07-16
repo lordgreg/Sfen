@@ -43,7 +43,8 @@
                 android:value="com.example.gregor.myapplication.Main" />
         </activity>
 
-        <service android:name=".BackgroundService" />
+        <service android:enabled="true" android:name=".BackgroundService"
+            android:exported="false" />
 
         <activity
             android:name=".Log"

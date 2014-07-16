@@ -1,9 +1,12 @@
 package com.example.gregor.myapplication;
 
+import android.app.IntentService;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
@@ -22,7 +25,8 @@ import java.util.List;
  * main background process service; this one
  * loads and runs when we press back or home button
  */
-public class BackgroundService extends Service {
+public class BackgroundService extends IntentService {
+//public class BackgroundService extends Service {
     final Receiver receiver = new Receiver();
     protected String receiverAction = "";
 
@@ -35,26 +39,33 @@ public class BackgroundService extends Service {
     }};
 
 
+    /**
+     * default constructor
+     */
+    public BackgroundService() {
+        super("BackgroundService");
+    }
+
     @Override
     public void onCreate() {
         //Log.d("service", "service running");
         // set singleton instance
-        sInstance = this;
     }
 
-    /*
+
     @Override
     protected void onHandleIntent(Intent intent) {
         //Log.d("MyService", "About to execute MyTask");
         //new MyTask().execute();
     }
-    */
+
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Toast.makeText(this, "Service created.", Toast.LENGTH_LONG).show();
         //Main.getInstance().setNotification(getString(R.string.app_name), "", R.drawable.ic_launcher);
+        sInstance = this;
+
         Util.showNotification(getString(R.string.app_name), "", R.drawable.ic_launcher);
 
         // start our receiver
@@ -74,11 +85,25 @@ public class BackgroundService extends Service {
 
         // check, for the first time of our app history, if we have a candidate..
         EventFinder(this, intent);
+
         // run Events Checker every X seconds to see, if any of our events is ready to be run
         //AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
         //alarm.setRepeating(AlarmManager.RTC_WAKEUP, );
         // Start every 30 seconds
         //alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 30*1000, pintent);
+
+        // output every 3 seconds
+        /*
+        try {
+            for (int i = 0; i < 50; i++) {
+                System.out.println("output: "+ i);
+                Thread.sleep(3000);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        */
+
 
         return START_STICKY;
     }
@@ -124,11 +149,10 @@ public class BackgroundService extends Service {
                 // if it is still not running, then, we have a candidate to check conditions..
                 if (areEventConditionsMet(context, intent, e)) {
                     // lets set event as running
-                    e.setRunning(true);
+                    //e.setRunning(true);
 
                     // wow. conditions are met! you know what that means?
                     // we trigger actions!
-                    Util.showMessageBox("Run actions huey!", false);
                     runEventActions(context, intent, e);
 
 
@@ -148,9 +172,9 @@ public class BackgroundService extends Service {
         // array with booleans for all conditions
         ArrayList<Boolean> conditionResults = new ArrayList<Boolean>();
 
-//Log.e("event", e.getName() +", condition number: "+ e.getConditions().size());
         for (DialogOptions cond : conditions) {
-Log.e("cond", "current condition "+ cond.getTitle());
+System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle());
+
             switch (cond.getOptionType()) {
                 case DAYSOFWEEK:
 
@@ -168,63 +192,54 @@ Log.e("cond", "current condition "+ cond.getTitle());
                     // is current day in array of selected days?
                     // its not, so break the loop and return false
                     if (days.indexOf(currentDay) == -1) {
-                        //return false;
-                        ret = false;
                         conditionResults.add(false);
                     }
 
                     // it is, so fix return value for the next condition;
-                    else {
-                        ret = true;
+                    else
                         conditionResults.add(true);
-                    }
+
 
                     break;
 
                 case WIFI_CONNECT:
 
-                    System.out.println("action was: "+ receiverAction);
-                    // did we just connect to wifi?
-                    if (receiverAction.equals("android.net.wifi.STATE_CHANGE")) {
-                        // connected
-                        if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, true)) {
+                    ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-                                                        // ok, we are connected, but is current SSID the one if array of desired?
-                            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                            //String ssid = wifiInfo.toString();
-                            String currentSsid = wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1);
+                    // first thing if condition WIFI_CONNECT, are we connected to wifi?
+                    if (networkInfo.isConnected()) {
+                        //System.out.println("yes, we are connected. "+ networkInfo.getTypeName());
 
+                        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 
-                            //System.out.println(wifiInfo.toString());
-                            final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
-                                    new TypeToken<List<String>>(){}.getType());
+                        String currentSsid = wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1);
 
-                            //System.out.println(currentSsid +" >>> "+ ssid.indexOf(currentSsid));
-                            //System.out.println("array of ssdis: "+ ssid.toString());
-                            //System.out.println("is current wifi in array? "+ ssid.indexOf(currentSsid));
-                            // is it the correct one? is it????
-                            if (ssid.indexOf(currentSsid) == -1) {
-                                //return false;
-                                ret = false;
-                                conditionResults.add(false);
-                            }
-                            else {
-                                ret = true;
-                                conditionResults.add(true);
-                            }
+                        //System.out.println(wifiInfo.toString());
+                        final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
+                                new TypeToken<List<String>>(){}.getType());
 
+                        // what ssid we connected on?
+                        //System.out.println("ssid "+ wifiInfo.getSSID());
+                        //System.out.println(wifiInfo.toString());
+                        //System.out.println("is current ssid in condition array? "+ ssid.indexOf(currentSsid));
+
+                        // if connected ssid = the one from array of conditioned, return true.
+                        if (ssid.indexOf(currentSsid) != -1) {
+                            conditionResults.add(true);
                         }
-
-                        // here could be disconnected.
-                        else{
-                            //return false;
-                            ret = false;
+                        else
                             conditionResults.add(false);
-                            //break;
-                        }
-                    }
 
+
+
+                    }
+                    // wifi connect case should return false otherwise, since we're not connected
+                    // anyways
+                    else {
+                        conditionResults.add(false);
+                    }
 
 
                     break;
@@ -253,14 +268,10 @@ Log.e("cond", "current condition "+ cond.getTitle());
 
                     //Date current = cal.getTime();
                     if (cal.after(cStart) && cal.before((cEnd))) {
-                    //if (current.after(cStart.getTime()) && current.before(cEnd.getTime())) {
-                        ret = true;
                         conditionResults.add(true);
                     }
 
                     else {
-                        //return false;
-                        ret = false;
                         conditionResults.add(false);
                     }
 
@@ -270,10 +281,6 @@ Log.e("cond", "current condition "+ cond.getTitle());
 
         }
 
-
-        // if we have to
-        System.out.println("match all? "+ e.isMatchAllConditions());
-        System.out.println(conditionResults.toString());
 
         // if we matching all conditions, find if any returned false
         if (e.isMatchAllConditions()) {
@@ -294,14 +301,33 @@ Log.e("cond", "current condition "+ cond.getTitle());
                 ret = false;
         }
 
-        System.out.println("return result: "+ ret);
+        // if all conditions are false, that means the Event is NOT running!
+        // switch event running boolean to false.
+        if (conditionResults.indexOf(true) == -1) {
+            if (e.isRunning()) {
+                System.out.println("Turning off " + e.getName());
+                e.setRunning(false);
+            }
+        }
+
+        // if we have to
+        System.out.println("match all? "+ e.isMatchAllConditions() +" (results from conditions: "+
+                conditionResults.toString() +"); RETURN RESULT: "+ ret);
+        //System.out.println(conditionResults.toString());
         return ret;
-        //return false;
+
     }
 
 
     private void runEventActions(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
+
+        // if even is already running and this isn't first run of app,
+        // don't re-run actions
+        if (e.isRunning()) {
+            System.out.println(e.getName() +" is already running. Skipping actions.");
+            return ;
+        }
 
         ArrayList<DialogOptions> actions = e.getActions();
         // loop through all actions and run them
@@ -312,7 +338,7 @@ Log.e("cond", "current condition "+ cond.getTitle());
 
                 // popup notification!
                 case ACT_NOTIFICATION:
-                    Util.showNotification("Sfen - "+ e.getName(), act.getTitle(), R.drawable.ic_launcher);
+                    Util.showNotification("Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
 
                     break;
 
@@ -322,5 +348,9 @@ Log.e("cond", "current condition "+ cond.getTitle());
 
             }
         }
+
+        // first time actions are run. now set event to running.
+        e.setRunning(true);
+
     }
 }

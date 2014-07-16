@@ -47,11 +47,6 @@ public class Main extends Activity {
         // create notification manager
         mNM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // create & start service
-        bgService = new Intent(this, BackgroundService.class);
-        startService(bgService);
-
-
         // set container for our events
         mContainerView = (ViewGroup) findViewById(R.id.container);
 
@@ -59,6 +54,16 @@ public class Main extends Activity {
         // fetch events from settings of some sort and fill our listview
         events = getEventsFromPreferences();
         refreshEventsView();
+
+        // this is our first run, let set all events running boolean to false
+        for (int i = 0; i < events.size(); i++) {
+            events.get(i).setRunning(false);
+        }
+
+
+        // create & start service
+        bgService = new Intent(this, BackgroundService.class);
+        startService(bgService);
 
     }
 
@@ -293,7 +298,7 @@ public class Main extends Activity {
         //protected ArrayList<Event> events = new ArrayList<Event>();
         ArrayList<Event> eventsPrefs = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
 
-        // if preferences exist and current evets array don't
+        // if preferences exist and current events array don't
         if (eventsPrefs != null) {
             if (eventsPrefs.size() > 0) {
                 returnObj = eventsPrefs;

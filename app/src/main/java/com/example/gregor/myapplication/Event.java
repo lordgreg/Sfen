@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class Event {
     private String name;
     private boolean enabled;
-    private boolean running;
+    private boolean running = false;
     private boolean matchAllConditions;
     private boolean forceRun = false;
 
