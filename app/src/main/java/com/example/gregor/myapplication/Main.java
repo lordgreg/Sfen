@@ -2,13 +2,10 @@ package com.example.gregor.myapplication;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +26,6 @@ public class Main extends Activity {
     private static Main sInstance = null;
     private static Intent bgService = null;
     private ViewGroup mContainerView;
-    protected NotificationManager mNM = null;
     protected ArrayList<Event> events = new ArrayList<Event>();
 
     // Map with options. Instead of creating more variables to use around
@@ -44,16 +40,13 @@ public class Main extends Activity {
         // set singleton instance
         sInstance = this;
 
-        // create notification manager
-        mNM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
         // set container for our events
         mContainerView = (ViewGroup) findViewById(R.id.container);
 
 
-        // fetch events from settings of some sort and fill our listview
+        // fetch events from settings of some sort
         events = getEventsFromPreferences();
-        refreshEventsView();
+
 
         // this is our first run, let set all events running boolean to false
         for (int i = 0; i < events.size(); i++) {
@@ -64,6 +57,10 @@ public class Main extends Activity {
         // create & start service
         bgService = new Intent(this, BackgroundService.class);
         startService(bgService);
+
+
+        // fill our view with events
+        refreshEventsView();
 
     }
 
@@ -107,7 +104,7 @@ public class Main extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             stopService(bgService);
-                            mNM.cancel(1337);
+                            BackgroundService.getInstance().stopForeground(true);
                             finish();
 
                         }
@@ -169,6 +166,13 @@ public class Main extends Activity {
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(e.getName());
             ((TextView) newRow.findViewById(android.R.id.text2)).setText((e.isEnabled()) ? "Enabled" : "Disabled");
 
+            // change color depending on if event is running
+            if (e.isRunning())
+                ((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.BLUE);
+            // or if it is disabled
+            if (!e.isEnabled())
+                ((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.GRAY);
+
             // add on long press event
             newRow.findViewById(R.id.event_container).setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -188,12 +192,20 @@ public class Main extends Activity {
                                     // of the selected item
                                     // 0 edit, 1 enable/disable, 2 delete
                                     if (which == 1) {
-                                        if (e.isEnabled())
+                                        if (e.isEnabled()) {
+                                            e.setRunning(false);
                                             e.setEnabled(false);
+                                            Util.showNotification(BackgroundService.getInstance(),
+                                                    getString(R.string.app_name), "", R.drawable.ic_launcher);
+                                            //sendBroadcast("EVENT_DISABLED");
+                                        }
                                         else {
                                             e.setEnabled(true);
                                             // sending broadcast that we've enabled event
                                             sendBroadcast("EVENT_ENABLED");
+
+                                            // mark green if we started the event
+                                            //((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.GREEN);
                                         }
 
                                         // update events array
@@ -231,13 +243,30 @@ public class Main extends Activity {
             newRow.findViewById(R.id.single_edit).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //startActivity(new Intent(this, EventActivity.class));
-                    Intent i = new Intent(getApplicationContext(), EventActivity.class);
-                    i.putExtra("sEvent", (new Gson().toJson(e)));
-                    i.putExtra("sEventIndexKey", events.indexOf(e));
-                    startActivity(i);
+                    onClickSingleEvent(e);
                 }
             });
+
+            // same goes with text1, text2 and event_container
+            newRow.findViewById(android.R.id.text1).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickSingleEvent(e);
+                }
+            });
+            newRow.findViewById(android.R.id.text2).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickSingleEvent(e);
+                }
+            });
+            newRow.findViewById(R.id.event_container).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickSingleEvent(e);
+                }
+            });
+
 
             // add delete button event
             /*
@@ -324,27 +353,6 @@ public class Main extends Activity {
             return sInstance;
     }
 
-    /**
-     * create/update Notification
-     */
-    protected void setNotification(String title, String description, int icon) {
-        Notification note = new Notification(icon, title, System.currentTimeMillis());
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent pi = PendingIntent.getActivity(this, 0,
-                new Intent(this, Main.class), 0);
-
-        note.setLatestEventInfo(this, title, description, pi);
-        note.flags |= Notification.FLAG_NO_CLEAR;
-
-        if (mNM == null) {
-            mNM = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        }
-
-        mNM.notify(1337, note);
-
-    }
-
 
     /**
      * SEND NEW BROADCAST
@@ -356,6 +364,14 @@ public class Main extends Activity {
             intent.setAction(sInstance.getClass().getPackage().getName() +"."+ broadcast);
             sendBroadcast(intent);
         }
+    }
+
+
+    private void onClickSingleEvent(Event e) {
+        Intent i = new Intent(getApplicationContext(), EventActivity.class);
+        i.putExtra("sEvent", (new Gson().toJson(e)));
+        i.putExtra("sEventIndexKey", events.indexOf(e));
+        startActivity(i);
     }
 
 }

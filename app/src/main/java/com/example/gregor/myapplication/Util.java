@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -536,16 +537,17 @@ public class Util extends Activity {
      * @param description is the description (bottom line)
      * @param icon        well, its obvious, isn't it? o_O
      */
-    protected static void showNotification(String title, String description, int icon) {
-        NotificationManager mNM = (NotificationManager) Main.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+    protected static void showNotification(final Service context, String title, String description, int icon) {
+
+        NotificationManager mNM = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         //NotificationManager mNM = Main.getInstance().mNM;
         Notification note = new Notification(icon, title, System.currentTimeMillis());
 
         // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent pi = PendingIntent.getActivity(Main.getInstance(), 0,
-                new Intent(Main.getInstance(), Main.class), 0);
+        PendingIntent pi = PendingIntent.getActivity(context, 0,
+                new Intent(context, Main.class), 0);
 
-        note.setLatestEventInfo(Main.getInstance(), title, description, pi);
+        note.setLatestEventInfo(context, title, description, pi);
         note.flags |= Notification.FLAG_NO_CLEAR;
 
         if (mNM == null) {
@@ -553,7 +555,11 @@ public class Util extends Activity {
             //mNM.notify(1337, note);
         }
 
-        mNM.notify(1337, note);
+        //mNM.notify(1337, note);
+
+        //context.getApplicationContext().st
+        context.startForeground(1337, note);
+
     }
 
 

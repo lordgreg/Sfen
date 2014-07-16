@@ -2,6 +2,7 @@ package com.example.gregor.myapplication;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Switch;
@@ -350,6 +352,10 @@ public class EventActivity extends Activity {
         // select all text in edittext
         eventName.setSelectAllOnFocus(true);
 
+        // auto open soft keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(eventName, InputMethodManager.SHOW_IMPLICIT);
+
         builder
                 .setView(promptView)
                 .setIcon(R.drawable.ic_launcher)
@@ -401,6 +407,9 @@ public class EventActivity extends Activity {
         // if we are updating, update our event with proper toggle
         if (isUpdating) {
             event.setEnabled(s.isChecked());
+
+            // we have to force update since the name has changed
+            event.setForceRun(true);
 
             isChanged = true;
         }

@@ -23,6 +23,14 @@ public class Event {
         return matchAllConditions;
     }
 
+    public boolean isForceRun() {
+        return forceRun;
+    }
+
+    public void setForceRun(boolean forceRun) {
+        this.forceRun = forceRun;
+    }
+
     public void setMatchAllConditions(boolean matchAllConditions) {
         this.matchAllConditions = matchAllConditions;
     }

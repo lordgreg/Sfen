@@ -1,6 +1,5 @@
 package com.example.gregor.myapplication;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,14 +17,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+
 /**
  * Created by Gregor on 10.7.2014.
  *
  * main background process service; this one
  * loads and runs when we press back or home button
  */
-public class BackgroundService extends IntentService {
-//public class BackgroundService extends Service {
+public class BackgroundService extends Service {
     final Receiver receiver = new Receiver();
     protected String receiverAction = "";
 
@@ -34,57 +32,43 @@ public class BackgroundService extends IntentService {
 
     // list of all allowable broadcasts
     private static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
-        add(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        add(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         add(getClass().getPackage().getName() +".EVENT_ENABLED");
+        add(getClass().getPackage().getName() +".EVENT_DISABLED");
     }};
 
 
-    /**
-     * default constructor
-     */
-    public BackgroundService() {
-        super("BackgroundService");
-    }
 
     @Override
     public void onCreate() {
-        //Log.d("service", "service running");
-        // set singleton instance
+        sInstance = this;
     }
-
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        //Log.d("MyService", "About to execute MyTask");
-        //new MyTask().execute();
-    }
-
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Main.getInstance().setNotification(getString(R.string.app_name), "", R.drawable.ic_launcher);
-        sInstance = this;
+        // believe it or not, but this notification will take care of our
+        // background service!
+        Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
 
-        Util.showNotification(getString(R.string.app_name), "", R.drawable.ic_launcher);
 
         // start our receiver
         IntentFilter intentFilter = new IntentFilter();
 
         // add allowable broadcasts
-        /*
         for (int i = 0; i < sBroadcasts.size(); i++) {
             //Log.e("adding broad to intent", sBroadcasts.get(i));
             intentFilter.addAction(sBroadcasts.get(i));
         }
-        */
-        intentFilter.addAction(getClass().getPackage().getName() +".EVENT_ENABLED");
-        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+
+        //intentFilter.addAction(getClass().getPackage().getName() +".EVENT_ENABLED");
+        //intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 
         registerReceiver(receiver, intentFilter);
 
         // check, for the first time of our app history, if we have a candidate..
         EventFinder(this, intent);
+
+
 
         // run Events Checker every X seconds to see, if any of our events is ready to be run
         //AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
@@ -117,9 +101,10 @@ public class BackgroundService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
 
-        // unregister our reciever
+        // unregister our receiver
         unregisterReceiver(receiver);
     }
+
 
     /**
      * SINGLETON INSTANCE
@@ -324,7 +309,7 @@ System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle
 
         // if even is already running and this isn't first run of app,
         // don't re-run actions
-        if (e.isRunning()) {
+        if (e.isRunning() && e.isForceRun()) {
             System.out.println(e.getName() +" is already running. Skipping actions.");
             return ;
         }
@@ -338,7 +323,7 @@ System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle
 
                 // popup notification!
                 case ACT_NOTIFICATION:
-                    Util.showNotification("Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
+                    Util.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
 
                     break;
 
@@ -352,5 +337,9 @@ System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle
         // first time actions are run. now set event to running.
         e.setRunning(true);
 
+        // disable force run
+        e.setForceRun(false);
+
     }
+
 }

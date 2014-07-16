@@ -43,7 +43,9 @@
                 android:value="com.example.gregor.myapplication.Main" />
         </activity>
 
-        <service android:enabled="true" android:name=".BackgroundService"
+        <service
+            android:enabled="true"
+            android:name=".BackgroundService"
             android:exported="false" />
 
         <activity
@@ -57,6 +59,8 @@
 
         <receiver android:name=".Receiver" >
         </receiver>
+
+
     </application>
 
 </manifest>

@@ -9,4 +9,5 @@
         android:layout_height="wrap_content"
         android:id="@+id/prompt_text"
         android:layout_gravity="center_horizontal" />
+
 </LinearLayout>
