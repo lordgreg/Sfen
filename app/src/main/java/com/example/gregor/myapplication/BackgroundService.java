@@ -28,6 +28,7 @@ public class BackgroundService extends Service {
     final Receiver receiver = new Receiver();
     protected String receiverAction = "";
 
+
     private static BackgroundService sInstance = null;
 
     // list of all allowable broadcasts
@@ -124,7 +125,7 @@ public class BackgroundService extends Service {
     /**
      * EVENT CHECKER!
      *
-     * This function os the reason of our existance! It is this function which is going to check
+     * This function os the reason of our existence! It is this function which is going to check
      * if there is any event that can be triggered by eny broadcast!
      */
     protected void EventFinder(Context context, Intent intent) {
@@ -133,9 +134,6 @@ public class BackgroundService extends Service {
             if (e.isEnabled() /* & !e.isRunning() */) {
                 // if it is still not running, then, we have a candidate to check conditions..
                 if (areEventConditionsMet(context, intent, e)) {
-                    // lets set event as running
-                    //e.setRunning(true);
-
                     // wow. conditions are met! you know what that means?
                     // we trigger actions!
                     runEventActions(context, intent, e);

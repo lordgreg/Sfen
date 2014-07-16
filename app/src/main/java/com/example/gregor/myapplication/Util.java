@@ -123,6 +123,7 @@ public class Util extends Activity {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
 
+
         switch (opt.getOptionType()) {
 
             // NEW LOCATION ENTER/LEAVE DIALOG
@@ -403,8 +404,16 @@ public class Util extends Activity {
                     return ;
                 }
 
+                // array of checked items
+                boolean[] checkedItems = new boolean[wifiList.size()];
+
 
                 for (WifiConfiguration single : wifiList) {
+                    // if we're editing single option, check if edited SSID = single,
+                    // then set that bool array key to true.
+                    //if (opt.getSetting(""))
+
+
                     //Log.e("wifi", ">>> "+ single.toString());
                     //myString.substring(1, myString.length()-1);
                     mWifiArray.add(single.SSID.substring(1, single.SSID.length() - 1));
@@ -463,7 +472,7 @@ public class Util extends Activity {
                             }
                         })
 
-                        .setMultiChoiceItems(stringArray, null, new DialogInterface.OnMultiChoiceClickListener() {
+                        .setMultiChoiceItems(stringArray, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 // selecting/removing choices
@@ -475,6 +484,8 @@ public class Util extends Activity {
 
                             }
                         });
+
+
 
                 builder.show();
                 //mManager.getConfiguredNetworks();
@@ -598,6 +609,7 @@ public class Util extends Activity {
             @Override
             public void onClick(View v) {
                 // TODO: clicking our newly added condition
+                openSubDialog(context, cond);
                 showMessageBox("clicked " + cond.getTitle() + ", " + cond.getOptionType(), false);
             }
         });
