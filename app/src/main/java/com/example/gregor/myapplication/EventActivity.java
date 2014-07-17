@@ -284,6 +284,8 @@ public class EventActivity extends Activity {
         // at the end, send broadcast, if the event is enabled
         if (event.isEnabled()/* && !event.isRunning()*/) {
             // sending broadcast that we've enabled event
+            // but because we've updated the event, force refresh
+            event.setForceRun(true);
             Main.getInstance().sendBroadcast("EVENT_ENABLED");
         }
 

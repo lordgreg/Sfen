@@ -27,6 +27,8 @@ import java.util.List;
 public class BackgroundService extends Service {
     final Receiver receiver = new Receiver();
     protected String receiverAction = "";
+    private boolean isOneRunning = false;
+    private boolean isOneStopping = false;
 
 
     private static BackgroundService sInstance = null;
@@ -134,15 +136,32 @@ public class BackgroundService extends Service {
             if (e.isEnabled() /* & !e.isRunning() */) {
                 // if it is still not running, then, we have a candidate to check conditions..
                 if (areEventConditionsMet(context, intent, e)) {
+
+                    isOneRunning = true;
+
                     // wow. conditions are met! you know what that means?
                     // we trigger actions!
                     runEventActions(context, intent, e);
-
 
                     // TODO: store action to log.
                 }
             }
         }
+
+        // if we have main activity window open, refresh them
+        // TODO: only refresh if we noticed a change
+        if (Main.getInstance().isVisible) {
+            Main.getInstance().refreshEventsView();
+        }
+
+        // if there's no events running OR events stopping, clear notification
+        if (!isOneRunning || isOneStopping) {
+            System.out.println("no events running.");
+            Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+            isOneRunning = false;
+            isOneStopping = false;
+        }
+
     }
 
     private boolean areEventConditionsMet(Context context, Intent intent, Event e) {
@@ -290,6 +309,9 @@ System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle
             if (e.isRunning()) {
                 System.out.println("Turning off " + e.getName());
                 e.setRunning(false);
+
+                // we have updated even though we are returning false
+                isOneStopping = true;
             }
         }
 
@@ -307,7 +329,7 @@ System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle
 
         // if even is already running and this isn't first run of app,
         // don't re-run actions
-        if (e.isRunning() && e.isForceRun()) {
+        if (e.isRunning() && !e.isForceRun()) {
             System.out.println(e.getName() +" is already running. Skipping actions.");
             return ;
         }

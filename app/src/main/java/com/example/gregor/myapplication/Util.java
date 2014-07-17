@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -122,6 +123,11 @@ public class Util extends Activity {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
+        final Gson gson = new Gson();
+
+        // the only thing we have to check if we're editing entry is,
+        // if we have at least one setting stored. if so, all is good in our wonderland
+        final boolean isEditing = (opt.getSettings().size() > 0) ? true : false;
 
 
         switch (opt.getOptionType()) {
@@ -256,7 +262,6 @@ public class Util extends Activity {
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // TODO: add day picker now.
                                 dialog.dismiss();
 
 
@@ -407,16 +412,35 @@ public class Util extends Activity {
                 // array of checked items
                 boolean[] checkedItems = new boolean[wifiList.size()];
 
+                // if editing setting, get list of selected wifi ap's
+                ArrayList<String> mSsidFromSettings = null;
+                if (isEditing) {
+                    mSsidFromSettings = gson.fromJson(opt.getSetting("selectedWifi"),
+                            new TypeToken<List<String>>(){}.getType());
+
+                    System.out.println("we have ssid's stored: "+ mSsidFromSettings.toString());
+                }
+                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+                //final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
+                //        new TypeToken<List<String>>(){}.getType());
 
                 for (WifiConfiguration single : wifiList) {
-                    // if we're editing single option, check if edited SSID = single,
-                    // then set that bool array key to true.
-                    //if (opt.getSetting(""))
 
-
-                    //Log.e("wifi", ">>> "+ single.toString());
-                    //myString.substring(1, myString.length()-1);
                     mWifiArray.add(single.SSID.substring(1, single.SSID.length() - 1));
+
+                    // if we are editing options AND
+                    // if it current config is one of the ones stored
+                    if (isEditing &&
+                            mSsidFromSettings.indexOf(single.SSID.substring(1, single.SSID.length() - 1)) != -1) {
+                        // and
+                        System.out.println(single.SSID + " stored in settings. index: "+
+                                        mSsidFromSettings.indexOf(single.SSID.substring(1, single.SSID.length() - 1))
+                        );
+
+                        // then enable array of booleans on the index
+                        checkedItems[ mWifiArray.indexOf(single.SSID.substring(1, single.SSID.length() - 1)) ] = true;
+                    }
+
                 }
                 final String[] stringArray = mWifiArray.toArray(new String[mWifiArray.size()]);
 
@@ -580,6 +604,10 @@ public class Util extends Activity {
      * @param cond condition to be added
      */
     protected static void addNewCondition(final Activity context, final DialogOptions cond) {
+        // the only thing we have to check if we're editing entry is,
+        // if we have at least one setting stored. if so, all is good in our wonderland
+        final boolean isEditing = (cond.getSettings().size() > 0) ? true : false;
+
         // add condition to list of conditions of Event
         if (EventActivity.getInstance().isUpdating) {
             EventActivity.getInstance().updatedConditions.add(cond);
@@ -640,7 +668,14 @@ public class Util extends Activity {
             }
         });
 
-        EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
+        // updating Condition?
+        if (isEditing) {
+            //EventActivity.getInstance().mContainerCondition.
+            // TODO: update OR remove old, add new to conditions array!
+        }
+        // addin new condition
+        else
+            EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
     }
 
 

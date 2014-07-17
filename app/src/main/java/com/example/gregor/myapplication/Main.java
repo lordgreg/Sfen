@@ -25,6 +25,7 @@ import java.util.List;
 public class Main extends Activity {
     private static Main sInstance = null;
     private static Intent bgService = null;
+    protected boolean isVisible = false;
     private ViewGroup mContainerView;
     protected ArrayList<Event> events = new ArrayList<Event>();
 
@@ -60,7 +61,7 @@ public class Main extends Activity {
 
 
         // fill our view with events
-        refreshEventsView();
+        //refreshEventsView();
 
     }
 
@@ -68,10 +69,22 @@ public class Main extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (options.get("eventSave") == "1") {
+
+        // set to visible
+        isVisible = true;
+
+        //if (options.get("eventSave") == "1") {
             //addNewEvent();
             refreshEventsView();
-        }
+        //}
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // set to invisible
+        isVisible = false;
     }
 
     @Override
@@ -146,7 +159,7 @@ public class Main extends Activity {
      * after resuming the app, we will usually come to the main activity with nothing on it.
      * this function will take care of that! go through events array and fill it up, yo?
      */
-    private void refreshEventsView() {
+    protected void refreshEventsView() {
         // always clear container first
         mContainerView.removeAllViews();
 
@@ -164,7 +177,10 @@ public class Main extends Activity {
                     R.layout.main_single_item, mContainerView, false);
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(e.getName());
-            ((TextView) newRow.findViewById(android.R.id.text2)).setText((e.isEnabled()) ? "Enabled" : "Disabled");
+            ((TextView) newRow.findViewById(android.R.id.text2)).setText(
+                    (e.isRunning()) ? "Active" :
+                            ((e.isEnabled() ? "Enabled" : "Disabled"))
+            );
 
             // change color depending on if event is running
             if (e.isRunning())
@@ -173,68 +189,28 @@ public class Main extends Activity {
             if (!e.isEnabled())
                 ((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.GRAY);
 
-            // add on long press event
+            // add on long press event (text1, text2, event_container
+            newRow.findViewById(android.R.id.text1).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onLongClickSingleEvent(e, newRow);
+                    return true;
+                }
+            });
+
+            newRow.findViewById(android.R.id.text2).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onLongClickSingleEvent(e, newRow);
+                    return true;
+                }
+            });
+
+
             newRow.findViewById(R.id.event_container).setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    // array of options
-                    final String[] sOptions = {"Edit", ((e.isEnabled()) ? "Disable" : "Enable"), "Delete"};
-                    // show dialog with more options for single event
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
-                    builder
-                            //.setMessage("Service will be stopped and Events won't be triggered.\n\nAre you sure?")
-                            //.setIcon(getResources().getDrawable(R.drawable.ic_launcher))
-                            .setTitle(e.getName())
-                            .setItems(sOptions, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    // The 'which' argument contains the index position
-                                    // of the selected item
-                                    // 0 edit, 1 enable/disable, 2 delete
-                                    if (which == 1) {
-                                        if (e.isEnabled()) {
-                                            e.setRunning(false);
-                                            e.setEnabled(false);
-                                            Util.showNotification(BackgroundService.getInstance(),
-                                                    getString(R.string.app_name), "", R.drawable.ic_launcher);
-                                            //sendBroadcast("EVENT_DISABLED");
-                                        }
-                                        else {
-                                            e.setEnabled(true);
-                                            // sending broadcast that we've enabled event
-                                            sendBroadcast("EVENT_ENABLED");
-
-                                            // mark green if we started the event
-                                            //((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.GREEN);
-                                        }
-
-                                        // update events array
-                                        events.set(events.indexOf(e), e);
-                                        updateEventsFromPreferences();
-                                        refreshEventsView();
-
-                                    }
-                                    if (which == 2) {
-                                        // delete row AND spot in events
-                                        mContainerView.removeView(newRow);
-                                        events.remove(e);
-                                        updateEventsFromPreferences();
-                                    }
-
-                                }
-                            })
-
-                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                    //return;
-                                }
-                            });
-
-                    // open the dialog now :)
-                    builder.show();
-
+                    onLongClickSingleEvent(e, newRow);
                     return true;
                 }
             });
@@ -367,11 +343,81 @@ public class Main extends Activity {
     }
 
 
+    /**
+     * CLICK ON SINGLE EVENT OPENS EVENT ACTIVITY
+     *
+     * @param e Event
+     */
     private void onClickSingleEvent(Event e) {
         Intent i = new Intent(getApplicationContext(), EventActivity.class);
         i.putExtra("sEvent", (new Gson().toJson(e)));
         i.putExtra("sEventIndexKey", events.indexOf(e));
         startActivity(i);
+    }
+
+    /**
+     * LONG CLICK SINGLE EVENT
+     *
+     * should open popup with options.
+     */
+    private void onLongClickSingleEvent(final Event e, final ViewGroup newRow) {
+        // array of options
+        final String[] sOptions = {"Edit", ((e.isEnabled()) ? "Disable" : "Enable"), "Delete"};
+        // show dialog with more options for single event
+        final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
+        builder
+                //.setMessage("Service will be stopped and Events won't be triggered.\n\nAre you sure?")
+                //.setIcon(getResources().getDrawable(R.drawable.ic_launcher))
+                .setTitle(e.getName())
+                .setItems(sOptions, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        // 0 edit, 1 enable/disable, 2 delete
+                        if (which == 1) {
+                            if (e.isEnabled()) {
+                                e.setRunning(false);
+                                e.setEnabled(false);
+                                //Util.showNotification(BackgroundService.getInstance(),
+                                //        getString(R.string.app_name), "", R.drawable.ic_launcher);
+                                //sendBroadcast("EVENT_DISABLED");
+                            }
+                            else {
+                                e.setEnabled(true);
+                                // sending broadcast that we've enabled event
+                                sendBroadcast("EVENT_ENABLED");
+
+                                // mark green if we started the event
+                                //((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.GREEN);
+                            }
+
+                            // update events array
+                            events.set(events.indexOf(e), e);
+                            updateEventsFromPreferences();
+                            refreshEventsView();
+
+                        }
+                        if (which == 2) {
+                            // delete row AND spot in events
+                            mContainerView.removeView(newRow);
+                            events.remove(e);
+                            updateEventsFromPreferences();
+                        }
+
+                    }
+                })
+
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        //return;
+                    }
+                });
+
+        // open the dialog now :)
+        builder.show();
     }
 
 }
