@@ -139,7 +139,6 @@ public class Util extends Activity {
                 // create MAP object
                 final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
 
-
                 builder.setView(dialogMap)
                         .setIcon(context.getResources().getDrawable(R.drawable.ic_launcher))
                         .setTitle("Pick location")
@@ -161,6 +160,9 @@ public class Util extends Activity {
 
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
                                     cond.setSetting("text2", "Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
+
+                                    if (isEditing)
+                                        removeConditionOrAction(index, opt);
 
                                     //addNewCondition(context, cond, index);
                                     addNewConditionOrAction(context, cond, index);
@@ -245,6 +247,33 @@ public class Util extends Activity {
 
 
                 map.setMyLocationEnabled(true);
+
+
+
+                //System.out.println("****** EDITING: "+ isEditing +" SETTINGS "+ opt.getSettings().toString());
+                if (isEditing) {
+                    //android.util.Log.e("MAP", "yes, editing. settings: "+ opt.getSettings().toString());
+                    // editing, set marker.
+                    //LatLng mLatLngFromSettings = null;
+                    //if (isEditing) {
+                    //  mLatLngFromSettings = new LatLng(Double.parseDouble(opt.getSetting("latitude")), Double.parseDouble(opt.getSetting("longitude")));
+                    //}
+                    myLocation = new LatLng(Double.parseDouble(opt.getSetting("latitude")), Double.parseDouble(opt.getSetting("longitude")));
+
+                    // redraw radius circle and marker
+                    marker = map.addMarker(new MarkerOptions().position(myLocation));
+                    circle = map.addCircle(new CircleOptions()
+                                    .center(myLocation)
+                                    .radius(100)
+                                    .strokeWidth(2)
+                                    .strokeColor(0xff0099FF)
+                                    .fillColor(0x550099FF)
+                    );
+
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+                }
+
+
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
 
                 break;
@@ -256,6 +285,28 @@ public class Util extends Activity {
 
                 // storage for selected days
                 final ArrayList<Integer> mSelectedDays = new ArrayList<Integer>();
+
+                // array of checked items
+                boolean[] checkedDays = new boolean[sDays.length];
+
+                // editing? then fill boolean with picked days
+                ArrayList<Integer> mDaysFromSettings = null;
+                if (isEditing) {
+                    mDaysFromSettings = gson.fromJson(opt.getSetting("selectedDays"),
+                            new TypeToken<List<Integer>>(){}.getType());
+
+                    //System.out.println("we have days stored: "+ mDaysFromSettings.toString() +"; size of all days "+ sDays.length +" and size of boolean "+ checkedDays.length);
+
+                    // then enable array of booleans on the index
+                    // loop through all days
+                    for (int i = 0; i < sDays.length; i++) {
+                        if (mDaysFromSettings.indexOf(i) != -1) {
+                            checkedDays[i] = true; // <- saving to boolean
+                            mSelectedDays.add(i); // <- adding to checked
+                        }
+                    }
+
+                }
 
                 builder
                         .setIcon(R.drawable.ic_launcher)
@@ -294,6 +345,10 @@ public class Util extends Activity {
                                     cond.setSetting("text1", "Days (" + mSelectedDays.size() + ")");
                                     cond.setSetting("text2", allDays);
 
+                                    // if we are editing in sub-dialog, clear previous entry
+                                    if (isEditing)
+                                        removeConditionOrAction(index, opt);
+
                                     //addNewCondition(context, cond, index);
                                     addNewConditionOrAction(context, cond, index);
 
@@ -309,7 +364,7 @@ public class Util extends Activity {
 
                             }
                         })
-                        .setMultiChoiceItems(sDays, null, new DialogInterface.OnMultiChoiceClickListener() {
+                        .setMultiChoiceItems(sDays, checkedDays, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 // selecting/removing choices
@@ -344,6 +399,17 @@ public class Util extends Activity {
                 timeFrom.setIs24HourView(true);
                 timeTo.setIs24HourView(true);
 
+                // editing?
+                ArrayList<Integer> mTimeFromSettings = null;
+                if (isEditing) {
+
+                    timeFrom.setCurrentHour(Integer.parseInt(opt.getSetting("fromHour")));
+                    timeFrom.setCurrentMinute(Integer.parseInt(opt.getSetting("fromMinute")));
+
+                    timeTo.setCurrentHour(Integer.parseInt(opt.getSetting("toHour")));
+                    timeTo.setCurrentMinute(Integer.parseInt(opt.getSetting("toMinute")));
+                }
+
 
                 builder
                         .setView(timerangeView)
@@ -377,6 +443,10 @@ public class Util extends Activity {
                                         String.format("%02d", timeTo.getCurrentHour()) + ":" +
                                         String.format("%02d", timeTo.getCurrentMinute())
                                         + "");
+
+                                // editing.
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
 
                                 addNewConditionOrAction(context, cond, index);
 

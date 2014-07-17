@@ -29,6 +29,7 @@ public class BackgroundService extends Service {
     protected String receiverAction = "";
     private boolean isOneRunning = false;
     private boolean isOneStopping = false;
+    protected String mLatestSSID = "";
 
 
     private static BackgroundService sInstance = null;
@@ -63,8 +64,6 @@ public class BackgroundService extends Service {
             intentFilter.addAction(sBroadcasts.get(i));
         }
 
-        //intentFilter.addAction(getClass().getPackage().getName() +".EVENT_ENABLED");
-        //intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 
         registerReceiver(receiver, intentFilter);
 
@@ -78,18 +77,6 @@ public class BackgroundService extends Service {
         //alarm.setRepeating(AlarmManager.RTC_WAKEUP, );
         // Start every 30 seconds
         //alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 30*1000, pintent);
-
-        // output every 3 seconds
-        /*
-        try {
-            for (int i = 0; i < 50; i++) {
-                System.out.println("output: "+ i);
-                Thread.sleep(3000);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
 
 
         return START_STICKY;
@@ -178,9 +165,9 @@ public class BackgroundService extends Service {
 
         // array with booleans for all conditions
         ArrayList<Boolean> conditionResults = new ArrayList<Boolean>();
-
+System.out.println("EVENT "+ e.getName());
         for (DialogOptions cond : conditions) {
-System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle());
+System.out.println("  '--- checking condition "+ cond.getTitle());
 
             switch (cond.getOptionType()) {
                 case DAYSOFWEEK:
@@ -250,6 +237,37 @@ System.out.println("Event "+ e.getName() +": checking condition "+ cond.getTitle
 
 
                     break;
+
+
+                case WIFI_DISCONNECT:
+
+                    ConnectivityManager dconnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo dcnetworkInfo = dconnManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+                    // first thing if condition WIFI_DISCONNECT, did we disconnected?
+                    if (!dcnetworkInfo.isConnected()) {
+                        System.out.println("we aren't connected to any wifi. latest remembered ssid was "+ mLatestSSID);
+
+                        // get ssid from settings
+                        final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
+                                new TypeToken<List<String>>(){}.getType());
+
+                        //for (String single : ssid) {
+                        if (ssid.indexOf(mLatestSSID) != -1)
+                            conditionResults.add(true);
+                        else
+                            conditionResults.add(false);
+                        //}
+                    }
+                    // if we connected, just return false
+                    else {
+                        conditionResults.add(false);
+                    }
+
+
+
+                    break;
+
 
                 case TIMERANGE:
                     Calendar cal = Calendar.getInstance();
