@@ -312,7 +312,8 @@ public class EventActivity extends Activity {
         //conditions = event.getConditions();
         //Util.addNewCondition(sInstance, conditions.get(0));
         for (DialogOptions cond : event.getConditions()) {
-            Util.addNewCondition(sInstance, cond);
+            //Util.addNewCondition(sInstance, cond, 0);
+            Util.addNewConditionOrAction(sInstance, cond, 0);
         }
 
         conditions = updatedConditions;
@@ -320,7 +321,8 @@ public class EventActivity extends Activity {
         // also, would be great if we add all actions to container, no?
         ArrayList<DialogOptions> allAct = event.getActions();
         for (DialogOptions act : event.getActions()) {
-            Util.addNewAction(sInstance, act);
+            //Util.addNewAction(sInstance, act);
+            Util.addNewConditionOrAction(sInstance, act, 0);
         }
 
         actions = updatedActions;

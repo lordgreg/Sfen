@@ -49,6 +49,7 @@ public class Util extends Activity {
     private static Circle circle = null;
     private static GoogleMap map;
     private static boolean sBoolean;
+    private static ViewGroup newRow;
 
     // days
     final static String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
@@ -86,12 +87,12 @@ public class Util extends Activity {
         final AlertDialog dialog = builder.create();
 
         // fill all options in container
-        ViewGroup newRow;
+        //ViewGroup newRow;
 
         for (int i = 0; i < options.size(); i++) {
             final DialogOptions opt = options.get(i);
 
-            newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
+             newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(opt.getTitle());
             ((TextView) newRow.findViewById(android.R.id.text2)).setText(opt.getDescription());
@@ -103,8 +104,7 @@ public class Util extends Activity {
                 @Override
                 public void onClick(View v) {
                     dialog.dismiss();
-
-                    openSubDialog(context, opt);
+                    openSubDialog(context, opt, 0);
                 }
             });
 
@@ -119,7 +119,7 @@ public class Util extends Activity {
     /**
      * SUBDIALOG with all options and onclick triggers
      */
-    protected static void openSubDialog(final Activity context, final DialogOptions opt) {
+    protected static void openSubDialog(final Activity context, final DialogOptions opt, final int index) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
@@ -162,7 +162,8 @@ public class Util extends Activity {
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
                                     cond.setSetting("text2", "Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
 
-                                    addNewCondition(context, cond);
+                                    //addNewCondition(context, cond, index);
+                                    addNewConditionOrAction(context, cond, index);
 
                                 }
 
@@ -293,7 +294,8 @@ public class Util extends Activity {
                                     cond.setSetting("text1", "Days (" + mSelectedDays.size() + ")");
                                     cond.setSetting("text2", allDays);
 
-                                    addNewCondition(context, cond);
+                                    //addNewCondition(context, cond, index);
+                                    addNewConditionOrAction(context, cond, index);
 
                                 }
 
@@ -376,7 +378,7 @@ public class Util extends Activity {
                                         String.format("%02d", timeTo.getCurrentMinute())
                                         + "");
 
-                                addNewCondition(context, cond);
+                                addNewConditionOrAction(context, cond, index);
 
                             }
                         })
@@ -418,7 +420,7 @@ public class Util extends Activity {
                     mSsidFromSettings = gson.fromJson(opt.getSetting("selectedWifi"),
                             new TypeToken<List<String>>(){}.getType());
 
-                    System.out.println("we have ssid's stored: "+ mSsidFromSettings.toString());
+                    //System.out.println("we have ssid's stored: "+ mSsidFromSettings.toString());
                 }
                 //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                 //final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
@@ -433,12 +435,15 @@ public class Util extends Activity {
                     if (isEditing &&
                             mSsidFromSettings.indexOf(single.SSID.substring(1, single.SSID.length() - 1)) != -1) {
                         // and
-                        System.out.println(single.SSID + " stored in settings. index: "+
+                        /*System.out.println(single.SSID + " stored in settings. index: "+
                                         mSsidFromSettings.indexOf(single.SSID.substring(1, single.SSID.length() - 1))
-                        );
+                        );*/
 
                         // then enable array of booleans on the index
                         checkedItems[ mWifiArray.indexOf(single.SSID.substring(1, single.SSID.length() - 1)) ] = true;
+
+                        // also fill mSelectedWifi
+                        mSelectedWifi.add(mWifiArray.indexOf(single.SSID.substring(1, single.SSID.length() - 1)));
                     }
 
                 }
@@ -488,7 +493,13 @@ public class Util extends Activity {
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.WIFI_CONNECT) ? "Connecting to " : "Disconnecting from ") + "Wifi");
                                     cond.setSetting("text2", allDays);
 
-                                    addNewCondition(context, cond);
+
+                                    // if we are editing in sub-dialog, clear previous entry
+                                    if (isEditing)
+                                        removeConditionOrAction(index, opt);
+
+
+                                    addNewConditionOrAction(context, cond, index);
 
                                 }
 
@@ -523,15 +534,22 @@ public class Util extends Activity {
              */
         case ACT_NOTIFICATION:
 
+            // are we trying to edit the notification? because, uhm... we can't
+            if (isEditing) {
+                showMessageBox("You cannot edit Notification action. You can only remove it.", true);
+                return ;
+            }
+
             // save action & create new row
             final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
             //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
             //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
             cond.setSetting("text1", opt.getTitle());
-            cond.setSetting("text2", "yolo");
+            cond.setSetting("text2", "Notification will appear.");
 
-            addNewAction(context, cond);
+            //addNewAction(context, cond);
+            addNewConditionOrAction(context, cond, 0);
 
 
 
@@ -603,10 +621,11 @@ public class Util extends Activity {
      *
      * @param cond condition to be added
      */
-    protected static void addNewCondition(final Activity context, final DialogOptions cond) {
+    /*
+    protected static void addNewCondition(final Activity context, final DialogOptions cond, final int index) {
         // the only thing we have to check if we're editing entry is,
         // if we have at least one setting stored. if so, all is good in our wonderland
-        final boolean isEditing = (cond.getSettings().size() > 0) ? true : false;
+        //final boolean isEditing = (cond.getSettings().size() > 0) ? true : false;
 
         // add condition to list of conditions of Event
         if (EventActivity.getInstance().isUpdating) {
@@ -637,8 +656,9 @@ public class Util extends Activity {
             @Override
             public void onClick(View v) {
                 // TODO: clicking our newly added condition
-                openSubDialog(context, cond);
-                showMessageBox("clicked " + cond.getTitle() + ", " + cond.getOptionType(), false);
+                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
+                openSubDialog(context, cond, index);
+                showMessageBox("clicked " + cond.getTitle() + ", " + cond.getOptionType() +" type: "+ cond.isItemConditionOrAction() +" on index "+ index, false);
             }
         });
 
@@ -648,42 +668,29 @@ public class Util extends Activity {
                 // when clicking recycle bin at condition, remove it from view and
                 // from array of all conditions
 
-                EventActivity.getInstance().mContainerCondition.removeView(newRow);
-
-                // remove from conditions, depending on if we're adding to new event
-                // or existing event
-                if (EventActivity.getInstance().isUpdating) {
-                    EventActivity.getInstance().updatedConditions.remove(
-                            EventActivity.getInstance().updatedConditions.indexOf(cond)
-                    );
-
-                    // we changed something, so set the changed boolean
-                    EventActivity.getInstance().isChanged = true;
-                } else {
-                    EventActivity.getInstance().conditions.remove(
-                            EventActivity.getInstance().conditions.indexOf(cond)
-                    );
-                }
+                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
+                removeConditionOrAction(index, cond);
 
             }
         });
 
         // updating Condition?
-        if (isEditing) {
-            //EventActivity.getInstance().mContainerCondition.
+        //if (isEditing) {
+            //EventActivity.getInstance().mContainerCondition
             // TODO: update OR remove old, add new to conditions array!
-        }
+        //}
         // addin new condition
-        else
-            EventActivity.getInstance().mContainerCondition.addView(newRow, 0);
+        //else
+            EventActivity.getInstance().mContainerCondition.addView(newRow, index);
     }
-
+*/
 
     /**
      * ADD NEW ACTION
      *
      * @param act condition to be added
      */
+    /*
     protected static void addNewAction(final Activity context, final DialogOptions act) {
         // add condition to list of conditions of Event
         if (EventActivity.getInstance().isUpdating) {
@@ -714,7 +721,7 @@ public class Util extends Activity {
             @Override
             public void onClick(View v) {
                 // TODO: clicking our newly added action
-                showMessageBox("clicked " + act.getTitle() + ", " + act.getOptionType(), false);
+                showMessageBox("clicked " + act.getTitle() + ", " + act.getOptionType() +" type: "+ act.isItemConditionOrAction(), false);
             }
         });
 
@@ -723,30 +730,17 @@ public class Util extends Activity {
             public void onClick(View view) {
                 // when clicking recycle bin at condition, remove it from view and
                 // from array of all conditions
+                //private void removeConditionOrAction(ViewGroup newRow, final DialogOptions entry) {
+                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
+                removeConditionOrAction(index, act);
 
-                EventActivity.getInstance().mContainerAction.removeView(newRow);
-
-                // remove from conditions, depending on if we're adding to new event
-                // or existing event
-                if (EventActivity.getInstance().isUpdating) {
-                    EventActivity.getInstance().updatedActions.remove(
-                            EventActivity.getInstance().updatedActions.indexOf(act)
-                    );
-
-                    // we changed something, so set the changed boolean
-                    EventActivity.getInstance().isChanged = true;
-                } else {
-                    EventActivity.getInstance().actions.remove(
-                            EventActivity.getInstance().actions.indexOf(act)
-                    );
-                }
 
             }
         });
 
         EventActivity.getInstance().mContainerAction.addView(newRow, 0);
     }
-
+*/
 
     /**
      * SHOW YES/NO DIALOG
@@ -796,5 +790,150 @@ public class Util extends Activity {
         Main.getInstance().options.put("showYesNoDialog", ""+ sBoolean);
         sBoolean = false;
     }
+
+
+    /**
+     * remove single Condition or Action
+     *
+     * @param
+     */
+    private static void removeConditionOrAction(final int index, final DialogOptions entry) {
+        // when clicking recycle bin at condition/action, remove it from view and
+        // from array of all conditions/actions
+
+        // remove ACTION from container first
+        if (entry.isAction()) {
+            EventActivity.getInstance().mContainerAction.removeViewAt(index);
+        }
+        // remove CONDITION from container first
+        else {
+            EventActivity.getInstance().mContainerCondition.removeViewAt(index);
+        }
+        //container.removeView(newRow);
+
+        // UPDATING SINGLE EVENT!!!
+        // remove from conditions, depending on if we're adding to new event
+        // or existing event
+        if (EventActivity.getInstance().isUpdating) {
+            // updating ACTION
+            if (entry.isAction()) {
+                EventActivity.getInstance().updatedActions.remove(
+                        EventActivity.getInstance().updatedActions.indexOf(entry)
+                );
+            }
+            // otherwise, updating CONDITION
+            else {
+                EventActivity.getInstance().updatedConditions.remove(
+                        EventActivity.getInstance().updatedConditions.indexOf(entry)
+                );
+            }
+
+            // we changed something, so set the changed boolean
+            EventActivity.getInstance().isChanged = true;
+
+
+        }
+
+        // CREATING SINGLE EVENT!!!
+        else {
+            // adding ACTION
+            if (entry.isAction()) {
+                EventActivity.getInstance().actions.remove(
+                        EventActivity.getInstance().actions.indexOf(entry)
+                );
+            }
+            // adding CONDITION
+            else {
+                EventActivity.getInstance().conditions.remove(
+                        EventActivity.getInstance().conditions.indexOf(entry)
+                );
+            }
+        }
+    }
+
+
+    /**
+     * add new condition OR action
+     */
+    protected static void addNewConditionOrAction(final Activity context, final DialogOptions entry, final int index) {
+
+        // the only thing we have to check if we're editing entry is,
+        // if we have at least one setting stored. if so, all is good in our wonderland
+        //final boolean isEditing = (cond.getSettings().size() > 0) ? true : false;
+
+        // add condition to list of conditions of Event
+        if (EventActivity.getInstance().isUpdating) {
+            // updating action/cond
+            if (entry.isAction())
+                EventActivity.getInstance().updatedActions.add(entry);
+            else
+                EventActivity.getInstance().updatedConditions.add(entry);
+        }
+        // adding NEW
+        else {
+            if (entry.isAction())
+                EventActivity.getInstance().actions.add(entry);
+            else
+                EventActivity.getInstance().conditions.add(entry);
+        }
+
+        // get options that we need for interface
+        String title = entry.getSetting("text1");
+        String description = entry.getSetting("text2");
+        int icon = entry.getIcon();
+
+        // add new row to actions/conditions now
+        final ViewGroup newRow;
+
+        if (entry.isAction()) {
+            newRow = (ViewGroup) LayoutInflater.from(context).inflate(
+                    R.layout.condition_single_item, EventActivity.getInstance().mContainerAction, false);
+        }
+        else {
+            newRow = (ViewGroup) LayoutInflater.from(context).inflate(
+                    R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
+        }
+
+        ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
+        ((TextView) newRow.findViewById(android.R.id.text2))
+                .setText(description);
+        //((TextView) newRow.findViewById(android.R.id.text2))
+        //        .setMovementMethod(new ScrollingMovementMethod());
+
+        ((ImageButton) newRow.findViewById(R.id.condition_icon))
+                .setImageDrawable(context.getResources().getDrawable(icon));
+
+        newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: clicking our newly added condition
+                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
+                openSubDialog(context, entry, index);
+                //showMessageBox("clicked " + entry.getTitle() + ", " + entry.getOptionType() +" type: "+ entry.isItemConditionOrAction() +" on index "+ index, false);
+            }
+        });
+
+        newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // when clicking recycle bin at condition, remove it from view and
+                // from array of all conditions
+
+                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
+                removeConditionOrAction(index, entry);
+
+            }
+        });
+
+
+        // add action to container
+        if (entry.isAction())
+            EventActivity.getInstance().mContainerAction.addView(newRow, index);
+        // add condition to container
+        else
+            EventActivity.getInstance().mContainerCondition.addView(newRow, index);
+
+    }
+
 
 }

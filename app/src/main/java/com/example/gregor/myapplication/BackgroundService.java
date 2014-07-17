@@ -145,21 +145,26 @@ public class BackgroundService extends Service {
 
                     // TODO: store action to log.
                 }
+                // conditions aren't met; switch event to not running (if maybe they were)
+                else {
+                    e.setRunning(false);
+                }
             }
-        }
-
-        // if we have main activity window open, refresh them
-        // TODO: only refresh if we noticed a change
-        if (Main.getInstance().isVisible) {
-            Main.getInstance().refreshEventsView();
         }
 
         // if there's no events running OR events stopping, clear notification
         if (!isOneRunning || isOneStopping) {
             System.out.println("no events running.");
             Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
-            isOneRunning = false;
-            isOneStopping = false;
+        }
+
+        isOneRunning = false;
+        isOneStopping = false;
+
+        // if we have main activity window open, refresh them
+        // TODO: only refresh if we noticed a change
+        if (Main.getInstance().isVisible) {
+            Main.getInstance().refreshEventsView();
         }
 
     }

@@ -381,7 +381,7 @@ public class Main extends Activity {
                                 e.setEnabled(false);
                                 //Util.showNotification(BackgroundService.getInstance(),
                                 //        getString(R.string.app_name), "", R.drawable.ic_launcher);
-                                //sendBroadcast("EVENT_DISABLED");
+                                sendBroadcast("EVENT_DISABLED");
                             }
                             else {
                                 e.setEnabled(true);

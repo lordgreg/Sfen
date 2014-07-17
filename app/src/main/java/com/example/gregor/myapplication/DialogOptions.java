@@ -66,4 +66,30 @@ public class DialogOptions {
     public String getSetting(String key) {
         return settings.get(key);
     }
+
+    public String isItemConditionOrAction() {
+        String mType = this.optionType.name();
+
+        if (mType.startsWith("ACT_"))
+            return "ACTION";
+        else
+            return "CONDITION";
+
+    }
+
+    public boolean isCondition() {
+        if (isItemConditionOrAction().equals("CONDITION"))
+            return true;
+        else
+            return false;
+
+    }
+
+    public boolean isAction() {
+        if (isItemConditionOrAction().equals("ACTION"))
+            return true;
+        else
+            return false;
+
+    }
 }
