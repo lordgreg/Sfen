@@ -1,19 +1,29 @@
 package com.example.gregor.myapplication;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationStatusCodes;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -24,12 +34,28 @@ import java.util.List;
  * main background process service; this one
  * loads and runs when we press back or home button
  */
-public class BackgroundService extends Service {
+public class BackgroundService extends Service
+        implements
+        GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        LocationClient.OnAddGeofencesResultListener,
+        LocationClient.OnRemoveGeofencesResultListener {
+
     final Receiver receiver = new Receiver();
     protected String receiverAction = "";
     private boolean isOneRunning = false;
     private boolean isOneStopping = false;
     protected String mLatestSSID = "";
+
+    // geofence init
+    private GeoLocation geoLocation = new GeoLocation();
+    private ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
+    private LocationClient mLocationClient;
+    public enum REQUEST_TYPE {ADD, REMOVE};
+    private REQUEST_TYPE mRequestType;
+    private PendingIntent mGeoPendingIntent = null;
+    private PendingIntent mCurrentIntent = null;
+    private boolean mInProgress;
 
 
     private static BackgroundService sInstance = null;
@@ -40,7 +66,6 @@ public class BackgroundService extends Service {
         add(getClass().getPackage().getName() +".EVENT_ENABLED");
         add(getClass().getPackage().getName() +".EVENT_DISABLED");
     }};
-
 
 
     @Override
@@ -384,5 +409,242 @@ System.out.println("  '--- checking condition "+ cond.getTitle());
         e.setForceRun(false);
 
     }
+
+    /**
+     * Function will create event condition timers
+     * or geofaces if needed by specific condition. Easy as pie.
+     *
+     * @param e Single Event
+     */
+    protected void updateEventConditionTimers(Event e) {
+
+
+        for (DialogOptions single : e.getConditions()) {
+            System.out.println(e.getName() +" >>> "+ single.getTitle());
+
+            switch (single.getOptionType()) {
+                    case LOCATION_ENTER:
+                    case LOCATION_LEAVE:
+                        System.out.println(single.getSettings().toString());
+
+                        // check if we have google play services installed
+                        if (!Util.hasGooglePlayServices()) {
+                            break;
+                        }
+
+                        // in progress? not yet.
+                        //mInProgress = false;
+
+                        // request type? add.
+                        mRequestType = REQUEST_TYPE.ADD;
+
+                        // create/update geofaces!
+                        Geofence fence = new Geofence.Builder()
+                                .setRequestId(e.getName())
+                                // when entering this geofence
+                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                                .setCircularRegion(
+                                        Double.parseDouble(single.getSetting("latitude")),
+                                        Double.parseDouble(single.getSetting("longitude")),
+                                        (float)500 // raidus in meters
+                                )
+                                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                .build();
+
+                        System.out.println("Current size of all running fences: "+ geoFences.size());
+
+                        // if there is one already, remove it from array
+                        if (geoFences.indexOf(fence) != -1) {
+                            // also check if fence is up, if so, remove it
+                            mRequestType = REQUEST_TYPE.REMOVE;
+                            mCurrentIntent = getRequestPendingIntent();
+                            geoFences.remove(geoFences.indexOf(fence));
+                            //mLocationClient = new LocationClient(sInstance, sInstance, sInstance);
+                            //mLocationClient.connect();
+                            //mLocationClient.removeGeofences(mCurrentIntent, this);
+                            System.out.println("*** Preparing to remove intent");
+                        }
+
+                        // add fence to array
+                        else {
+                            geoFences.add(fence);
+                        }
+
+
+                        // starting new geo
+                        mLocationClient = new LocationClient(sInstance, sInstance, sInstance);
+                        mLocationClient.connect();
+
+                        break;
+
+
+
+            }
+        }
+    }
+
+
+    /**
+     * GEOFENCES NEEDED FUNCTIONS
+     */
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        System.out.println("*** CONNECTED");
+
+        if (mRequestType == REQUEST_TYPE.ADD) {
+            System.out.println("*** ADDING NEW GEOFENCE");
+            mGeoPendingIntent = getTransitionPendingIntent();
+
+            mLocationClient.addGeofences(geoFences, mGeoPendingIntent, this);
+        }
+
+        else {
+            System.out.println("*** REMOVING EXISTING GEOFENCE");
+            //mLocationClient.removeGeofences(mCurrentIntent, this);
+            mLocationClient.removeGeofences(mCurrentIntent, this);
+            //mLocationClient.remove
+
+        }
+
+
+
+    }
+
+    @Override
+    public void onDisconnected() {
+        System.out.println("*** DISCONNECTED");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        System.out.println("*** Connection failed.");
+    }
+
+    /*
+     * Provide the implementation of
+     * OnAddGeofencesResultListener.onAddGeofencesResult.
+     * Handle the result of adding the geofences
+     *
+     */
+    @Override
+    public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
+        System.out.println("*** RESULT: "+ statusCode);
+        // If adding the geofences was successful
+        if (LocationStatusCodes.SUCCESS == statusCode) {
+            System.out.println("new geofence added.");
+            /*
+             * Handle successful addition of geofences here.
+             * You can send out a broadcast intent or update the UI.
+             * geofences into the Intent's extended data.
+             */
+        }
+
+        // location access unavailable?
+        else if (statusCode == LocationStatusCodes.GEOFENCE_NOT_AVAILABLE) {
+            Util.showMessageBox("Geofence service is not available now. Typically this is because " +
+                    "the user turned off location access in settings > location access ("+
+                    statusCode +")", true);
+
+        }
+
+        // other random error
+        else {
+            // If adding the geofences failed
+            Util.showMessageBox("Error creating new Location listener ("+ statusCode +").", false);
+
+            /*
+             * Report errors here.
+             * You can log the error using Log.e() or update
+             * the UI.
+             */
+        }
+        // Turn off the in progress flag and disconnect the client
+        //mInProgress = false;
+        mLocationClient.disconnect();
+    }
+
+    /*
+     * Create a PendingIntent that triggers an IntentService in your
+     * app when a geofence transition occurs.
+     */
+    private PendingIntent getTransitionPendingIntent() {
+        if (mGeoPendingIntent != null) {
+            return mGeoPendingIntent;
+        }
+
+        else {
+
+            // Create an explicit Intent
+            Intent intent = new Intent(this,
+                    ReceiveTransitionsIntentService.class);
+        /*
+         * Return the PendingIntent
+         */
+            return PendingIntent.getService(
+                    this,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+    }
+
+    public PendingIntent getRequestPendingIntent() {
+        return getTransitionPendingIntent();
+    }
+
+    @Override
+    public void onRemoveGeofencesByPendingIntentResult(int statusCode,
+                                                       PendingIntent requestIntent) {
+        // If removing the geofences was successful
+        if (statusCode == LocationStatusCodes.SUCCESS) {
+            System.out.println("*** Removal of fence successful.");
+            /*
+             * Handle successful removal of geofences here.
+             * You can send out a broadcast intent or update the UI.
+             * geofences into the Intent's extended data.
+             */
+        } else {
+            System.out.println("*** Error when trying to remove fence.");
+            // If adding the geocodes failed
+
+        }
+        /*
+         * Disconnect the location client regardless of the
+         * request status, and indicate that a request is no
+         * longer in progress
+         */
+        //mInProgress = false;
+        mLocationClient.disconnect();
+    }
+
+    @Override
+    public void onRemoveGeofencesByRequestIdsResult(
+            int statusCode, String[] geofenceRequestIds) {
+        // If removing the geocodes was successful
+        if (LocationStatusCodes.SUCCESS == statusCode) {
+            System.out.println("*** removing done");
+            /*
+             * Handle successful removal of geofences here.
+             * You can send out a broadcast intent or update the UI.
+             * geofences into the Intent's extended data.
+             */
+        } else {
+            // If removing the geofences failed
+            System.out.println("*** removing failed.");
+            /*
+             * Report errors here.
+             * You can log the error using Log.e() or update
+             * the UI.
+             */
+        }
+        // Indicate that a request is no longer in progress
+        //mInProgress = false;
+        // Disconnect the location client
+        mLocationClient.disconnect();
+    }
+
+
+
 
 }

@@ -193,7 +193,17 @@ public class EventActivity extends Activity {
 
         }
         if (id == R.id.action_save) {
-            return saveEvent();
+            //return saveEvent();
+            // if event was successfully saved, check if we have to create alarms
+            // geofaces if we have such conditions
+            if (saveEvent()) {
+                BackgroundService.getInstance().updateEventConditionTimers(event);
+
+
+                return true;
+            }
+            else
+                return false;
         }
         return super.onOptionsItemSelected(item);
     }

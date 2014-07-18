@@ -7,6 +7,8 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import com.google.android.gms.common.GooglePlayServicesClient;
+
 /**
  * Created by Gregor on 14.7.2014.
  */
@@ -28,10 +30,6 @@ public class Receiver extends BroadcastReceiver {
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             NetworkInfo.State state = networkInfo.getState();
 
-
-            // CONNECTED to WIFI?
-            //System.out.println("**************** "+ state.toString());
-
             // other options: CONNECTING, DISCONNECTED
             if (state == NetworkInfo.State.CONNECTED) {
                 //System.out.println("connected to wifi.");
@@ -40,22 +38,11 @@ public class Receiver extends BroadcastReceiver {
                 BackgroundService.getInstance().mLatestSSID =
                         manager.getConnectionInfo().getSSID().replace("\"", "");
 
-/*
-                Log.e("broadcast", action);
-                //Log.e("broadcast", WifiManager.EXTRA_SUPPLICANT_CONNECTED +", "+ WifiManager.EXTRA_NETWORK_INFO +", "+ WifiManager.EXTRA_WIFI_INFO +", "+ WifiManager.EXTRA_BSSID);
-
-                //context.getSystemService()
-                WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                //String ssid = wifiInfo.toString();
-                //Log.e("broadcast", "Connected to "+ ssid);
-                */
             }
             //else {
                 //Main.getInstance().setNotification("Broadcast Recieved", "Disconnected from WiFi", R.drawable.ic_launcher);
             //    System.out.println("disconnected from wifi...");
            // }
-
 
 
         }
@@ -65,5 +52,13 @@ public class Receiver extends BroadcastReceiver {
         BackgroundService.getInstance().EventFinder(context, intent);
     }
 
+
+
+
+    /**
+     * onConnected for GeoFacing
+     *
+     * this is the method we receive when we are in specific location with specific radius
+     */
 
 }

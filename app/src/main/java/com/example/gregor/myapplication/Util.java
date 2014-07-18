@@ -2,6 +2,7 @@ package com.example.gregor.myapplication;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -19,7 +20,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.ErrorDialogFragment;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -1004,6 +1009,21 @@ public class Util extends Activity {
             EventActivity.getInstance().mContainerCondition.addView(newRow, index);
 
     }
+
+
+    protected static boolean hasGooglePlayServices() {
+
+        if (GooglePlayServicesUtil.isGooglePlayServicesAvailable(BackgroundService.getInstance()) ==
+                ConnectionResult.SUCCESS)
+            return true;
+        else {
+            showMessageBox("Google Play Services not installed!", true);
+            return false;
+        }
+
+
+    }
+
 
 
 }
