@@ -5,14 +5,12 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -23,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -47,6 +44,9 @@ public class BackgroundService extends Service
     private boolean isOneStopping = false;
     protected String mLatestSSID = "";
 
+    protected List<Geofence> mTriggeredGeofences = new ArrayList<Geofence>();
+    protected int mTriggeredGeoFenceTransition = -1;
+
     // geofence init
     private GeoLocation geoLocation = new GeoLocation();
     private ArrayList<Geofence> geoFences = new ArrayList<Geofence>();
@@ -55,10 +55,10 @@ public class BackgroundService extends Service
     private REQUEST_TYPE mRequestType;
     private PendingIntent mGeoPendingIntent = null;
     private PendingIntent mCurrentIntent = null;
-    private boolean mInProgress;
 
 
     private static BackgroundService sInstance = null;
+    protected Intent sIntent = null;
 
     // list of all allowable broadcasts
     private static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
@@ -79,6 +79,8 @@ public class BackgroundService extends Service
         // background service!
         Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
 
+        // set intent
+        sIntent = intent;
 
         // start our receiver
         IntentFilter intentFilter = new IntentFilter();
@@ -88,6 +90,7 @@ public class BackgroundService extends Service
             //Log.e("adding broad to intent", sBroadcasts.get(i));
             intentFilter.addAction(sBroadcasts.get(i));
         }
+        //intentFilter.addCategory("com.example.gregor.myapplication.CATEGORY_LOCATION_SERVICES");
 
 
         registerReceiver(receiver, intentFilter);
@@ -170,8 +173,11 @@ public class BackgroundService extends Service
             Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
         }
 
+        // clear all variables
         isOneRunning = false;
         isOneStopping = false;
+        mTriggeredGeoFenceTransition = -1;
+        mTriggeredGeofences = null;
 
         // if we have main activity window open, refresh them
         // TODO: only refresh if we noticed a change
@@ -327,6 +333,28 @@ System.out.println("  '--- checking condition "+ cond.getTitle());
 
 
                     break;
+
+
+                case LOCATION_ENTER:
+                    System.out.println("entering location checker");
+
+                    // do we have triggered geofences AND is triggered transition ENTER?
+                    if (mTriggeredGeofences != null && mTriggeredGeoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+
+                        for (Geofence single : mTriggeredGeofences) {
+                            System.out.println("req id from triggered geofence: "+ single.getRequestId() +"; current event hashcode = "+ e.hashCode());
+                            // if the triggered geoface has the same hashid than current event, we have a match!
+                            if (Integer.parseInt(single.getRequestId()) == e.hashCode()) {
+                                conditionResults.add(true);
+                            }
+                        }
+                    }
+                    // if triggered geofences are empty, result is false
+                    else
+                        conditionResults.add(false);
+
+                    break;
+
             }
 
         }
@@ -440,13 +468,14 @@ System.out.println("  '--- checking condition "+ cond.getTitle());
 
                         // create/update geofaces!
                         Geofence fence = new Geofence.Builder()
-                                .setRequestId(e.getName())
+                                //.setRequestId(e.getName())
+                                .setRequestId(""+ e.hashCode())
                                 // when entering this geofence
-                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                                 .setCircularRegion(
                                         Double.parseDouble(single.getSetting("latitude")),
                                         Double.parseDouble(single.getSetting("longitude")),
-                                        (float)500 // raidus in meters
+                                        (float)100 // raidus in meters
                                 )
                                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                                 .build();
@@ -468,6 +497,7 @@ System.out.println("  '--- checking condition "+ cond.getTitle());
                         // add fence to array
                         else {
                             geoFences.add(fence);
+                            //mGeofenceRequester.addGeofences(mCurrentGeofences);
                         }
 
 

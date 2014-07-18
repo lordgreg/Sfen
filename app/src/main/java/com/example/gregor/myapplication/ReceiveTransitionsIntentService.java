@@ -2,7 +2,6 @@ package com.example.gregor.myapplication;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
@@ -23,6 +22,11 @@ public class ReceiveTransitionsIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         // Create a local broadcast Intent
         Intent broadcastIntent = new Intent();
+
+
+
+        // Give it the category for all intents sent by the Intent Service
+        //broadcastIntent.addCategory("com.example.gregor.myapplication.CATEGORY_LOCATION_SERVICES");
         // Give it the category for all intents sent by the Intent Service
 
         //broadcastIntent.addCategory(CATEGORY_LOCATION_SERVICES);
@@ -40,6 +44,14 @@ public class ReceiveTransitionsIntentService extends IntentService {
             if ((transition == Geofence.GEOFENCE_TRANSITION_ENTER) ||
                     (transition == Geofence.GEOFENCE_TRANSITION_EXIT)) {
                 System.out.println("geofence detected: "+ transition);
+
+                // we've entered or exited our geofence.
+                // update latest Location trigger
+                BackgroundService.getInstance().mTriggeredGeofences = LocationClient.getTriggeringGeofences(intent);
+                BackgroundService.getInstance().mTriggeredGeoFenceTransition = transition;
+                // check events again by sending broadcast
+                Main.getInstance().sendBroadcast("EVENT_ENABLED");
+                //BackgroundService.getInstance().EventFinder(BackgroundService.getInstance(), BackgroundService.getInstance().sIntent);
             }
             else {
                 // handle the error
