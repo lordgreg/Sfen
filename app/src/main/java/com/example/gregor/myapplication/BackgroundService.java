@@ -82,7 +82,7 @@ public class BackgroundService extends Service {
         geoLocation = new GeoLocation(sInstance);
 
         // check, for the first time of our app history, if we have a candidate..
-        EventFinder(this, intent);
+        //EventFinder(this, intent);
 
         // also check for the first time and never again, for the condition triggers
         // refresh condition timers
@@ -207,10 +207,26 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     // 0=monday, 1=tuesday ... 6=sunday
                     //String[] days = cond.getSetting("selectedDays");
                     Calendar calendar = Calendar.getInstance();
-                    int currentDay = calendar.get(Calendar.DAY_OF_WEEK) - 2; // start from 0
+                    int currentDay = calendar.get(Calendar.DAY_OF_WEEK); // start from 0
+
+                    //System.out.println("current day: "+ currentDay +"; saved days: "+ days.toString());
+
+                    currentDay = calendar.get(Calendar.DAY_OF_WEEK);
+                    //System.out.println("mon, tue, sat, sun: "+ Calendar.MONDAY +", "+ Calendar.TUESDAY +", "+ Calendar.SATURDAY +", "+ Calendar.SUNDAY);
 
                     // is current day in array of selected days?
                     // its not, so break the loop and return false
+                    // java Calendar.DAY =  mon, tue, sat, sun: 2, 3, 7, 1
+                    // our array            mon, tue, sat, sun: 0, 1, 5, 6
+
+                    // because of my logic explained above, i have to change currentDay retrieved
+                    // from Calendar;
+                    //currentDay = currentDay+5;
+                    //if (currentDay>=7) currentDay = currentDay - 7;
+                    currentDay = (currentDay+5 >= 7) ? currentDay-2 : currentDay+5;
+
+                    //System.out.println("current day new: "+ currentDay);
+
                     if (days.indexOf(currentDay) == -1) {
                         conditionResults.add(false);
                     }

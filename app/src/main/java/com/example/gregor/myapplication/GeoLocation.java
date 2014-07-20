@@ -120,7 +120,7 @@ public class GeoLocation implements
                 getLocationClient().connect();
             }
             catch (Exception e) {
-                Log.e("sfen", "Problem removing geofences. Are selected Ids even running? ("+ toRemove.toString() +")");
+                Log.e("sfen", "Problem removing geofences. Are selected Ids even running?");
                 e.printStackTrace();
             }
         }
@@ -221,7 +221,7 @@ public class GeoLocation implements
     public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
         // If adding the geofences was successful
         if (LocationStatusCodes.SUCCESS == statusCode) {
-            Log.d("sfen", "Geofences added ("+ statusCode +"): "+ geofenceRequestIds.toString());
+            Log.d("sfen", "Geofences added ("+ statusCode +").");
         }
 
         // location access unavailable?
@@ -267,10 +267,10 @@ public class GeoLocation implements
             int statusCode, String[] geofenceRequestIds) {
         // If removing the geocodes was successful
         if (LocationStatusCodes.SUCCESS == statusCode) {
-            Log.d("sfen", "Geofences removed ("+ statusCode +"): "+ geofenceRequestIds.toString());
+            Log.d("sfen", "Geofences removed ("+ statusCode +").");
         } else {
             // If removing the geofences failed
-            Log.e("sfen", "Removing geofences failed ("+ statusCode +"): "+ geofenceRequestIds.toString());
+            Log.e("sfen", "Removing geofences failed ("+ statusCode +").");
         }
 
         mLocationClient.disconnect();
