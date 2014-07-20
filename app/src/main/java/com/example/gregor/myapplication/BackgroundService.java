@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -362,8 +363,33 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                         }
                     }
                     // if triggered geofences are empty, result is false
-                    else
-                        conditionResults.add(false);
+                    else {
+                        // not yet...
+                        // result will be false ONLY if distance between CURRENTLOC LatLng
+                        // and SAVED LatLng is greater than radius set.
+                        AndroidLocation loc;
+                        loc = new AndroidLocation(context);
+
+                        if (loc.isError())
+                            conditionResults.add(false);
+                        else {
+
+                            // is current > saved?
+                            float[] results = new float[1];
+                            Location.distanceBetween(loc.getLatitude(), loc.getLongitude(),
+                                    Double.parseDouble(cond.getSetting("latitude")),
+                                    Double.parseDouble(cond.getSetting("longitude")), results);
+
+                            System.out.println("distance between current location and "+ cond.getDescription() +": "+ results[0] +" in meters.");
+                            if (results[0] < (float)100) {
+                                conditionResults.add(true);
+                            }
+                            else {
+                                conditionResults.add(false);
+                            }
+
+                        }
+                    }
 
                     break;
 
