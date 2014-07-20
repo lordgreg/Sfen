@@ -2,7 +2,6 @@ package com.example.gregor.myapplication;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -20,10 +19,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.ErrorDialogFragment;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -946,6 +943,7 @@ public class Util extends Activity {
         }
         // adding NEW
         else {
+            //entry.setSetting("uniqueID", new Random().nextInt());
             if (entry.isAction())
                 EventActivity.getInstance().actions.add(entry);
             else

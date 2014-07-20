@@ -1,6 +1,7 @@
 package com.example.gregor.myapplication;
 
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * This is the DialogOptions class that has more
@@ -21,10 +22,22 @@ public class DialogOptions {
     };
     private type optionType;
     private int maxNumber;
+    private int uniqueID = -1;
+
     private HashMap<String, String> settings = new HashMap<String, String>();
 
     public DialogOptions() {
         super();
+        if (uniqueID == -1) {
+            uniqueID = new Random().nextInt();
+        }
+    }
+
+    public int getUniqueID() {
+        if (uniqueID == -1) {
+            uniqueID = new Random().nextInt();
+        }
+        return uniqueID;
     }
 
     public DialogOptions(String title, String description, int icon, type optionType)

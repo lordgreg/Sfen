@@ -143,49 +143,7 @@ public class EventActivity extends Activity {
 
         if (id == android.R.id.home ||
             id == R.id.action_cancel) {
-/*
-            Log.e("changed", "updating: "+ isUpdating +", changed: "+ isChanged);
-            // if we changed activity and we want to cancel it now,
-            // we should probably ask user if he's sure, right?
-            if (isChanged) {
-                Util.showYesNoDialog(sInstance, "You've made changes to event. Cancel anyway?",
-                        new HashMap<String, String>());
-                boolean dialogBool = Boolean.getBoolean(Main.getInstance().options.get("showYesNoDialog"));
 
-                Log.e("changed", "dialog bool: "+ dialogBool);
-                if (dialogBool) {
-                    Main.getInstance().options.put("eventSave", "0");
-                }
-                else
-                    return false;
-            }
-
-            // nothing changed, just close the activity
-            else {
-                Main.getInstance().options.put("eventSave", "0");
-                finish();
-                return true;
-            }
-            */
-         /*
-            if (isChanged) {
-                if (saveEvent()) {
-                    //Log.e("changed", "it got changed.");
-                    Main.getInstance().options.put("eventSave", "1");
-                    //finish();
-                    return true;
-                }
-                else
-                    return false;
-            }
-
-            // nothing changed, just close the activity
-            else {
-                Main.getInstance().options.put("eventSave", "0");
-                finish();
-                return true;
-            }
-*/
             Main.getInstance().options.put("eventSave", "0");
             finish();
             return true;
@@ -197,7 +155,8 @@ public class EventActivity extends Activity {
             // if event was successfully saved, check if we have to create alarms
             // geofaces if we have such conditions
             if (saveEvent()) {
-                BackgroundService.getInstance().updateEventConditionTimers(event);
+                // update conditions for current event
+                BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>(){{add(event);}});
 
 
                 return true;
@@ -367,8 +326,10 @@ public class EventActivity extends Activity {
         eventName.setSelectAllOnFocus(true);
 
         // auto open soft keyboard
+        //InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        //imm.showSoftInput(eventName, InputMethodManager.SHOW_IMPLICIT);
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(eventName, InputMethodManager.SHOW_IMPLICIT);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
 
         builder
                 .setView(promptView)

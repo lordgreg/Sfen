@@ -59,10 +59,6 @@ public class Main extends Activity {
         bgService = new Intent(this, BackgroundService.class);
         startService(bgService);
 
-
-        // fill our view with events
-        //refreshEventsView();
-
     }
 
 
@@ -263,7 +259,6 @@ public class Main extends Activity {
             updateEventsFromPreferences();
 
         }
-
 
     }
 

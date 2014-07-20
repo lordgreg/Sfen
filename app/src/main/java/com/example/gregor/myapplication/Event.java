@@ -2,6 +2,7 @@ package com.example.gregor.myapplication;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Class for our event which will include
@@ -18,6 +19,7 @@ public class Event {
     private boolean running = false;
     private boolean matchAllConditions;
     private boolean forceRun = false;
+    private int uniqueID = -1;
 
     public boolean isMatchAllConditions() {
         return matchAllConditions;
@@ -48,8 +50,15 @@ public class Event {
         this.running = running;
     }
 
+    public int getUniqueID() {
+        return uniqueID;
+    }
+
     public Event() {
         super();
+        if (uniqueID == -1) {
+            uniqueID = new Random().nextInt();
+        }
     }
 
     public String getName() {

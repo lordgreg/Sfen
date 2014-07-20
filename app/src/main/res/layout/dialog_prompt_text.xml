@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:id="@+id/prompt_text"
+        android:focusable="true"
         android:layout_gravity="center_horizontal" />
 
 </LinearLayout>
