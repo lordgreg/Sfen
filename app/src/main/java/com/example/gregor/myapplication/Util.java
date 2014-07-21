@@ -140,6 +140,9 @@ public class Util extends Activity {
             case LOCATION_LEAVE:
             case LOCATION_ENTERLEAVE:
 
+                circle = null;
+                marker = null;
+
 
                 // create MAP object
                 final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
@@ -255,6 +258,7 @@ public class Util extends Activity {
                                         .fillColor(0x550099FF)
                         );
 
+
                         map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
 
                     }
@@ -309,7 +313,7 @@ public class Util extends Activity {
                             circle.remove();
 
                         circle = map.addCircle(new CircleOptions()
-                                        .center(mLocationForSeeker)
+                                        .center((marker != null) ? marker.getPosition() : mLocationForSeeker)
                                         .radius(Double.valueOf(((TextView)dialogMap.findViewById(R.id.radius_info)).getText().toString()))
                                         .strokeWidth(2)
                                         .strokeColor(0xff0099FF)
