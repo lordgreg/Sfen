@@ -44,6 +44,7 @@ public class EventActivity extends Activity {
     static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
         add(new DialogOptions("Entering Location", "Entering location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
         add(new DialogOptions("Leaving Location", "Leaving location", R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
+        add(new DialogOptions("Entering/Leaving Location", "Entering/Leaving location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTERLEAVE));
         add(new DialogOptions("Time", "Time range", R.drawable.ic_time, DialogOptions.type.TIMERANGE));
         add(new DialogOptions("Days", "Day(s) of week", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
         add(new DialogOptions("Connecting to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));

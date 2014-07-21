@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesClient;
-
 import java.util.List;
 
 /**
@@ -61,12 +59,12 @@ public class AndroidLocation extends Activity implements LocationListener {
 
         // Initialize the location fields
         if (location != null) {
-            System.out.println("Provider " + provider + " has been selected.");
+            //System.out.println("Provider " + provider + " has been selected.");
             onLocationChanged(location);
         } else {
             errorString = "Location not available";
             isError = true;
-            Log.e("gp", errorString);
+            Log.e("sfen", errorString);
 
         }
 

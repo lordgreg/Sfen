@@ -519,8 +519,16 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                 switch (single.getOptionType()) {
                     case LOCATION_ENTER:
                     case LOCATION_LEAVE:
+                    case LOCATION_ENTERLEAVE:
                         //System.out.println("hash: "+ hashCode +"\n"+ single.getSettings().toString());
 
+                        //Geofence.GEOFENCE_TRANSITION_ENTER    = 1
+                        //Geofence.GEOFENCE_TRANSITION_EXIT     = 2
+                        //Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT = 3
+                        int mTransitionType = ((single.getOptionType()== DialogOptions.type.LOCATION_ENTER) ? 1 :
+                                ((single.getOptionType()== DialogOptions.type.LOCATION_LEAVE) ? 2 :
+                                        ((single.getOptionType()== DialogOptions.type.LOCATION_ENTERLEAVE) ? 3 : 0)));
+                        System.out.println("*** transition type: "+ mTransitionType +" cond: "+ single.getOptionType() +", event: "+ e.getName());
 
                         // IF EVENT ENABLED, add geofences
                         if (e.isEnabled()) {
@@ -532,7 +540,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                                     .setCircularRegion(
                                             Double.parseDouble(single.getSetting("latitude")),
                                             Double.parseDouble(single.getSetting("longitude")),
-                                            (float) 100 // raidus in meters
+                                            Float.parseFloat(single.getSetting("radius")) // raidus in meters
                                     )
                                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                                     .build();

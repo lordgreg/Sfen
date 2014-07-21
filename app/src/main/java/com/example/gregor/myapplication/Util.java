@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -137,9 +138,16 @@ public class Util extends Activity {
             // NEW LOCATION ENTER/LEAVE DIALOG
             case LOCATION_ENTER:
             case LOCATION_LEAVE:
+            case LOCATION_ENTERLEAVE:
+
 
                 // create MAP object
                 final View dialogMap = inflater.inflate(R.layout.dialog_sub_map, null);
+
+                // set radius int
+                int mRadius = 100;
+                LatLng myLocation = null; // placeholder- will get used if editing only
+
 
                 builder.setView(dialogMap)
                         .setIcon(context.getResources().getDrawable(R.drawable.ic_launcher))
@@ -159,9 +167,12 @@ public class Util extends Activity {
                                     final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
                                     cond.setSetting("latitude", "" + marker.getPosition().latitude);
                                     cond.setSetting("longitude", "" + marker.getPosition().longitude);
+                                    cond.setSetting("radius", ((TextView)dialogMap.findViewById(R.id.radius_info)).getText().toString());
 
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ? "Leaving " : "Entering ") + "Location");
-                                    cond.setSetting("text2", "Latitude: " + String.format("%.2f", marker.getPosition().latitude) + ", Longitude: " + String.format("%.2f", marker.getPosition().longitude));
+                                    cond.setSetting("text2", "Lat: " + String.format("%.2f", marker.getPosition().latitude) +
+                                            ", Long: " + String.format("%.2f", marker.getPosition().longitude) +
+                                            ", Rad: "+ ((TextView)dialogMap.findViewById(R.id.radius_info)).getText().toString());
 
                                     if (isEditing)
                                         removeConditionOrAction(index, opt);
@@ -208,7 +219,7 @@ public class Util extends Activity {
 
                 AndroidLocation loc;
                 loc = new AndroidLocation(context);
-                LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
+                myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
 
                 // it is possible we cannot find current location. if so, allow user to continue anyways!
                 if (loc.isError()) {
@@ -220,6 +231,8 @@ public class Util extends Activity {
                     showMessageBox("Click on map to mark your desired location.", false);
                 }
 
+
+                // map fragment
                 map = ((MapFragment) fm.findFragmentById(R.id.map)).getMap();
 
                 map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -236,7 +249,7 @@ public class Util extends Activity {
                         marker = map.addMarker(new MarkerOptions().position(latLng));
                         circle = map.addCircle(new CircleOptions()
                                         .center(latLng)
-                                        .radius(100)
+                                        .radius(Double.valueOf(((TextView)dialogMap.findViewById(R.id.radius_info)).getText().toString()))
                                         .strokeWidth(2)
                                         .strokeColor(0xff0099FF)
                                         .fillColor(0x550099FF)
@@ -251,7 +264,6 @@ public class Util extends Activity {
                 map.setMyLocationEnabled(true);
 
 
-
                 //System.out.println("****** EDITING: "+ isEditing +" SETTINGS "+ opt.getSettings().toString());
                 if (isEditing) {
                     //android.util.Log.e("MAP", "yes, editing. settings: "+ opt.getSettings().toString());
@@ -262,11 +274,14 @@ public class Util extends Activity {
                     //}
                     myLocation = new LatLng(Double.parseDouble(opt.getSetting("latitude")), Double.parseDouble(opt.getSetting("longitude")));
 
+                    if (opt.getSetting("radius") != null)
+                        mRadius = Integer.parseInt(opt.getSetting("radius"));
+
                     // redraw radius circle and marker
                     marker = map.addMarker(new MarkerOptions().position(myLocation));
                     circle = map.addCircle(new CircleOptions()
                                     .center(myLocation)
-                                    .radius(100)
+                                    .radius(mRadius)
                                     .strokeWidth(2)
                                     .strokeColor(0xff0099FF)
                                     .fillColor(0x550099FF)
@@ -274,6 +289,44 @@ public class Util extends Activity {
 
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
                 }
+
+                // seekbar definition
+                final SeekBar seeker = (SeekBar) dialogMap.findViewById(R.id.radius_seeker);
+                seeker.setProgress(mRadius);
+                ((TextView)dialogMap.findViewById(R.id.radius_info)).setText(String.valueOf(mRadius));
+                final LatLng mLocationForSeeker = myLocation;
+                seeker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                        i = ((int)Math.round(i/10))*10;
+                        seeker.setProgress(i);
+                        //textview.setText(progress + "");
+                        ((TextView)dialogMap.findViewById(R.id.radius_info)).setText(String.valueOf(i));
+
+                        // replace circle inside map
+                        if (circle != null)
+                            circle.remove();
+
+                        circle = map.addCircle(new CircleOptions()
+                                        .center(mLocationForSeeker)
+                                        .radius(Double.valueOf(((TextView)dialogMap.findViewById(R.id.radius_info)).getText().toString()))
+                                        .strokeWidth(2)
+                                        .strokeColor(0xff0099FF)
+                                        .fillColor(0x550099FF)
+                        );
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
 
 
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));

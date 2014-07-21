@@ -8,27 +8,38 @@
 
     <LinearLayout
         android:orientation="horizontal"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:padding="6dp"
+        android:padding="6dip"
         android:gravity="center">
 
         <TextView
-            android:layout_width="0dip"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Radius"
+            android:gravity="left"
+            android:text="Radius:"
             android:paddingRight="5dp"
             android:id="@+id/textView"
-            android:layout_weight="1" />
+             />
 
         <SeekBar
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/seekBar"
+            android:layout_gravity="center"
+            android:id="@+id/radius_seeker"
             android:layout_weight="1"
-            android:max="1000"
-            android:progress="10" />
+            android:max="500"
+            android:progress="0" />
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="1234"
+            android:id="@+id/radius_info"
+            android:gravity="right"
+             />
+
+
     </LinearLayout>
 
     <fragment

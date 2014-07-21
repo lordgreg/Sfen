@@ -15,7 +15,7 @@ public class DialogOptions {
     private int icon;
     public enum type {
         // conditions
-        LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, DAYSOFWEEK,
+        LOCATION_ENTER, LOCATION_LEAVE, LOCATION_ENTERLEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, DAYSOFWEEK,
 
         // actions
         ACT_NOTIFICATION, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT
@@ -34,9 +34,9 @@ public class DialogOptions {
     }
 
     public int getUniqueID() {
-        if (uniqueID == -1) {
-            uniqueID = new Random().nextInt();
-        }
+        //if (uniqueID == -1) {
+        //    uniqueID = new Random().nextInt();
+        //}
         return uniqueID;
     }
 
@@ -77,6 +77,8 @@ public class DialogOptions {
     }
 
     public String getSetting(String key) {
+        if (settings.get(key) == null)
+            return "NaN";
         return settings.get(key);
     }
 
