@@ -140,8 +140,8 @@ public class Util extends Activity {
             case LOCATION_LEAVE:
             case LOCATION_ENTERLEAVE:
 
-                circle = null;
-                marker = null;
+                //circle = null;
+                //marker = null;
 
 
                 // create MAP object
@@ -149,7 +149,7 @@ public class Util extends Activity {
 
                 // set radius int
                 int mRadius = 100;
-                LatLng myLocation = null; // placeholder- will get used if editing only
+                //LatLng myLocation = null; // placeholder- will get used if editing only
 
 
                 builder.setView(dialogMap)
@@ -222,7 +222,7 @@ public class Util extends Activity {
 
                 AndroidLocation loc;
                 loc = new AndroidLocation(context);
-                myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
+                LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
 
                 // it is possible we cannot find current location. if so, allow user to continue anyways!
                 if (loc.isError()) {
@@ -258,6 +258,7 @@ public class Util extends Activity {
                                         .fillColor(0x550099FF)
                         );
 
+                        showMessageBox("marker location: "+ marker.getPosition().toString() +" clicked latlng: "+ latLng.toString(), false);
 
                         map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
 
@@ -265,7 +266,7 @@ public class Util extends Activity {
                 });
 
 
-                map.setMyLocationEnabled(true);
+
 
 
                 //System.out.println("****** EDITING: "+ isEditing +" SETTINGS "+ opt.getSettings().toString());
@@ -332,7 +333,7 @@ public class Util extends Activity {
                     }
                 });
 
-
+                map.setMyLocationEnabled(true);
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
 
                 break;
