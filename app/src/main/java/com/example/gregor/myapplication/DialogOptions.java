@@ -1,5 +1,7 @@
 package com.example.gregor.myapplication;
 
+import android.app.AlarmManager;
+
 import java.util.HashMap;
 import java.util.Random;
 
@@ -23,6 +25,7 @@ public class DialogOptions {
     private type optionType;
     private int maxNumber;
     private int uniqueID = -1;
+    private AlarmManager mAlarm;
 
     private HashMap<String, String> settings = new HashMap<String, String>();
 
@@ -106,5 +109,13 @@ public class DialogOptions {
         else
             return false;
 
+    }
+
+    public AlarmManager getAlarm() {
+        return mAlarm;
+    }
+
+    public void setAlarm(AlarmManager mAlarm) {
+        this.mAlarm = mAlarm;
     }
 }

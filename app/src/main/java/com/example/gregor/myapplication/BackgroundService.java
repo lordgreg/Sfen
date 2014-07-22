@@ -1,5 +1,6 @@
 package com.example.gregor.myapplication;
 
+import android.app.AlarmManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +36,11 @@ public class BackgroundService extends Service {
     private boolean isOneStopping = false;
     protected String mLatestSSID = "";
 
+    // alarmmanager
+    protected AlarmManager mAlarmManager;
+    protected Alarm mAlarm;
+    protected ArrayList<Alarm> mActiveAlarms = new ArrayList<Alarm>();
+
     // geofence init
     private GeoLocation geoLocation;
     protected List<Geofence> mTriggeredGeofences = new ArrayList<Geofence>();
@@ -51,6 +57,8 @@ public class BackgroundService extends Service {
         add(getClass().getPackage().getName() +".EVENT_DISABLED");
         add(getClass().getPackage().getName() +".GEOFENCE_ENTER");
         add(getClass().getPackage().getName() +".GEOFENCE_EXIT");
+        add(getClass().getPackage().getName() +".ALARM_TRIGGER");
+
     }};
 
 
@@ -82,6 +90,33 @@ public class BackgroundService extends Service {
         // start GeoLocation class
         geoLocation = new GeoLocation(sInstance);
 
+        // create alarm object
+//        mAlarm = new Alarm(sInstance);
+//        Calendar cal = Calendar.getInstance();
+//        cal.setTimeInMillis(System.currentTimeMillis());
+//        //cal.set(Calendar.HOUR_OF_DAY, 18);
+//        //cal.set(Calendar.MINUTE, 32);
+//
+//        // add 5 seconds to current time and we get when when next trigger happens. yep, in 5seconds o_O
+//        cal.add(Calendar.SECOND, 5);
+//        //System.out.println("current time to start trigger: "+ cal.toString());
+//        mAlarm.CreateAlarm(cal); // this one starts in
+//        mActiveAlarms.add(mAlarm);
+//
+//        // start this one with X seconds from now
+//        mAlarm = new Alarm(sInstance);
+//        mAlarm.CreateAlarm(5);
+//        mActiveAlarms.add(mAlarm);
+
+
+        // start this one repeating
+        //mAlarm = new Alarm(sInstance);
+        //mAlarm.CreateAlarmRepeating(cal, 8);
+
+        //PendingIntent mAlarmPi = PendingIntent.getBroadcast(this, 0, new Intent("com.example.gregor.myapplication.ALARM_TRIGGER"), 0);
+        //mAlarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
+        //mAlarmManager.set(AlarmManager.RTC_WAKEUP, 5000, mAlarmPi);
+
         // check, for the first time of our app history, if we have a candidate..
         //EventFinder(this, intent);
 
@@ -111,6 +146,9 @@ public class BackgroundService extends Service {
 
         // unregister our receiver
         unregisterReceiver(receiver);
+
+        // cancel alarm manager
+        //mAlarmManager.cancel();
 
         // destroy all geofences
         geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
@@ -593,6 +631,15 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                         }
 
                         hashCode = "";
+
+                        break;
+
+                    /**
+                     * timerange adds alarms to specific condition time sets
+                     * one at start and one on end+1min
+                     */
+                    case TIMERANGE:
+
 
                         break;
 
