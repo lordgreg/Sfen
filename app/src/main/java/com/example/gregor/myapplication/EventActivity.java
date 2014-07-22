@@ -33,7 +33,7 @@ public class EventActivity extends Activity {
 
 
     // placeholder for current Event
-    private Event event = null;
+    protected Event event = null;
 
     // arrays for conditions and actions
     protected ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
@@ -42,13 +42,12 @@ public class EventActivity extends Activity {
 
     // list of possible Conditions in Options
     static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
-        add(new DialogOptions("Entering Location", "Entering location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
-        add(new DialogOptions("Leaving Location", "Leaving location", R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
-        add(new DialogOptions("Entering/Leaving Location", "Entering/Leaving location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTERLEAVE));
+        add(new DialogOptions("Inside Location", "Inside location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
+        add(new DialogOptions("Outside Location", "Outside location", R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
         add(new DialogOptions("Time", "Time range", R.drawable.ic_time, DialogOptions.type.TIMERANGE));
         add(new DialogOptions("Days", "Day(s) of week", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
-        add(new DialogOptions("Connecting to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
-        add(new DialogOptions("Disconnecting from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
+        add(new DialogOptions("Connected to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
+        add(new DialogOptions("Disconnected from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
     }};
 
     // list of possible Actions in Options
@@ -234,6 +233,7 @@ public class EventActivity extends Activity {
         event.setConditions(conditions);
         event.setActions(actions);
         event.setEnabled(((Switch) findViewById(R.id.event_enabled)).isChecked());
+        event.setMatchAllConditions(((CheckBox) findViewById(R.id.event_allconditions)).isChecked());
         // TODO: add one or all settings for current event if needed
         // event.setSetting("this", "test");
 

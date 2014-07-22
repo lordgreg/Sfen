@@ -17,7 +17,7 @@ public class Event {
     private String name;
     private boolean enabled;
     private boolean running = false;
-    private boolean matchAllConditions;
+    private boolean matchAllConditions = true;
     private boolean forceRun = false;
     private int uniqueID = -1;
 
@@ -57,7 +57,7 @@ public class Event {
     public Event() {
         super();
         if (uniqueID == -1) {
-            uniqueID = new Random().nextInt();
+            uniqueID = new Random().nextInt(Integer.MAX_VALUE) + 1;
         }
     }
 

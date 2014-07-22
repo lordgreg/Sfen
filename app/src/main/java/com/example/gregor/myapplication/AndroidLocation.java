@@ -73,14 +73,14 @@ public class AndroidLocation extends Activity implements LocationListener {
     /* Request updates at startup */
     @Override
     protected void onResume() {
-        //super.onResume();
+        super.onResume();
         locationManager.requestLocationUpdates(provider, 400, 1, this);
     }
 
     /* Remove the locationlistener updates when Activity is paused */
     @Override
     protected void onPause() {
-        //super.onPause();
+        super.onPause();
         locationManager.removeUpdates(this);
     }
 

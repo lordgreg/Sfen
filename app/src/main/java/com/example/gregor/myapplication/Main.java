@@ -392,8 +392,18 @@ public class Main extends Activity {
                             updateEventsFromPreferences();
                             refreshEventsView();
 
+                            // enable/disable timers, if any
+                            BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>(){{
+                                add(e);
+                            }});
                         }
                         if (which == 2) {
+                            // disable timers, if any
+                            e.setEnabled(false);
+                            BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>(){{
+                                add(e);
+                            }});
+
                             // delete row AND spot in events
                             mContainerView.removeView(newRow);
                             events.remove(e);

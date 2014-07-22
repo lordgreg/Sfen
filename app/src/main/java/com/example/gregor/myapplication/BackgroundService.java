@@ -381,7 +381,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                                     Double.parseDouble(cond.getSetting("longitude")), results);
 
                             System.out.println("distance between current location and "+ cond.getDescription() +": "+ results[0] +" in meters.");
-                            if (results[0] < (float)100) {
+                            if (results[0] < Float.parseFloat(cond.getSetting("radius"))) {
                                 conditionResults.add(true);
                             }
                             else {
@@ -408,8 +408,41 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                         }
                     }
                     // if triggered geofences are empty, result is false
-                    else
-                        conditionResults.add(false);
+                    else {
+                        // not yet...
+                        // result will be false ONLY if distance between CURRENTLOC LatLng
+                        // and SAVED LatLng is greater than radius set.
+                        AndroidLocation loc;
+                        loc = new AndroidLocation(context);
+
+                        if (loc.isError())
+                            conditionResults.add(false);
+                        else {
+
+                            // is current > saved?
+                            float[] results = new float[1];
+                            Location.distanceBetween(loc.getLatitude(), loc.getLongitude(),
+                                    Double.parseDouble(cond.getSetting("latitude")),
+                                    Double.parseDouble(cond.getSetting("longitude")), results);
+
+                            Log.i("sfen", "distance between current location and "+ cond.getDescription() +": "+ results[0] +" in meters.");
+                            if (results[0] > Float.parseFloat(cond.getSetting("radius"))) {
+                                conditionResults.add(true);
+                            }
+                            else {
+                                conditionResults.add(false);
+                            }
+
+                        }
+                    }
+
+                    break;
+
+
+                default:
+                    Log.e("sfen", "No case match ("+ cond.getOptionType() +"). Returning false.");
+
+                    conditionResults.add(false);
 
                     break;
 
@@ -508,6 +541,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
         List<String> mGeoIds = new ArrayList<String>();
         ArrayList<Geofence> mGeofences = new ArrayList<Geofence>();
 
+
         for (Event e : events) {
 
             for (DialogOptions single : e.getConditions()) {
@@ -519,16 +553,17 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                 switch (single.getOptionType()) {
                     case LOCATION_ENTER:
                     case LOCATION_LEAVE:
-                    case LOCATION_ENTERLEAVE:
                         //System.out.println("hash: "+ hashCode +"\n"+ single.getSettings().toString());
+                        //System.out.println("HASHCODE: "+ hashCode);
 
                         //Geofence.GEOFENCE_TRANSITION_ENTER    = 1
                         //Geofence.GEOFENCE_TRANSITION_EXIT     = 2
                         //Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT = 3
-                        int mTransitionType = ((single.getOptionType()== DialogOptions.type.LOCATION_ENTER) ? 1 :
-                                ((single.getOptionType()== DialogOptions.type.LOCATION_LEAVE) ? 2 :
-                                        ((single.getOptionType()== DialogOptions.type.LOCATION_ENTERLEAVE) ? 3 : 0)));
-                        System.out.println("*** transition type: "+ mTransitionType +" cond: "+ single.getOptionType() +", event: "+ e.getName());
+                        //transition type should ALWAYS be enter & exit!
+//                        int mTransitionType = ((single.getOptionType()== DialogOptions.type.LOCATION_ENTER) ? 1 :
+//                                ((single.getOptionType()== DialogOptions.type.LOCATION_LEAVE) ? 2 :
+//                                        ((single.getOptionType()== DialogOptions.type.LOCATION_ENTERLEAVE) ? 3 : 0)));
+                        //System.out.println("*** transition type: "+ mTransitionType +" cond: "+ single.getOptionType() +", event: "+ e.getName());
 
                         // IF EVENT ENABLED, add geofences
                         if (e.isEnabled()) {
@@ -540,7 +575,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                                     .setCircularRegion(
                                             Double.parseDouble(single.getSetting("latitude")),
                                             Double.parseDouble(single.getSetting("longitude")),
-                                            Float.parseFloat(single.getSetting("radius")) // raidus in meters
+                                            Float.parseFloat(single.getSetting("radius")) // radius in meters
                                     )
                                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                                     .build();
@@ -561,12 +596,16 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
                         break;
 
+                    default:
+                        Log.i("sfen", "No case match ("+ single.getOptionType() +").");
+
+                        break;
 
                 }
             }
 
             // disable event and set it to running=off
-            e.setRunning(false);
+            //e.setRunning(false);
             e.setForceRun(false);
         }
 
