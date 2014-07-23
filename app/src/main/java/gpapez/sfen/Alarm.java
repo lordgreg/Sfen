@@ -1,4 +1,4 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -6,8 +6,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 
 /**
  * Created by Gregor on 22.7.2014.
@@ -19,6 +19,8 @@ public class Alarm {
      */
     private PendingIntent mPendingIntent;
     private AlarmManager mAlarmManager;
+    private int mConditionID;
+    private int mAlarmID = new Random().nextInt();
 
     // use transient with gson 1.7.1
     private transient Context mContext;
@@ -32,6 +34,11 @@ public class Alarm {
     public Alarm(Context context/*, Intent intent*/) {
         mContext = context;
         //mIntent = intent;
+    }
+
+    public Alarm(Context context, int conditionId) {
+        mContext = context;
+        mConditionID = conditionId;
     }
 
     /**
@@ -51,21 +58,12 @@ public class Alarm {
 
             return PendingIntent.getBroadcast(
                     mContext,
-                    0,
+                    mAlarmID,
                     new Intent(getClass().getPackage().getName() +".ALARM_TRIGGER"),
-                    0
+                    PendingIntent.FLAG_UPDATE_CURRENT
             );
 
         }
-    }
-
-    /**
-     * create array of alarms
-     */
-    protected void CreateAlarm(ArrayList<Alarm> alarmList) {
-
-
-
     }
 
     /**
@@ -112,5 +110,13 @@ public class Alarm {
 
     public boolean isRepeating() {
         return isRepeating;
+    }
+
+    public int getConditionID() {
+        return mConditionID;
+    }
+
+    public void setConditionID(int mConditionID) {
+        this.mConditionID = mConditionID;
     }
 }

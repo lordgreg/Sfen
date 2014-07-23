@@ -1,4 +1,4 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import android.app.PendingIntent;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import android.app.Activity;
 import android.content.Context;

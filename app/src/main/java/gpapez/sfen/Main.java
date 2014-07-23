@@ -1,4 +1,4 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.gregor.myapplication.R;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -28,6 +29,7 @@ public class Main extends Activity {
     protected boolean isVisible = false;
     private ViewGroup mContainerView;
     protected ArrayList<Event> events = new ArrayList<Event>();
+
 
     // Map with options. Instead of creating more variables to use around
     // activities, I've created HashMap; putting settings here if needed.

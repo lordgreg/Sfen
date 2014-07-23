@@ -1,6 +1,5 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
-import android.app.AlarmManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +12,7 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.gregor.myapplication.R;
 import com.google.android.gms.location.Geofence;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -36,8 +36,10 @@ public class BackgroundService extends Service {
     private boolean isOneStopping = false;
     protected String mLatestSSID = "";
 
+    protected Preferences mPreferences;
+
     // alarmmanager
-    protected AlarmManager mAlarmManager;
+    //protected AlarmManager mAlarmManager;
     protected Alarm mAlarm;
     protected ArrayList<Alarm> mActiveAlarms = new ArrayList<Alarm>();
 
@@ -75,6 +77,16 @@ public class BackgroundService extends Service {
 
         // set intent
         sIntent = intent;
+
+        // start preferences
+        mPreferences = new Preferences(Main.getInstance());
+
+
+        // get alarm preferences
+        mActiveAlarms = (ArrayList<Alarm>) mPreferences.getPreferences("alarms", Preferences.REQUEST_TYPE.ALARMS);
+        if (mActiveAlarms == null)
+            mActiveAlarms = new ArrayList<Alarm>();
+
 
         // start our receiver
         IntentFilter intentFilter = new IntentFilter();
@@ -351,7 +363,13 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
 
                 case TIMERANGE:
+                    Calendar current = Calendar.getInstance();
+
+                    // add 1 second to current if we got a trigger just on the same second as start
+                    // time
                     Calendar cal = Calendar.getInstance();
+                    cal.add(Calendar.SECOND, 1);
+
                     Calendar cStart = Calendar.getInstance();
                     Calendar cEnd = Calendar.getInstance();
 
@@ -367,9 +385,9 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                         //cal.add(Calendar.DATE, 1);
                     }
 
-                    //Log.e("test", "current date: "+ current.toString());
-                    //Log.e("test", "start date: "+ cStart.getTime().toString());
-                    //Log.e("test", "end date: "+ cEnd.getTime().toString());
+                    Log.e("test", "current date: "+ cal.getTime().toString());
+                    Log.e("test", "start date: "+ cStart.getTime().toString());
+                    Log.e("test", "end date: "+ cEnd.getTime().toString());
 
 
                     //Date current = cal.getTime();
@@ -645,8 +663,8 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     case TIMERANGE:
                         System.out.println("*** TIMERANGE");
 
-                        System.out.println("showing current alarms: "+ single.getAlarms().toString());
-                        System.out.println("showing all active alarms: "+ mActiveAlarms.toString());
+                        //System.out.println("showing current alarms: "+ single.getAlarms().toString());
+                        //System.out.println("showing all active alarms: "+ mActiveAlarms.toString());
 
                         // check if we're enabling or disabling event.
                         if (e.isEnabled()) {
@@ -667,64 +685,43 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                             timeStart.setTimeInMillis(System.currentTimeMillis());
                             timeStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("fromHour")));
                             timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("fromMinute")));
+                            timeStart.set(Calendar.SECOND, 0);
 
-                            mAlarm = new Alarm(sInstance);
+                            mAlarm = new Alarm(sInstance, single.getUniqueID());
                             mAlarm.CreateAlarmRepeating(timeStart, intervalSeconds);
                             mActiveAlarms.add(mAlarm);
-
-                            // add alarm to current condition
-                            single.addAlarm(mAlarm);
 
 
                             /*
                             Create ending time. It will trigger the same as starting, but, we will
-                            add 1 second to it, so it triggers when timerange is over.
+                            add 1 minute to it, so it triggers when timerange is over.
                              */
                             System.out.println("end time");
                             Calendar timeEnd = Calendar.getInstance();
-                            timeStart.setTimeInMillis(System.currentTimeMillis());
-                            timeStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("toHour")));
-                            timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("toMinute")));
-                            timeEnd.add(Calendar.SECOND, 1);
+                            timeEnd.setTimeInMillis(System.currentTimeMillis());
+                            timeEnd.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("toHour")));
+                            timeEnd.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("toMinute")));
+                            //timeEnd.add(Calendar.MINUTE, 1);
+                            timeEnd.set(Calendar.SECOND, 0);
 
-                            mAlarm = new Alarm(sInstance);
+                            mAlarm = new Alarm(sInstance, single.getUniqueID());
                             mAlarm.CreateAlarmRepeating(timeEnd, intervalSeconds);
                             mActiveAlarms.add(mAlarm);
-
-                            // add alarm to current condition
-                            single.addAlarm(mAlarm);
-
 
                         }
                         // disabling event, stop all timers
                         else {
-                            Log.d("sfen", "Disabling alarm(s) for condition: "+ single.getTitle());
+                            Log.d("sfen", "Disabling alarm(s) for condition: " + single.getTitle());
 
-                            // if alarm in condition is enabled?
-
-                            if (single.getAlarms().size() > 0) {
-
-                                // remove every single one
-                                for (Alarm singleAlarm : single.getAlarms()) {
-                                    // add alarm to list so we will delete them later
+                            // remove every single one
+                            for (Alarm singleAlarm : mActiveAlarms) {
+                                if (singleAlarm.getConditionID() == single.getUniqueID()) {
+                                    // we found a match in active alarms
+                                    //mActiveAlarms.remove(singleAlarm);
                                     mAlarmsDelete.add(singleAlarm);
-
-//                                    // remove it from array of active alarms
-//                                    mActiveAlarms.remove(singleAlarm);
-//
-//                                    // and cancel it.
-//                                    singleAlarm.RemoveAlarm();
-//
-//                                    // remove it from current condition
-                                    single.removeAlarm(singleAlarm);
                                 }
 
-
                             }
-
-                            else
-                                Log.d("sfen", "No alarms to remove for "+ single.getTitle()
-                                        +" ("+ e.getName() +").");
                         }
 
                         break;
@@ -759,16 +756,21 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
         // TIMERS
         if (mAlarmsDelete.size() > 0) {
-            for (Alarm single : mAlarmsCreate) {
+            System.out.println("*** deleting "+ mAlarmsDelete.size() +" alarms.");
+            for (Alarm single : mAlarmsDelete) {
+                System.out.println("Deleting alarm from condition "+ single.getConditionID());
+                // stop the alarm
+                single.RemoveAlarm();
+
                 // remove it from array of active alarms
                 mActiveAlarms.remove(single);
 
-                // and cancel it.
-                single.RemoveAlarm();
-
-                // remove it from current condition
-                //single.removeAlarm(singleAlarm);
             }
+
+            mAlarmsDelete = null;
+
+            // save new alarms to preferences
+            mPreferences.setPreferences("alarms", mActiveAlarms);
         }
 
 

@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -25,7 +27,7 @@
             android:value="AIzaSyCiT5iiIEWCCM8D-2xDUbbfVabEeeClZV8" />
 
         <activity
-            android:name=".Main"
+            android:name="gpapez.sfen.Main"
             android:label="@string/title_activity_main"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -34,9 +36,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".EventActivity"
+            android:name="gpapez.sfen.EventActivity"
             android:label="@string/title_activity_event"
-            android:parentActivityName=".Main" >
+            android:parentActivityName="gpapez.sfen.Main" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.gregor.myapplication.Main" />
@@ -44,25 +46,25 @@
 
         <service
             android:enabled="true"
-            android:name=".BackgroundService"
+            android:name="gpapez.sfen.BackgroundService"
             android:exported="false" />
 
         <service
             android:enabled="true"
-            android:name=".ReceiveTransitionsIntentService"
+            android:name="gpapez.sfen.ReceiveTransitionsIntentService"
             android:exported="false">
         </service>
 
         <activity
-            android:name=".Log"
+            android:name="gpapez.sfen.Log"
             android:label="@string/title_activity_log"
-            android:parentActivityName=".Main" >
+            android:parentActivityName="gpapez.sfen.Main" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.gregor.myapplication.Main" />
         </activity>
 
-        <receiver android:name=".Receiver" >
+        <receiver android:name="gpapez.sfen.Receiver" >
         </receiver>
 
 

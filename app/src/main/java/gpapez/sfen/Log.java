@@ -1,9 +1,11 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.example.gregor.myapplication.R;
 
 public class Log extends Activity {
     private static Log sInstance = null;

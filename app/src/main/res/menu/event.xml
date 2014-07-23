@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.gregor.myapplication.EventActivity" >
+    tools:context="gpapez.sfen.EventActivity" >
     <item android:id="@+id/action_cancel"
         android:icon="@android:drawable/ic_menu_revert"
         android:title="@string/action_settings"

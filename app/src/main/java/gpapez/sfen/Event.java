@@ -1,4 +1,4 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import java.util.ArrayList;
 import java.util.HashMap;

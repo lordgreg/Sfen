@@ -1,4 +1,4 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import android.app.IntentService;
 import android.content.Intent;

@@ -1,4 +1,4 @@
-package com.example.gregor.myapplication;
+package gpapez.sfen;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.example.gregor.myapplication.R;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
