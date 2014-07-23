@@ -579,6 +579,10 @@ Log.d("sfen", "condition "+ cond.getOptionType());
         List<String> mGeoIds = new ArrayList<String>();
         ArrayList<Geofence> mGeofences = new ArrayList<Geofence>();
 
+        // alarmmanager array, one when adding, one when removing
+        ArrayList<Alarm> mAlarmsCreate = new ArrayList<Alarm>();
+        ArrayList<Alarm> mAlarmsDelete = new ArrayList<Alarm>();
+
 
         for (Event e : events) {
 
@@ -639,12 +643,94 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                      * one at start and one on end+1min
                      */
                     case TIMERANGE:
+                        System.out.println("*** TIMERANGE");
 
+                        System.out.println("showing current alarms: "+ single.getAlarms().toString());
+                        System.out.println("showing all active alarms: "+ mActiveAlarms.toString());
+
+                        // check if we're enabling or disabling event.
+                        if (e.isEnabled()) {
+                            Log.d("sfen", "Creating alarm for condition: "+ single.getTitle());
+
+                            // interval for both created alarms will be 24 hours
+                            int intervalSeconds = 24*60*60;
+
+
+                            /*
+                            Create starting time and start it on specific time.
+
+                            We are going to repeat this alarm every day on the same time to check
+                            if all event conditions are met.
+                            */
+                            System.out.println("start time");
+                            Calendar timeStart = Calendar.getInstance();
+                            timeStart.setTimeInMillis(System.currentTimeMillis());
+                            timeStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("fromHour")));
+                            timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("fromMinute")));
+
+                            mAlarm = new Alarm(sInstance);
+                            mAlarm.CreateAlarmRepeating(timeStart, intervalSeconds);
+                            mActiveAlarms.add(mAlarm);
+
+                            // add alarm to current condition
+                            single.addAlarm(mAlarm);
+
+
+                            /*
+                            Create ending time. It will trigger the same as starting, but, we will
+                            add 1 second to it, so it triggers when timerange is over.
+                             */
+                            System.out.println("end time");
+                            Calendar timeEnd = Calendar.getInstance();
+                            timeStart.setTimeInMillis(System.currentTimeMillis());
+                            timeStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("toHour")));
+                            timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("toMinute")));
+                            timeEnd.add(Calendar.SECOND, 1);
+
+                            mAlarm = new Alarm(sInstance);
+                            mAlarm.CreateAlarmRepeating(timeEnd, intervalSeconds);
+                            mActiveAlarms.add(mAlarm);
+
+                            // add alarm to current condition
+                            single.addAlarm(mAlarm);
+
+
+                        }
+                        // disabling event, stop all timers
+                        else {
+                            Log.d("sfen", "Disabling alarm(s) for condition: "+ single.getTitle());
+
+                            // if alarm in condition is enabled?
+
+                            if (single.getAlarms().size() > 0) {
+
+                                // remove every single one
+                                for (Alarm singleAlarm : single.getAlarms()) {
+                                    // add alarm to list so we will delete them later
+                                    mAlarmsDelete.add(singleAlarm);
+
+//                                    // remove it from array of active alarms
+//                                    mActiveAlarms.remove(singleAlarm);
+//
+//                                    // and cancel it.
+//                                    singleAlarm.RemoveAlarm();
+//
+//                                    // remove it from current condition
+                                    single.removeAlarm(singleAlarm);
+                                }
+
+
+                            }
+
+                            else
+                                Log.d("sfen", "No alarms to remove for "+ single.getTitle()
+                                        +" ("+ e.getName() +").");
+                        }
 
                         break;
 
                     default:
-                        Log.i("sfen", "No case match ("+ single.getOptionType() +").");
+                        Log.d("sfen", "No case match ("+ single.getOptionType() +").");
 
                         break;
 
@@ -669,6 +755,20 @@ Log.d("sfen", "condition "+ cond.getOptionType());
         // ADDING FENCES
         else if (mGeofences.size() > 0) {
             geoLocation.AddGeofences(mGeofences);
+        }
+
+        // TIMERS
+        if (mAlarmsDelete.size() > 0) {
+            for (Alarm single : mAlarmsCreate) {
+                // remove it from array of active alarms
+                mActiveAlarms.remove(single);
+
+                // and cancel it.
+                single.RemoveAlarm();
+
+                // remove it from current condition
+                //single.removeAlarm(singleAlarm);
+            }
         }
 
 

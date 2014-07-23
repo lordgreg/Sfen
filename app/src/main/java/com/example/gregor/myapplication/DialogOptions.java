@@ -2,6 +2,9 @@ package com.example.gregor.myapplication;
 
 import android.app.AlarmManager;
 
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -25,7 +28,9 @@ public class DialogOptions {
     private type optionType;
     private int maxNumber;
     private int uniqueID = -1;
-    private AlarmManager mAlarm;
+
+    // use transient with gson 2.2.4+
+    private ArrayList<Alarm> alarm = new ArrayList<Alarm>();
 
     private HashMap<String, String> settings = new HashMap<String, String>();
 
@@ -111,11 +116,28 @@ public class DialogOptions {
 
     }
 
-    public AlarmManager getAlarm() {
-        return mAlarm;
+    public ArrayList<Alarm> getAlarms() {
+        return alarm;
     }
 
-    public void setAlarm(AlarmManager mAlarm) {
-        this.mAlarm = mAlarm;
+    /*public void addAlarm(ArrayList<Alarm> array) {
+        this.alarm = array;
+    }*/
+
+    public void addAlarm(Alarm newAlarm) {
+        alarm.add(newAlarm);
     }
+
+    public void removeAlarm(Alarm alarm) {
+        this.alarm.remove(alarm);
+    }
+
+//    we cannot use this option since the alarms are also stored in activealarms array
+//    in background service
+//    public void removeAlarms() {
+//        for (Alarm single : alarm) {
+//            single.RemoveAlarm();
+//        }
+//    }
+
 }

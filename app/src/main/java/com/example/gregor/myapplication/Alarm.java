@@ -20,7 +20,8 @@ public class Alarm {
     private PendingIntent mPendingIntent;
     private AlarmManager mAlarmManager;
 
-    private Context mContext;
+    // use transient with gson 1.7.1
+    private transient Context mContext;
 
     private boolean isRepeating = false;
 
@@ -76,6 +77,7 @@ public class Alarm {
 
         mAlarmManager = (AlarmManager)mContext.getSystemService(Activity.ALARM_SERVICE);
         mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), intervalSeconds*1000, getPendingIntent());
+        System.out.println("*** starting at: "+ cal.getTime().toString());
     }
 
     /**
@@ -86,6 +88,7 @@ public class Alarm {
 
         mAlarmManager = (AlarmManager)mContext.getSystemService(Activity.ALARM_SERVICE);
         mAlarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), getPendingIntent());
+        System.out.println("*** starting at: "+ cal.getTime().toString());
     }
 
     /**
