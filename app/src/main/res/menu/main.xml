@@ -1,11 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="gpapez.sfen.Main" >
-    <item android:id="@+id/action_add_new"
+    <item android:id="@+id/event_add_new"
         android:icon="@drawable/ic_add"
         android:title="add"
         android:orderInCategory="100"
         android:showAsAction="always" />
+    <item android:id="@+id/profile_add_new"
+        android:icon="@drawable/ic_profile"
+        android:title="add"
+        android:orderInCategory="100"
+        android:visible="false"
+        android:showAsAction="always" />
+    <item android:id="@+id/whitelist_add_new"
+        android:icon="@drawable/ic_whitelist"
+        android:title="add"
+        android:orderInCategory="100"
+        android:visible="false"
+        android:showAsAction="always" />
+
     <item android:id="@+id/action_exit"
         android:title="Exit"
         />

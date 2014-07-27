@@ -21,5 +21,7 @@
     <string name="option_time">Time</string>
     <string name="option_message">Message</string>
     <string name="title_activity_log">Log</string>
+    <string name="add_new_profile">To create new profile, use the button on top!</string>
+    <string name="add_new_whitelist">To add new whitelist use the button above!</string>
 
 </resources>

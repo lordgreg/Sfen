@@ -75,7 +75,7 @@ public class Alarm {
 
         mAlarmManager = (AlarmManager)mContext.getSystemService(Activity.ALARM_SERVICE);
         mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), intervalSeconds*1000, getPendingIntent());
-        System.out.println("*** starting at: "+ cal.getTime().toString());
+        //System.out.println("*** starting at: "+ cal.getTime().toString());
     }
 
     /**

@@ -1,7 +1,9 @@
 package gpapez.sfen;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,43 +25,123 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Main extends Activity {
+public class Main extends Activity
+        implements ActionBar.TabListener {
+
+    // singleton object
     private static Main sInstance = null;
+
+    // background service object
     private static Intent bgService = null;
+
+    // if main activity is visible or not (will change onResume and onPause)
     protected boolean isVisible = false;
+
+    // container of our events/profiles/whitelist
     private ViewGroup mContainerView;
     protected ArrayList<Event> events = new ArrayList<Event>();
 
+    // this variable will set itself to false on the last line of onCreate method
+    private boolean isCreating = true;
 
-    // Map with options. Instead of creating more variables to use around
+    // position of current tab
+    protected int mTabPosition = 0;
+
+
+    // HashMap with options. Instead of creating more variables to use around
     // activities, I've created HashMap; putting settings here if needed.
     HashMap<String, String> options = new HashMap<String, String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         // set singleton instance
         sInstance = this;
 
-        // set container for our events
-        mContainerView = (ViewGroup) findViewById(R.id.container);
 
+        // Set up the action bar to show tabs.
+        final ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        // fetch events from settings of some sort
-        events = getEventsFromPreferences();
-
-
-        // this is our first run, let set all events running boolean to false
-        for (int i = 0; i < events.size(); i++) {
-            events.get(i).setRunning(false);
-        }
+        // for each of the sections in the app, add a tab to the action bar.
+        actionBar.addTab(actionBar.newTab().setText("Events")
+                .setTabListener(this));
+        actionBar.addTab(actionBar.newTab().setText("Profiles")
+                .setTabListener(this));
+        actionBar.addTab(actionBar.newTab().setText("Whitelists")
+                .setTabListener(this));
 
 
         // create & start service
         bgService = new Intent(this, BackgroundService.class);
         startService(bgService);
+
+        // end of onCreate
+        isCreating = false;
+    }
+
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        // save the current tab position for serialisation
+        mTabPosition = tab.getPosition();
+
+        // set visibility of menu items with icons
+        invalidateOptionsMenu();
+
+        // When the given tab is selected, show the tab contents in the
+        // container view.
+        // TABS
+        // 0 events
+        // 1 profiles
+        // 2 whitelist
+
+        // SHOWING EVENTS
+        if (tab.getPosition() == 0) {
+            setContentView(R.layout.activity_main_events);
+
+            // set container for our current tab items
+            // always reallocate it since we're constantly switching
+            // also, all 3 views have the same ID "container"
+            mContainerView = (ViewGroup) findViewById(R.id.container);
+
+            // ON INIT ONLY
+            if (isCreating) {
+                // fetch events from settings of some sort
+                events = getEventsFromPreferences();
+
+                // this is our first run, let set all events running boolean to false
+                for (int i = 0; i < events.size(); i++) {
+                    events.get(i).setRunning(false);
+                }
+            }
+            else
+                refreshEventsView();
+
+        }
+
+        // SHOWING PROFILES
+        else if (tab.getPosition() == 1) {
+
+            setContentView(R.layout.activity_main_profiles);
+
+        }
+
+        // SHOWING WHITELIST
+        else if (tab.getPosition() == 2) {
+            setContentView(R.layout.activity_main_whitelist);
+        }
+
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab,
+                                FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
 
     }
 
@@ -87,10 +169,32 @@ public class Main extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        // set visibility of menu items with icons
+        if (mTabPosition == 0) {
+            menu.findItem(R.id.event_add_new).setVisible(true);
+            menu.findItem(R.id.profile_add_new).setVisible(false);
+            menu.findItem(R.id.whitelist_add_new).setVisible(false);
+        }
+        // profiles
+        else if (mTabPosition == 1) {
+            menu.findItem(R.id.event_add_new).setVisible(false);
+            menu.findItem(R.id.profile_add_new).setVisible(true);
+            menu.findItem(R.id.whitelist_add_new).setVisible(false);
+        }
+        // whitelist
+        else {
+            menu.findItem(R.id.event_add_new).setVisible(false);
+            menu.findItem(R.id.profile_add_new).setVisible(false);
+            menu.findItem(R.id.whitelist_add_new).setVisible(true);
+        }
+
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -98,7 +202,7 @@ public class Main extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_add_new) {
+        if (id == R.id.event_add_new) {
             startActivity(new Intent(this, EventActivity.class));
 
             return true;

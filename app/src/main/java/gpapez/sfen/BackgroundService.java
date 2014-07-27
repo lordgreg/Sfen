@@ -385,9 +385,9 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                         //cal.add(Calendar.DATE, 1);
                     }
 
-                    Log.e("test", "current date: "+ cal.getTime().toString());
+                    /*Log.e("test", "current date: "+ cal.getTime().toString());
                     Log.e("test", "start date: "+ cStart.getTime().toString());
-                    Log.e("test", "end date: "+ cEnd.getTime().toString());
+                    Log.e("test", "end date: "+ cEnd.getTime().toString());*/
 
 
                     //Date current = cal.getTime();
@@ -680,7 +680,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                             We are going to repeat this alarm every day on the same time to check
                             if all event conditions are met.
                             */
-                            System.out.println("start time");
+                            //System.out.println("start time");
                             Calendar timeStart = Calendar.getInstance();
                             timeStart.setTimeInMillis(System.currentTimeMillis());
                             timeStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("fromHour")));
@@ -696,7 +696,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                             Create ending time. It will trigger the same as starting, but, we will
                             add 1 minute to it, so it triggers when timerange is over.
                              */
-                            System.out.println("end time");
+                            //System.out.println("end time");
                             Calendar timeEnd = Calendar.getInstance();
                             timeEnd.setTimeInMillis(System.currentTimeMillis());
                             timeEnd.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("toHour")));
