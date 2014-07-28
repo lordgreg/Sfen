@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.DataOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -731,6 +732,34 @@ public class Util extends Activity {
 
                 break;
 
+            /**
+             * ACT: MOBILE DATA ENABLE/DISABLE
+             */
+            case ACT_MOBILEENABLE:
+            case ACT_MOBILEDISABLE:
+
+                if (isEditing) {
+                    showMessageBox("You cannot edit Mobile data enable/disable action. You can only remove it.", true);
+                    return ;
+                }
+
+                // save action & create new row
+                final DialogOptions mobilecond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                mobilecond.setSetting("text1", opt.getTitle());
+                mobilecond.setSetting("text2", "Mobile data will be "+
+                                ((opt.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE) ? "enabled" : "disabled")
+                );
+
+                //addNewAction(context, cond);
+                addNewConditionOrAction(context, mobilecond, 0);
+
+
+
+                break;
+
 
             /**
              * DEFAULT SWITCH/CASE CALL
@@ -1138,6 +1167,44 @@ public class Util extends Activity {
             return false;
         }
 
+
+    }
+
+
+    protected static void callRootCommand(String command) {
+
+        try {
+            Process su = Runtime.getRuntime().exec("su");
+            DataOutputStream sudoStream = new DataOutputStream(su.getOutputStream());
+
+            sudoStream.writeBytes(command +"\n");
+            sudoStream.flush();
+
+            sudoStream.writeBytes("exit\n");
+            sudoStream.flush();
+            su.waitFor();
+/*
+            suProcess = Runtime.getRuntime().exec("su\nsvc wifi disable");
+            suStream = new DataOutputStream(suProcess.getOutputStream());
+
+            // Close the terminal
+            suStream.writeBytes("exit\n");
+            suStream.flush();
+
+            // su called, now call the command (if root available)
+            suProcess.waitFor();
+
+            if (suProcess.exitValue() != 255) {
+                return true;
+            }
+            else
+                return false;
+*/
+
+        }
+        catch (Exception e) {
+            e.getStackTrace();
+        }
 
     }
 

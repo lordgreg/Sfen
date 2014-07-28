@@ -7,16 +7,14 @@
         android:orderInCategory="100"
         android:showAsAction="always" />
 
-    <!-- TODO: change ic_launcher to ic_profile -->
     <item android:id="@+id/profile_add_new"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_profile"
         android:title="add"
         android:orderInCategory="100"
         android:visible="false"
         android:showAsAction="always" />
-    <!-- TODO: change ic_launcher to ic_whitelist -->
     <item android:id="@+id/whitelist_add_new"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_whitelist"
         android:title="add"
         android:orderInCategory="100"
         android:visible="false"

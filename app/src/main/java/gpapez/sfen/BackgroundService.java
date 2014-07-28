@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-
 /**
  * Created by Gregor on 10.7.2014.
  *
@@ -586,10 +585,14 @@ Log.d("sfen", "condition "+ cond.getOptionType());
     private void runEventActions(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
         WifiManager wifiManager;
+        ConnectivityManager conMan;
 
         // if even is already running and this isn't first run of app,
         // don't re-run actions
-        if (e.isRunning() && !e.isForceRun()) {
+        if (
+                (e.isRunning() && !e.isForceRun()) ||
+                (!e.isEnabled() && !e.isForceRun())
+                ) {
             Log.e("sfen", e.getName() +" is already running. Skipping actions.");
             return ;
         }
@@ -624,6 +627,41 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     if (wifiManager.isWifiEnabled())
                         wifiManager.setWifiEnabled(false);
 
+                    break;
+
+                // enable or disable data connection
+                // could result in exceptions if user doesn't have root privileges
+                case ACT_MOBILEENABLE:
+
+                    conMan = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                    //NetworkInfo.State mobile = conMan.getNetworkInfo(0).getState();
+
+                    // if not connected yet, meaning enable it now!
+                    //if (conMan.getNetworkInfo(0).getState() != NetworkInfo.State.CONNECTED) {
+
+                        // continue only if we have root
+                        Util.callRootCommand("svc data enable");
+
+                    //}
+
+
+                    break;
+
+                case ACT_MOBILEDISABLE:
+
+                    // opposite of ACT_MOBILEENABLE
+                    conMan = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                    //NetworkInfo.State mobile = conMan.getNetworkInfo(0).getState();
+//Util.showMessageBox("mobile state: "+ conMan.getNetworkInfo(0).getState(), false);
+                    // if connected, disable data.
+                    //if (conMan.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED) {
+                        // TODO: ADD root options! (mobile data toggle!) su -c "svc data disable"
+                        // continue only if we have root
+                        Util.callRootCommand("svc data disable");
+
+                    //}
 
                     break;
 
@@ -720,7 +758,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                      * one at start and one on end+1min
                      */
                     case TIMERANGE:
-                        System.out.println("*** TIMERANGE");
+                        //System.out.println("*** TIMERANGE");
 
                         //System.out.println("showing current alarms: "+ single.getAlarms().toString());
                         //System.out.println("showing all active alarms: "+ mActiveAlarms.toString());
