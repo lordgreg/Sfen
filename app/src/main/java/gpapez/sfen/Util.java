@@ -652,11 +652,37 @@ public class Util extends Activity {
 
                 break;
 
+            /**
+             * CONDITION: Screen on/off
+             */
+            case SCREEN_ON:
+            case SCREEN_OFF:
+
+                if (isEditing) {
+                    showMessageBox("You cannot edit Screen On/Off Condition. You can only remove it.", true);
+                    return ;
+                }
+
+                // save action & create new row
+                final DialogOptions condScreen = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                condScreen.setSetting("text1", opt.getTitle());
+                condScreen.setSetting("text2", "Screen is "+
+                        ((opt.getOptionType() == DialogOptions.type.SCREEN_ON) ? "On" : "Off")
+                        +".");
+
+                //addNewAction(context, cond);
+                addNewConditionOrAction(context, condScreen, 0);
+
+                break;
+
 
             /**
              * ACTION: SHOW NOTIFICATION
              */
-        case ACT_NOTIFICATION:
+            case ACT_NOTIFICATION:
 
             // are we trying to edit the notification? because, uhm... we can't
             if (isEditing) {
@@ -675,10 +701,35 @@ public class Util extends Activity {
             //addNewAction(context, cond);
             addNewConditionOrAction(context, cond, 0);
 
-
-
             break;
 
+            /**
+             * ACTION: ENABLE OR DISABLE WIFI
+             */
+            case ACT_WIFIENABLE:
+            case ACT_WIFIDISABLE:
+
+                if (isEditing) {
+                    showMessageBox("You cannot edit Wifi enable/disable action. You can only remove it.", true);
+                    return ;
+                }
+
+
+                // save action & create new row
+                final DialogOptions wificond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                wificond.setSetting("text1", opt.getTitle());
+                wificond.setSetting("text2", "Wifi will be "+
+                        ((opt.getOptionType() == DialogOptions.type.ACT_WIFIENABLE) ? "enabled" : "disabled")
+                );
+
+                //addNewAction(context, cond);
+                addNewConditionOrAction(context, wificond, 0);
+
+
+                break;
 
 
             /**

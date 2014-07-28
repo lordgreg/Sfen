@@ -49,12 +49,17 @@ public class EventActivity extends Activity {
         add(new DialogOptions("Days", "Day(s) of week", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
         add(new DialogOptions("Connected to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
         add(new DialogOptions("Disconnected from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
+        add(new DialogOptions("Screen On", "If screen is on.", R.drawable.ic_launcher, DialogOptions.type.SCREEN_ON));
+        add(new DialogOptions("Screen Off", "If screen is off.", R.drawable.ic_launcher, DialogOptions.type.SCREEN_OFF));
     }};
 
     // list of possible Actions in Options
     //context.getResources().getDrawable(R.drawable.ic_launcher)
     static final ArrayList<DialogOptions> optActions = new ArrayList<DialogOptions>() {{
         add(new DialogOptions("Show notification", "Will show notification in notification area", android.R.drawable.ic_dialog_info, DialogOptions.type.ACT_NOTIFICATION));
+        add(new DialogOptions("Enable Wifi", "Enable Wifi when conditions met.", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
+        add(new DialogOptions("Disable Wifi", "Disable Wifi when conditions met.", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
+        // TODO: ADD root options! (mobile data toggle!) su -c "svc data enable"
         //add(new DialogOptions("Show dialog with text", "Dialog window with specific text will be shown", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_DIALOGWITHTEXT));
         //add(new DialogOptions("Play sound", "Play specific sound", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_PLAYSOUND));
         //add(new DialogOptions("Open application", "Opens specified application", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_OPENAPPLICATION));

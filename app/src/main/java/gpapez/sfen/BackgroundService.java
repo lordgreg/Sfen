@@ -10,6 +10,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
 
 import com.example.gregor.myapplication.R;
@@ -39,7 +40,6 @@ public class BackgroundService extends Service {
     protected Preferences mPreferences;
 
     // alarmmanager
-    //protected AlarmManager mAlarmManager;
     protected Alarm mAlarm;
     protected ArrayList<Alarm> mActiveAlarms = new ArrayList<Alarm>();
 
@@ -54,7 +54,14 @@ public class BackgroundService extends Service {
 
     // list of all allowable broadcasts
     private static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
-        add(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        // system-based broadcast calls
+        add(WifiManager.NETWORK_STATE_CHANGED_ACTION);  // wifi disable/enable/connect/disconnect
+        add(Intent.ACTION_SCREEN_ON);                   // screen on
+        add(Intent.ACTION_SCREEN_OFF);                  // screen off
+        //add(Intent.ACTION_AIRPLANE_MODE_CHANGED);       // toggle airplane
+
+
+        // in-app broadcast calls
         add(getClass().getPackage().getName() +".EVENT_ENABLED");
         add(getClass().getPackage().getName() +".EVENT_DISABLED");
         add(getClass().getPackage().getName() +".GEOFENCE_ENTER");
@@ -136,12 +143,6 @@ public class BackgroundService extends Service {
         // refresh condition timers
         if (Main.getInstance().events.size() > 0)
             updateEventConditionTimers(Main.getInstance().events);
-
-        // run Events Checker every X seconds to see, if any of our events is ready to be run
-        //AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        //alarm.setRepeating(AlarmManager.RTC_WAKEUP, );
-        // Start every 30 seconds
-        //alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 30*1000, pintent);
 
 
         return START_STICKY;
@@ -247,6 +248,42 @@ Log.d("sfen", "condition "+ cond.getOptionType());
             String hashCode = e.getUniqueID() +""+ cond.getUniqueID();
 
             switch (cond.getOptionType()) {
+                case SCREEN_ON:
+                    // if we're triggering after screen is going on?
+                    if (action.equals("android.intent.action.SCREEN_ON")) {
+                        conditionResults.add(true);
+                    }
+                    // this wasnt called by broadcast, lets check if screen is on then
+                    else {
+                        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+                        if (powerManager.isScreenOn())
+                            conditionResults.add(true);
+
+                        else
+                            conditionResults.add(false);
+                    }
+
+                    break;
+
+                case SCREEN_OFF:
+                    // totally opposite of turning screen on :)
+                    if (action.equals("android.intent.action.SCREEN_OFF")) {
+                        conditionResults.add(true);
+                    }
+                    else {
+                        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+                        if (!powerManager.isScreenOn())
+                            conditionResults.add(true);
+
+                        else
+                            conditionResults.add(false);
+
+                    }
+
+
+                    break;
+
+
                 case DAYSOFWEEK:
 
                     if (cond.getSetting("selectedDays") == null) return false;
@@ -548,6 +585,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
     private void runEventActions(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
+        WifiManager wifiManager;
 
         // if even is already running and this isn't first run of app,
         // don't re-run actions
@@ -568,6 +606,27 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     Util.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
 
                     break;
+
+                // enable or disable wifi connection
+                case ACT_WIFIENABLE:
+
+                    wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+
+                    if (!wifiManager.isWifiEnabled())
+                        wifiManager.setWifiEnabled(true);
+
+                    break;
+
+                case ACT_WIFIDISABLE:
+
+                    wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+
+                    if (wifiManager.isWifiEnabled())
+                        wifiManager.setWifiEnabled(false);
+
+
+                    break;
+
 
                 default:
 

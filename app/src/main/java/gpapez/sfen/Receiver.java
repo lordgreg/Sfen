@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 
 /**
@@ -19,7 +20,6 @@ public class Receiver extends BroadcastReceiver {
 
         boolean mCallBroadcast = true;
         Log.i("sfen", "received: " + action);
-
 
         /**
          * For all possible broadcasts, we have to check if we have any Event
