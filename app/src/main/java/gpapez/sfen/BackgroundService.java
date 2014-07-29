@@ -744,10 +744,6 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                         }
                     });
 
-
-                    // if screen is off, turn it on
-                    PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-
                     manager.addView(newView, layoutParams);
 
                     // show dialog since we have text and what not
