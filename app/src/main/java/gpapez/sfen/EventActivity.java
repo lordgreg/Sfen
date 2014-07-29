@@ -63,7 +63,8 @@ public class EventActivity extends Activity {
         add(new DialogOptions("Enable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
         add(new DialogOptions("Disable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
         add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
-        add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_launcher, DialogOptions.type.ACT_DIALOGWITHTEXT));
+        add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
+        add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
 
         //add(new DialogOptions("Show dialog with text", "Dialog window with specific text will be shown", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_DIALOGWITHTEXT));
         //add(new DialogOptions("Play sound", "Play specific sound", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_PLAYSOUND));
@@ -93,7 +94,7 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    Util.openDialog(sInstance, optConditions, "Pick condition");
+                    BackgroundService.getInstance().mUtil.openDialog(sInstance, optConditions, "Pick condition");
             }
         });
 
@@ -111,7 +112,7 @@ public class EventActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
-                Util.openDialog(sInstance, optActions, "Pick action");
+                BackgroundService.getInstance().mUtil.openDialog(sInstance, optActions, "Pick action");
             }
         });
 
@@ -281,7 +282,7 @@ public class EventActivity extends Activity {
         //Util.addNewCondition(sInstance, conditions.get(0));
         for (DialogOptions cond : event.getConditions()) {
             //Util.addNewCondition(sInstance, cond, 0);
-            Util.addNewConditionOrAction(sInstance, cond, 0);
+            BackgroundService.getInstance().mUtil.addNewConditionOrAction(sInstance, cond, 0);
         }
 
         conditions = updatedConditions;
@@ -289,8 +290,7 @@ public class EventActivity extends Activity {
         // also, would be great if we add all actions to container, no?
         ArrayList<DialogOptions> allAct = event.getActions();
         for (DialogOptions act : event.getActions()) {
-            //Util.addNewAction(sInstance, act);
-            Util.addNewConditionOrAction(sInstance, act, 0);
+            BackgroundService.getInstance().mUtil.addNewConditionOrAction(sInstance, act, 0);
         }
 
         actions = updatedActions;

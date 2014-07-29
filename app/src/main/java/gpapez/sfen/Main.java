@@ -47,7 +47,6 @@ public class Main extends Activity
     // position of current tab
     protected int mTabPosition = 0;
 
-
     // HashMap with options. Instead of creating more variables to use around
     // activities, I've created HashMap; putting settings here if needed.
     HashMap<String, String> options = new HashMap<String, String>();

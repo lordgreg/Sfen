@@ -1,12 +1,10 @@
 package gpapez.sfen;
 
-import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,7 +18,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.gregor.myapplication.R;
@@ -47,6 +44,7 @@ public class BackgroundService extends Service {
     protected String mLatestSSID = "";
 
     protected Preferences mPreferences;
+    protected Util mUtil = new Util();
 
     // alarmmanager
     protected Alarm mAlarm;
@@ -90,6 +88,20 @@ public class BackgroundService extends Service {
         // believe it or not, but this notification will take care of our
         // background service!
         Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+
+
+        /*
+        listing all widgets
+        AppWidgetManager manager=AppWidgetManager.getInstance(this);
+        List<AppWidgetProviderInfo>infoList=manager.getInstalledProviders();
+        for(AppWidgetProviderInfo info:infoList)
+        {
+            Log.d("sfen", "Name-"+info.label);
+            Log.d("sfen", "Configure Name-"+info.configure);
+            Log.d("sfen", "Provider Name-"+info.provider);
+            System.out.println("huey!"+ info.toString());
+        }
+        */
 
         // set intent
         sIntent = intent;
@@ -223,7 +235,7 @@ public class BackgroundService extends Service {
         // if there's no events running OR events stopping, clear notification
         if (!isOneRunning || isOneStopping) {
             Log.d("sfen", "no events running.");
-            Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+            mUtil.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
         }
 
         // clear all variables
@@ -616,7 +628,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
                 // popup notification!
                 case ACT_NOTIFICATION:
-                    Util.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
+                    mUtil.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
 
                     break;
 
@@ -651,7 +663,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     //if (conMan.getNetworkInfo(0).getState() != NetworkInfo.State.CONNECTED) {
 
                         // continue only if we have root
-                        Util.callRootCommand("svc data enable");
+                        mUtil.callRootCommand("svc data enable");
 
                     //}
 
@@ -669,7 +681,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     //if (conMan.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED) {
                         // TODO: ADD root options! (mobile data toggle!) su -c "svc data disable"
                         // continue only if we have root
-                        Util.callRootCommand("svc data disable");
+                        mUtil.callRootCommand("svc data disable");
 
                     //}
 
@@ -719,7 +731,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     String mText = act.getSetting("text");
 
                     // replace occurences of strings with real parameters
-                    mText = Util.replaceTextPatterns(mText);
+                    mText = mUtil.replaceTextPatterns(mText);
 
                     final WindowManager manager =
                             (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
@@ -765,6 +777,22 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
 
                     break;
+
+                case ACT_OPENAPPLICATION:
+
+                    String packageName = act.getSetting("packagename");
+
+                    PackageManager pm = context.getPackageManager();
+                    // open app
+                    //Intent appIntent = new Intent(Intent.ACTION_MAIN);
+                    //appIntent.setClassName("com.android.settings", "com.android.settings.Settings");
+                    Intent appIntent = pm.getLaunchIntentForPackage(packageName);
+                    if (appIntent != null)
+                        context.startActivity(appIntent);
+
+
+                    break;
+
 
                 default:
 

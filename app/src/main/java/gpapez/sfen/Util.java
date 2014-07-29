@@ -10,13 +10,14 @@ import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -61,7 +62,13 @@ public class Util extends Activity {
     private static ViewGroup newRow;
 
     // days
-    final static String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    final String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+
+    // empty constructor
+    public Util() {
+
+    }
 
     /**
      * OPENS DIALOG WITH POSSIBLE CONDITIONS
@@ -72,7 +79,7 @@ public class Util extends Activity {
      * @param options array of conditions defined in EventActivity
      * @param title shows title of dialog
      */
-    protected static void openDialog(final Activity context,
+    protected void openDialog(final Activity context,
                                      final ArrayList<DialogOptions> options,
                                      final String title) {
 
@@ -113,22 +120,25 @@ public class Util extends Activity {
                 @Override
                 public void onClick(View v) {
                     dialog.dismiss();
+                    ((ViewGroup)mContainerOptions.getParent()).removeView(mContainerOptions);
                     openSubDialog(context, opt, 0);
                 }
             });
 
             newRow = null;
 
-            dialog.show();
+
 
         }
+        dialog.show();
+
     }
 
 
     /**
      * SUBDIALOG with all options and onclick triggers
      */
-    protected static void openSubDialog(final Activity context, final DialogOptions opt, final int index) {
+    protected void openSubDialog(final Activity context, final DialogOptions opt, final int index) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
@@ -888,7 +898,122 @@ public class Util extends Activity {
 
                 break;
 
+            /**
+             * ACT: open application
+             */
+            case ACT_OPENAPPLICATION:
 
+                // package manager is..
+                //private static PackageManager mPackageManager = getPackageManager();
+                //mPackageManager.addPermission();
+//get a list of installed apps.
+                //List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+
+
+                //final ViewGroup mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
+                //final ViewGroup installedApps = (ViewGroup) context.findViewById(R.id.condition_pick);
+                final View dialogView = inflater.inflate(R.layout.dialog_pick_condition, null);
+                final ViewGroup installedApps = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
+
+
+                installedApps.setVerticalScrollBarEnabled(true);
+                        //findViewById();
+
+                builder
+                        .setView(dialogView)
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Sfen!")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+
+
+                final AlertDialog dialog = builder.create();
+
+                // remove view
+                //ViewGroup parent = (ViewGroup) installedApps.getParent();
+                //parent.removeView(installedApps);
+
+                final PackageManager pm = context.getPackageManager();
+
+                for (final PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_META_DATA)) {
+                    //if ((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+                    //    break;
+                    // don't show apps that don't have launch activity
+                    if (pm.getLaunchIntentForPackage(packageInfo.packageName) != null ||
+                            (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0
+                            ) {
+
+
+//                    System.out.println("Installed package :" + packageInfo.packageName);
+//                    System.out.println("Source dir : " + packageInfo.applicationInfo.sourceDir);
+//                    System.out.println("version name: "+ packageInfo.versionName);
+
+//                        System.out.println("app name: "+ packageInfo.applicationInfo.loadLabel(pm).toString());
+//                        System.out.println("Launch Activity :" + pm.getLaunchIntentForPackage(packageInfo.packageName).getAction());
+
+                        //newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
+                        newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, installedApps, false);
+
+                        ((TextView) newRow.findViewById(android.R.id.text1)).setText(packageInfo.applicationInfo.loadLabel(pm).toString());
+                        ((TextView) newRow.findViewById(android.R.id.text2)).setText(packageInfo.packageName);
+
+
+                        ((ImageButton) newRow.findViewById(R.id.dialog_icon))
+                                .setImageDrawable(packageInfo.applicationInfo.loadIcon(pm));
+
+                        // create onclick listener
+                        newRow.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                dialog.dismiss();
+                                ((ViewGroup)installedApps.getParent()).removeView(installedApps);
+
+                                // save new action
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(),
+                                        opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("text1", "Open "+ packageInfo.applicationInfo.loadLabel(pm).toString());
+                                cond.setSetting("text2", packageInfo.packageName);
+                                cond.setSetting("packagename", packageInfo.packageName);
+
+
+
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+                                addNewConditionOrAction(context, cond, 0);
+
+
+                            }
+                        });
+
+                        installedApps.addView(newRow);
+
+                        newRow = null;
+
+                    }
+
+                }
+
+                // if we don't have installed apps, add blank text
+                if (installedApps == null) {
+                    showMessageBox("No applications installed.", false);
+                    return ;
+                }
+
+
+
+                //builder.show();
+                dialog.show();
+
+
+                break;
 
             /**
              * DEFAULT SWITCH/CASE CALL
@@ -962,7 +1087,7 @@ public class Util extends Activity {
      * @return returns true/false depending on which button did user pressed.
      * @return returns the proper value in Main.options array.
      */
-    protected static void showYesNoDialog(final Activity context, String question, HashMap<String, String> options) {
+    protected void showYesNoDialog(final Activity context, String question, HashMap<String, String> options) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
@@ -1004,7 +1129,7 @@ public class Util extends Activity {
      *
      * @param
      */
-    private static void removeConditionOrAction(final int index, final DialogOptions entry) {
+    private void removeConditionOrAction(final int index, final DialogOptions entry) {
         // when clicking recycle bin at condition/action, remove it from view and
         // from array of all conditions/actions
 
@@ -1078,7 +1203,7 @@ public class Util extends Activity {
     /**
      * add new condition OR action
      */
-    protected static void addNewConditionOrAction(final Activity context, final DialogOptions entry, final int index) {
+    protected void addNewConditionOrAction(final Activity context, final DialogOptions entry, final int index) {
 
         // the only thing we have to check if we're editing entry is,
         // if we have at least one setting stored. if so, all is good in our wonderland
@@ -1174,7 +1299,7 @@ public class Util extends Activity {
     }
 
 
-    protected static void callRootCommand(String command) {
+    protected void callRootCommand(String command) {
 
         try {
             Process su = Runtime.getRuntime().exec("su");
@@ -1186,23 +1311,6 @@ public class Util extends Activity {
             sudoStream.writeBytes("exit\n");
             sudoStream.flush();
             su.waitFor();
-/*
-            suProcess = Runtime.getRuntime().exec("su\nsvc wifi disable");
-            suStream = new DataOutputStream(suProcess.getOutputStream());
-
-            // Close the terminal
-            suStream.writeBytes("exit\n");
-            suStream.flush();
-
-            // su called, now call the command (if root available)
-            suProcess.waitFor();
-
-            if (suProcess.exitValue() != 255) {
-                return true;
-            }
-            else
-                return false;
-*/
 
         }
         catch (Exception e) {
@@ -1211,10 +1319,23 @@ public class Util extends Activity {
 
     }
 
-    protected static String replaceTextPatterns(String text) {
+    protected String replaceTextPatterns(String text) {
         String rText = text;
 
         return rText;
+    }
+
+    private List<ApplicationInfo> getInstalledPackages() {
+
+        PackageManager mPackageManager = Main.getInstance().getPackageManager();
+        //mPackageManager.addPermission();
+//get a list of installed apps.
+        //List<ApplicationInfo>
+        return mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+    }
+
+    private PackageManager getPackages() {
+        return getPackageManager();
     }
 
 

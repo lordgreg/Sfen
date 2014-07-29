@@ -24,5 +24,4 @@ dependencies {
     compile files('libs/libGoogleAnalyticsServices.jar')
     compile 'com.google.android.gms:play-services:+'
     compile files('libs/gson-2.2.4.jar')
-    //compile files('libs/gson-1.7.1.jar')
 }
