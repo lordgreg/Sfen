@@ -12,9 +12,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -825,7 +827,7 @@ public class Util extends Activity {
                 final TextView info = new TextView(context);
                 final EditText input = new EditText(context);
 
-                info.setText("Replace the text below with your choice (or leave empty)");
+                info.setText("Input text");
 
                 if (isEditing) {
                     input.setText(opt.getSetting("text"));
@@ -834,18 +836,22 @@ public class Util extends Activity {
                     input.setText("Event triggered! It's time for Sfen Lambada dance!");
                 }
 
-                //alert.setView(input);
-                //ViewGroup newView = new ViewGroup();
-                ViewGroup newView = new LinearLayout(context);
-
+                LinearLayout newView = new LinearLayout(context);
+                LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                newView.setLayoutParams(parms);
+                newView.setOrientation(LinearLayout.VERTICAL);
+                newView.setPadding(15, 15, 15, 15);
                 newView.addView(info, 0);
                 newView.addView(input, 1);
+
 
 
                 builder
                         .setView(newView)
                         .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Text")
+                        .setTitle("Sfen!")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -856,7 +862,7 @@ public class Util extends Activity {
                                         opt.getIcon(), opt.getOptionType());
 
                                 cond.setSetting("text1", opt.getTitle());
-                                cond.setSetting("text2", "Dialog will appear");
+                                cond.setSetting("text2", input.getText().toString());
                                 cond.setSetting("text", input.getText().toString());
 
                                 if (isEditing)

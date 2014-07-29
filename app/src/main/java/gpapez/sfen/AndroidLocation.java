@@ -44,6 +44,8 @@ public class AndroidLocation extends Activity implements LocationListener {
         try{gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);}catch(Exception ex){}
         try{networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);}catch(Exception ex){}
 
+        //System.out.println("gps enabled: "+ gpsEnabled +", networkEnabled: "+ networkEnabled);
+
         if (gpsEnabled) {
             provider = locationManager.GPS_PROVIDER;
         }

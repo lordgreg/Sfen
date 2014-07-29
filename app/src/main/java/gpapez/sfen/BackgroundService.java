@@ -1,5 +1,6 @@
 package gpapez.sfen;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
@@ -15,6 +16,12 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.gregor.myapplication.R;
 import com.google.android.gms.location.Geofence;
@@ -714,8 +721,38 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     // replace occurences of strings with real parameters
                     mText = Util.replaceTextPatterns(mText);
 
+                    final WindowManager manager =
+                            (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                    WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                    layoutParams.gravity = Gravity.CENTER;
+                    layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+                    layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                    layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                    //layoutParams.flags |= WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON;
+                    //layoutParams.screenBrightness = 0.9f;
+
+                    final View newView = View.inflate(context.getApplicationContext(), R.layout.dialog_windowmanager, null);
+
+                    Button okButton = (Button) newView.findViewById(R.id.wm_button);
+                    TextView info = (TextView) newView.findViewById(R.id.wm_text);
+                    info.setText(mText);
+
+                    okButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            manager.removeView(newView);
+                        }
+                    });
+
+
+                    // if screen is off, turn it on
+                    PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+
+                    manager.addView(newView, layoutParams);
+
                     // show dialog since we have text and what not
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    /*
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(Main.getInstance());
 
                     builder.setIcon(R.drawable.ic_launcher);
                     builder.setTitle("Sfen!");
@@ -728,6 +765,7 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     });
 
                     builder.show();
+                    */
 
 
                     break;
