@@ -31,7 +31,7 @@ public class AndroidLocation extends Activity implements LocationListener {
     public AndroidLocation(Context context) {
         // Get the location manager
         this.context = context;
-        provider = "";
+        provider = null;
         //context = super.getApplicationContext();
 
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -50,23 +50,32 @@ public class AndroidLocation extends Activity implements LocationListener {
         else if (networkEnabled) {
             provider = locationManager.NETWORK_PROVIDER;
         }
-        else {
-            provider = null;
-        }
+//        else {
+//            provider = null;
+//        }
 
-        //provider = locationManager.getBestProvider(criteria, false);
-        location = locationManager.getLastKnownLocation(provider);
-
-        // Initialize the location fields
-        if (location != null) {
-            //System.out.println("Provider " + provider + " has been selected.");
-            onLocationChanged(location);
-        } else {
-            errorString = "Location not available";
+        if (provider == null) {
+            errorString = "Location setting has to be enabled in System Settings.";
             isError = true;
-            Log.e("sfen", errorString);
-
+            Log.e("sfen", "Location setting has to be enabled for location manager to work.");
         }
+        else {
+            //provider = locationManager.getBestProvider(criteria, false);
+            location = locationManager.getLastKnownLocation(provider);
+
+            // Initialize the location fields
+            if (location != null) {
+                //System.out.println("Provider " + provider + " has been selected.");
+                onLocationChanged(location);
+            } else {
+                errorString = "Location not available";
+                isError = true;
+                Log.e("sfen", errorString);
+
+            }
+        }
+
+
 
     }
 
