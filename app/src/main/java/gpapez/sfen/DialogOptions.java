@@ -20,7 +20,8 @@ public class DialogOptions {
 
         // actions
         ACT_NOTIFICATION, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT,
-        ACT_WIFIENABLE, ACT_WIFIDISABLE, ACT_MOBILEENABLE, ACT_MOBILEDISABLE
+        ACT_WIFIENABLE, ACT_WIFIDISABLE, ACT_MOBILEENABLE, ACT_MOBILEDISABLE,
+        ACT_VIBRATE
     };
     private type optionType;
     private int maxNumber;

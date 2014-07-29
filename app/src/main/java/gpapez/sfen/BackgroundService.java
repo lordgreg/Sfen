@@ -1,7 +1,9 @@
 package gpapez.sfen;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
@@ -11,6 +13,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.example.gregor.myapplication.R;
@@ -665,6 +668,69 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
                     break;
 
+                case ACT_VIBRATE:
+
+                    Vibrator v = (Vibrator) sInstance.getSystemService(Context.VIBRATOR_SERVICE);
+
+                    // if our device doesn't have a vibrator, why continue?
+                    if (!v.hasVibrator()) {
+                        Log.e("sfen", "Phone doesn't have a vibrator.");
+                        break;
+                    }
+
+
+                    // retrieve vibration type
+                    String vibType = act.getSetting("vibrationtype");
+
+                    // create pattern for vibration depending on vibration type
+                    // parameters for vibPattern
+                    // delay on start,
+                    // milisec vibrate
+                    // sleep for
+                    long[] vibPattern = {0, 100, 100};
+                    if (vibType.equals("Short")) {
+                        vibPattern = new long[]{0, 100, 100};
+                    }
+                    else if (vibType.equals("Medium")) {
+                        vibPattern = new long[]{0, 300, 100};
+                    }
+                    else if (vibType.equals("Long")) {
+                        vibPattern = new long[]{0, 500, 100};
+                    }
+
+
+                    // The '-1' here means to vibrate once
+                    // '0' would make the pattern vibrate indefinitely
+                    v.vibrate(vibPattern, -1);
+
+
+                    break;
+
+                case ACT_DIALOGWITHTEXT:
+
+                    // get text from settings
+                    String mText = act.getSetting("text");
+
+                    // replace occurences of strings with real parameters
+                    mText = Util.replaceTextPatterns(mText);
+
+                    // show dialog since we have text and what not
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                    builder.setIcon(R.drawable.ic_launcher);
+                    builder.setTitle("Sfen!");
+                    builder.setMessage(mText);
+                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    builder.show();
+
+
+                    break;
 
                 default:
 

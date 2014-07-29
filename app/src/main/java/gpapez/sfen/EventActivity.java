@@ -58,10 +58,12 @@ public class EventActivity extends Activity {
     static final ArrayList<DialogOptions> optActions = new ArrayList<DialogOptions>() {{
         //add(new DialogOptions("Show notification", "Will show notification in notification area", android.R.drawable.ic_dialog_info, DialogOptions.type.ACT_NOTIFICATION));
         add(new DialogOptions("Show notification", "Will show notification in notification area", R.drawable.ic_notification, DialogOptions.type.ACT_NOTIFICATION));
-        add(new DialogOptions("Enable Wifi", "Enable Wifi when conditions met.", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
-        add(new DialogOptions("Disable Wifi", "Disable Wifi when conditions met.", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
-        add(new DialogOptions("Enable Mobile Data", "Available for rooted phones only.", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
-        add(new DialogOptions("Disable Mobile Data", "Available for rooted phones only.", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
+        add(new DialogOptions("Enable Wifi", "Enable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
+        add(new DialogOptions("Disable Wifi", "Disable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
+        add(new DialogOptions("Enable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
+        add(new DialogOptions("Disable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
+        add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
+        add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_launcher, DialogOptions.type.ACT_DIALOGWITHTEXT));
 
         //add(new DialogOptions("Show dialog with text", "Dialog window with specific text will be shown", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_DIALOGWITHTEXT));
         //add(new DialogOptions("Play sound", "Play specific sound", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_PLAYSOUND));

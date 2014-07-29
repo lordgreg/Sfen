@@ -15,7 +15,9 @@ import android.net.wifi.WifiManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -760,6 +762,127 @@ public class Util extends Activity {
 
                 break;
 
+            /**
+             * ACT: VIBRATE
+             */
+            case ACT_VIBRATE:
+
+                // if we're editing, return error
+                if (isEditing) {
+                    showMessageBox("You cannot edit Vibration type action. You can only remove it.", true);
+                    return ;
+                }
+
+                final String[] vibrationTypes = {"Short", "Medium", "Long"};
+
+
+
+                builder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Vibration type")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // just close the dialog if we didn't select the days
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .setItems(vibrationTypes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                // save action & create new row
+                                final DialogOptions vibCond = new DialogOptions(opt.getTitle(), opt.getDescription(),
+                                        opt.getIcon(), opt.getOptionType());
+
+                                vibCond.setSetting("text1", opt.getTitle());
+                                vibCond.setSetting("text2", "Phone will vibrate");
+                                vibCond.setSetting("vibrationtype", vibrationTypes[which]);
+
+                                addNewConditionOrAction(context, vibCond, 0);
+                            }
+                        });
+
+                builder.show();
+
+                break;
+
+            /**
+             * ACT: DIALOG WITH TEXT
+             */
+            case ACT_DIALOGWITHTEXT:
+
+                // Set an EditText view to get user input
+                final TextView info = new TextView(context);
+                final EditText input = new EditText(context);
+
+                info.setText("Replace the text below with your choice (or leave empty)");
+
+                if (isEditing) {
+                    input.setText(opt.getSetting("text"));
+                }
+                else {
+                    input.setText("Event triggered! It's time for Sfen Lambada dance!");
+                }
+
+                //alert.setView(input);
+                //ViewGroup newView = new ViewGroup();
+                ViewGroup newView = new LinearLayout(context);
+
+                newView.addView(info, 0);
+                newView.addView(input, 1);
+
+
+                builder
+                        .setView(newView)
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Text")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                                // save action & create new row
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(),
+                                        opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("text1", opt.getTitle());
+                                cond.setSetting("text2", "Dialog will appear");
+                                cond.setSetting("text", input.getText().toString());
+
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+                                addNewConditionOrAction(context, cond, 0);
+
+                            }
+                        })
+                        //.set
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // just close the dialog if we didn't select the days
+                                dialog.dismiss();
+
+                            }
+                        });
+
+
+                builder.show();
+
+
+                break;
+
+
 
             /**
              * DEFAULT SWITCH/CASE CALL
@@ -819,132 +942,6 @@ public class Util extends Activity {
 
     }
 
-
-    /**
-     * ADD NEW CONDITION
-     *
-     * @param cond condition to be added
-     */
-    /*
-    protected static void addNewCondition(final Activity context, final DialogOptions cond, final int index) {
-        // the only thing we have to check if we're editing entry is,
-        // if we have at least one setting stored. if so, all is good in our wonderland
-        //final boolean isEditing = (cond.getSettings().size() > 0) ? true : false;
-
-        // add condition to list of conditions of Event
-        if (EventActivity.getInstance().isUpdating) {
-            EventActivity.getInstance().updatedConditions.add(cond);
-        } else {
-            EventActivity.getInstance().conditions.add(cond);
-        }
-
-        // get options that we need for interface
-        String title = cond.getSetting("text1");
-        String description = cond.getSetting("text2");
-        int icon = cond.getIcon();
-
-        // add new row to conditions now
-        final ViewGroup newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
-
-        ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
-        ((TextView) newRow.findViewById(android.R.id.text2))
-                .setText(description);
-        //((TextView) newRow.findViewById(android.R.id.text2))
-        //        .setMovementMethod(new ScrollingMovementMethod());
-
-        ((ImageButton) newRow.findViewById(R.id.condition_icon))
-                .setImageDrawable(context.getResources().getDrawable(icon));
-
-        newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: clicking our newly added condition
-                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
-                openSubDialog(context, cond, index);
-                showMessageBox("clicked " + cond.getTitle() + ", " + cond.getOptionType() +" type: "+ cond.isItemConditionOrAction() +" on index "+ index, false);
-            }
-        });
-
-        newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // when clicking recycle bin at condition, remove it from view and
-                // from array of all conditions
-
-                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
-                removeConditionOrAction(index, cond);
-
-            }
-        });
-
-        // updating Condition?
-        //if (isEditing) {
-            //EventActivity.getInstance().mContainerCondition
-            // TODO: update OR remove old, add new to conditions array!
-        //}
-        // addin new condition
-        //else
-            EventActivity.getInstance().mContainerCondition.addView(newRow, index);
-    }
-*/
-
-    /**
-     * ADD NEW ACTION
-     *
-     * @param act condition to be added
-     */
-    /*
-    protected static void addNewAction(final Activity context, final DialogOptions act) {
-        // add condition to list of conditions of Event
-        if (EventActivity.getInstance().isUpdating) {
-            EventActivity.getInstance().updatedActions.add(act);
-        } else {
-            EventActivity.getInstance().actions.add(act);
-        }
-
-        // get options that we need for interface
-        String title = act.getSetting("text1");
-        String description = act.getSetting("text2");
-        int icon = act.getIcon();
-
-        // add new row to conditions now
-        final ViewGroup newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                R.layout.condition_single_item, EventActivity.getInstance().mContainerAction, false);
-
-        ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
-        ((TextView) newRow.findViewById(android.R.id.text2))
-                .setText(description);
-        //((TextView) newRow.findViewById(android.R.id.text2))
-        //        .setMovementMethod(new ScrollingMovementMethod());
-
-        ((ImageButton) newRow.findViewById(R.id.condition_icon))
-                .setImageDrawable(context.getResources().getDrawable(icon));
-
-        newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: clicking our newly added action
-                showMessageBox("clicked " + act.getTitle() + ", " + act.getOptionType() +" type: "+ act.isItemConditionOrAction(), false);
-            }
-        });
-
-        newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // when clicking recycle bin at condition, remove it from view and
-                // from array of all conditions
-                //private void removeConditionOrAction(ViewGroup newRow, final DialogOptions entry) {
-                int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
-                removeConditionOrAction(index, act);
-
-
-            }
-        });
-
-        EventActivity.getInstance().mContainerAction.addView(newRow, 0);
-    }
-*/
 
     /**
      * SHOW YES/NO DIALOG
@@ -1206,6 +1203,12 @@ public class Util extends Activity {
             e.getStackTrace();
         }
 
+    }
+
+    protected static String replaceTextPatterns(String text) {
+        String rText = text;
+
+        return rText;
     }
 
 
