@@ -13,6 +13,8 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -55,7 +57,12 @@ public class BackgroundService extends Service {
     protected List<Geofence> mTriggeredGeofences = new ArrayList<Geofence>();
     protected int mTriggeredGeoFenceTransition = -1;
 
+    // telephony
+    protected ReceiverPhoneState mPhoneReceiver;
+    protected TelephonyManager mPhoneManager;
 
+
+    // class specific
     private static BackgroundService sInstance = null;
     protected Intent sIntent = null;
 
@@ -65,8 +72,7 @@ public class BackgroundService extends Service {
         add(WifiManager.NETWORK_STATE_CHANGED_ACTION);  // wifi disable/enable/connect/disconnect
         add(Intent.ACTION_SCREEN_ON);                   // screen on
         add(Intent.ACTION_SCREEN_OFF);                  // screen off
-        //add(Intent.ACTION_AIRPLANE_MODE_CHANGED);       // toggle airplane
-
+        //add(Intent.ACTION_AIRPLANE_MODE_CHANGED);     // toggle airplane
 
         // in-app broadcast calls
         add(getClass().getPackage().getName() +".EVENT_ENABLED");
@@ -74,7 +80,7 @@ public class BackgroundService extends Service {
         add(getClass().getPackage().getName() +".GEOFENCE_ENTER");
         add(getClass().getPackage().getName() +".GEOFENCE_EXIT");
         add(getClass().getPackage().getName() +".ALARM_TRIGGER");
-
+        add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
     }};
 
 
@@ -88,20 +94,6 @@ public class BackgroundService extends Service {
         // believe it or not, but this notification will take care of our
         // background service!
         Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
-
-
-        /*
-        listing all widgets
-        AppWidgetManager manager=AppWidgetManager.getInstance(this);
-        List<AppWidgetProviderInfo>infoList=manager.getInstalledProviders();
-        for(AppWidgetProviderInfo info:infoList)
-        {
-            Log.d("sfen", "Name-"+info.label);
-            Log.d("sfen", "Configure Name-"+info.configure);
-            Log.d("sfen", "Provider Name-"+info.provider);
-            System.out.println("huey!"+ info.toString());
-        }
-        */
 
         // set intent
         sIntent = intent;
@@ -127,8 +119,20 @@ public class BackgroundService extends Service {
         //intentFilter.addCategory("com.example.gregor.myapplication.CATEGORY_LOCATION_SERVICES");
         registerReceiver(receiver, intentFilter);
 
+
+        // TODO: create new objects of GeoLocation & mPhoneReceiver ONLY if we have at least one event
         // start GeoLocation class
         geoLocation = new GeoLocation(sInstance);
+
+        // start phone listener
+        mPhoneManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mPhoneReceiver = new ReceiverPhoneState();
+
+        mPhoneManager.listen(mPhoneReceiver,
+                //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
+                PhoneStateListener.LISTEN_CELL_LOCATION
+        );
+
 
         // create alarm object
 //        mAlarm = new Alarm(sInstance);
@@ -181,8 +185,18 @@ public class BackgroundService extends Service {
         // unregister our receiver
         unregisterReceiver(receiver);
 
-        // cancel alarm manager
-        //mAlarmManager.cancel();
+        // cancel alarms (if up)
+        for (Alarm single : mActiveAlarms) {
+            // stop the alarm
+            single.RemoveAlarm();
+
+            // remove it from array of active alarms
+            mActiveAlarms.remove(single);
+        }
+        // save new alarms to preferences
+        mPreferences.setPreferences("alarms", mActiveAlarms);
+
+
 
         // destroy all geofences
         geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
@@ -251,6 +265,13 @@ public class BackgroundService extends Service {
 
     }
 
+    /**
+     * Checks Event for all conditions and returns boolean for every condition
+     * @param context
+     * @param intent
+     * @param e
+     * @return boolean if event conditions are met.
+     */
     private boolean areEventConditionsMet(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
         boolean ret = false;
@@ -260,9 +281,9 @@ public class BackgroundService extends Service {
 
         // array with booleans for all conditions
         ArrayList<Boolean> conditionResults = new ArrayList<Boolean>();
-Log.d("sfen", "EVENT "+ e.getName());
+        Log.d("sfen", "EVENT "+ e.getName());
         for (DialogOptions cond : conditions) {
-Log.d("sfen", "condition "+ cond.getOptionType());
+            Log.d("sfen", "condition "+ cond.getOptionType());
 
             // single condition variables
             //String hashCode = ""+ e.hashCode() + cond.hashCode();
@@ -553,6 +574,49 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                     break;
 
 
+                case CELL_IN:
+                case CELL_OUT:
+
+                    // condition with CELL was called, lets check current CELL ID and saved CELLS
+                    // if current matches any of saved, we return true.
+                    CellConnectionInfo cellInfo = new CellConnectionInfo(Main.getInstance());
+
+                    if (cellInfo.isError()) {
+                        Log.d("sfen", cellInfo.getError());
+                        conditionResults.add(false);
+                    }
+                    else {
+                        // we received cellinfo, find a match now
+
+                        // parse to ArrayList first
+                        ArrayList<String> mCells = gson.fromJson(cond.getSetting("selectedcell"),
+                                new TypeToken<List<String>>(){}.getType());
+
+                        // current cell is in saved cells, we have a match.
+                        // depending if we need CELL_IN or CELL_OUT
+                        // current cell is stored
+                        if (mCells.contains(cellInfo.getCellId())) {
+                            // CELL IN returns true
+                            if (cond.getOptionType() == DialogOptions.type.CELL_IN)
+                                conditionResults.add(true);
+                            // CELL OUT returns false
+                            else
+                                conditionResults.add(false);
+                        }
+                        // current cell is NOT stored
+                        else {
+                            // CELL IN returns FALSE
+                            if (cond.getOptionType() == DialogOptions.type.CELL_IN)
+                                conditionResults.add(false);
+                            // CELL OUT returns TRUE
+                            else
+                                conditionResults.add(true);
+                        }
+
+                    }
+
+                    break;
+
                 default:
                     Log.e("sfen", "No case match ("+ cond.getOptionType() +"). Returning false.");
 
@@ -603,7 +667,12 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
     }
 
-
+    /**
+     * RUN ACTIONS
+     * @param context
+     * @param intent
+     * @param e
+     */
     private void runEventActions(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
         WifiManager wifiManager;
@@ -838,17 +907,11 @@ Log.d("sfen", "condition "+ cond.getOptionType());
                 switch (single.getOptionType()) {
                     case LOCATION_ENTER:
                     case LOCATION_LEAVE:
-                        //System.out.println("hash: "+ hashCode +"\n"+ single.getSettings().toString());
-                        //System.out.println("HASHCODE: "+ hashCode);
 
                         //Geofence.GEOFENCE_TRANSITION_ENTER    = 1
                         //Geofence.GEOFENCE_TRANSITION_EXIT     = 2
                         //Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT = 3
                         //transition type should ALWAYS be enter & exit!
-//                        int mTransitionType = ((single.getOptionType()== DialogOptions.type.LOCATION_ENTER) ? 1 :
-//                                ((single.getOptionType()== DialogOptions.type.LOCATION_LEAVE) ? 2 :
-//                                        ((single.getOptionType()== DialogOptions.type.LOCATION_ENTERLEAVE) ? 3 : 0)));
-                        //System.out.println("*** transition type: "+ mTransitionType +" cond: "+ single.getOptionType() +", event: "+ e.getName());
 
                         // IF EVENT ENABLED, add geofences
                         if (e.isEnabled()) {
@@ -981,9 +1044,9 @@ Log.d("sfen", "condition "+ cond.getOptionType());
 
         // TIMERS
         if (mAlarmsDelete.size() > 0) {
-            System.out.println("*** deleting "+ mAlarmsDelete.size() +" alarms.");
+            //System.out.println("*** deleting "+ mAlarmsDelete.size() +" alarms.");
             for (Alarm single : mAlarmsDelete) {
-                System.out.println("Deleting alarm from condition "+ single.getConditionID());
+                Log.d("sfen", "Deleting alarm from condition "+ single.getConditionID());
                 // stop the alarm
                 single.RemoveAlarm();
 

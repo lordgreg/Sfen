@@ -16,7 +16,7 @@ public class DialogOptions {
     public enum type {
         // conditions
         LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, DAYSOFWEEK,
-        SCREEN_ON, SCREEN_OFF,
+        SCREEN_ON, SCREEN_OFF, CELL_IN, CELL_OUT,
 
         // actions
         ACT_NOTIFICATION, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT,

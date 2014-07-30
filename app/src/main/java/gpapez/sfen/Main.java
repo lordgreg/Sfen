@@ -4,6 +4,8 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -236,6 +238,25 @@ public class Main extends Activity
             builder.show();
 
         }
+
+        // export settings
+        if (id == R.id.action_export) {
+            Gson gson = new Gson();
+
+            HashMap<String, String> exportedValues = new HashMap<String, String>();
+
+            exportedValues.put("events", gson.toJson(events));
+
+            //System.out.println("EVENTS\n==========================\n"+ exportedValues.get("events"));
+
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Sfen", exportedValues.get("events"));
+            clipboard.setPrimaryClip(clip);
+
+            Util.showMessageBox("Events exported to clipboard!", true);
+
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

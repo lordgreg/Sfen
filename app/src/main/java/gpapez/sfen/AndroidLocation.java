@@ -65,6 +65,7 @@ public class AndroidLocation extends Activity implements LocationListener {
             //provider = locationManager.getBestProvider(criteria, false);
             location = locationManager.getLastKnownLocation(provider);
 
+
             // Initialize the location fields
             if (location != null) {
                 //System.out.println("Provider " + provider + " has been selected.");
