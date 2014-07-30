@@ -115,6 +115,8 @@ public class Main extends Activity
                 // this is our first run, let set all events running boolean to false
                 for (int i = 0; i < events.size(); i++) {
                     events.get(i).setRunning(false);
+                    events.get(i).setHasRun(false);
+                    //events.get(i).set;
                 }
             }
             else
@@ -498,8 +500,10 @@ public class Main extends Activity
                         // 0 edit, 1 enable/disable, 2 delete
                         if (which == 1) {
                             if (e.isEnabled()) {
-                                e.setRunning(false);
                                 e.setEnabled(false);
+                                e.setRunning(false);
+                                e.setHasRun(false);
+                                //e.setRunOnce(false);
                                 //Util.showNotification(BackgroundService.getInstance(),
                                 //        getString(R.string.app_name), "", R.drawable.ic_launcher);
                                 sendBroadcast("EVENT_DISABLED");

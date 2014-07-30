@@ -15,7 +15,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -129,9 +128,9 @@ public class Util extends Activity {
             newRow = null;
 
 
-
+            dialog.show();
         }
-        dialog.show();
+
 
     }
 
@@ -148,7 +147,6 @@ public class Util extends Activity {
         // the only thing we have to check if we're editing entry is,
         // if we have at least one setting stored. if so, all is good in our wonderland
         final boolean isEditing = (opt.getSettings().size() > 0) ? true : false;
-
 
         switch (opt.getOptionType()) {
 
@@ -715,15 +713,10 @@ public class Util extends Activity {
                 //final String[] mCellTowers;
                 if (mCellsFromSettings != null) {
                     mCellTowers.addAll(0, mCellsFromSettings);
-
-                    //mCellTowers = mCellsFromSettings;
-                    //mCellChecked = new boolean[mCellsFromSettings.size()];
                 }
-//                else {
-//                    //mCellTowers = new String[0];
-//                    //mCellChecked = new boolean[mCellTowers.size()];
-//                }
 
+
+                // TODO: fix boolean arrays when one is saved, one new is found.
 
                 // get current cell tower ID
                 //TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
@@ -750,6 +743,7 @@ public class Util extends Activity {
 
                         // found a match!
                         if (mCellTowers.contains(mCellCurrent)) {
+
                             mCellIsAlreadyStored = true;
                             mCellChecked[i] = true;
                             break;
@@ -757,6 +751,11 @@ public class Util extends Activity {
 
                     }
                 }
+
+                System.out.println("cell towers we're showing: "+ mCellTowers.toString());
+
+
+                //System.out.println("cell checked: "+ mCellChecked.toString());
 
                 // if cell tower is new, add it to array
                 if (!mCellIsAlreadyStored) {
@@ -768,6 +767,8 @@ public class Util extends Activity {
                     System.arraycopy(mCellChecked, 0, mCellCheckedTmp, 0, mCellChecked.length);
                     mCellChecked = mCellCheckedTmp;
                 }
+
+                //System.out.println("cell checked: "+ mCellChecked.toString());
 
                 // create array of strings from ArrayList for celltowers
                 String[] mCellTowerStrings = new String[mCellTowers.size()];
@@ -827,6 +828,136 @@ public class Util extends Activity {
                 ;
 
                 builder.show();
+
+
+                break;
+
+
+            /**
+             * CONDITION: another event running / not running
+             */
+            case EVENT_RUNNING:
+            case EVENT_NOTRUNNING:
+
+                // array of selected items in dialog
+                final ArrayList<Integer> mSelectedEvents = new ArrayList<Integer>();
+
+                // array of cell towers we are showing in dialog
+                final ArrayList<String> mShownEvents = new ArrayList<String>();
+                final ArrayList<Integer> mShownEventsIDs = new ArrayList<Integer>();
+
+
+                // if editing, retrieve saved cells
+                ArrayList<Integer> mEventsFromSettings = null;
+                if (isEditing) {
+                    // we have ID's saved, not names!
+                    mEventsFromSettings = gson.fromJson(opt.getSetting("selectevents"),
+                            new TypeToken<List<Integer>>(){}.getType());
+
+                    if (mEventsFromSettings != null)
+                        mSelectedEvents.addAll(mEventsFromSettings);
+                }
+
+
+                // fill shown events array, but exclude current event (if editing!)
+
+                for (final Event e : Main.getInstance().events) {
+                    // if we're editing AND current event isn't the editing one OR
+                    // if we're not editing
+                    // put event to array
+                    if (EventActivity.getInstance().event != null &&
+                            (e.getUniqueID() != EventActivity.getInstance().event.getUniqueID()) ||
+                            EventActivity.getInstance().event == null) {
+                        mShownEvents.add(e.getName());
+                        mShownEventsIDs.add(e.getUniqueID());
+
+                        // also, fill the selected events array
+                        //mSelectedEvents.add(e.getUniqueID());
+                    }
+
+                }
+
+                // if there are no other events, we're screwed o_O
+                if (mShownEvents.size() == 0) {
+                    showMessageBox("There are no other events to pick", true);
+                    return;
+                }
+
+                // create array of booleans
+                boolean[] mEventsChecked = new boolean[mShownEvents.size()];
+
+
+                // if we're editing, update boolean array with positives
+                if (isEditing) {
+                    //System.out.println("events from settings: "+ mEventsFromSettings.toString());
+                    for (int i = 0; i < mShownEvents.size(); i++) {
+                        // is current event ID equal to saved ID
+                        if (mEventsFromSettings.contains(mShownEventsIDs.get(i))) {
+                            // it does; so update bool array
+                            mEventsChecked[i] = true;
+                        }
+                    }
+                }
+
+                // convert ArrayList<String> to String[]
+                String[] mShownEventsString = new String[mShownEvents.size()];
+                mShownEventsString = mShownEvents.toArray(mShownEventsString);
+
+                // finally, open a dialog
+                builder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Pick Events")
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                                // we have to pick at least one
+                                if (mSelectedEvents.size() == 0) {
+                                    showMessageBox("Pick at least one Event!", true);
+                                    return ;
+                                }
+
+
+                                // save condition & create new row
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("selectevents", (new Gson().toJson(mSelectedEvents)));
+                                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                                cond.setSetting("text1", "When event(s)"+ ((opt.getOptionType() == DialogOptions.type.EVENT_RUNNING) ? " " : " not ") + "running");
+                                cond.setSetting("text2", "Events selected: "+ mSelectedEvents.size());
+
+
+                                // if we are editing in sub-dialog, clear previous entry
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+
+                                addNewConditionOrAction(context, cond, index);
+
+
+                            }
+                        })
+                        .setMultiChoiceItems(mShownEventsString, mEventsChecked, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                if (isChecked)
+                                    mSelectedEvents.add(mShownEventsIDs.get(which));
+                                else
+                                    mSelectedEvents.remove(mShownEventsIDs.get(which));
+
+                            }
+                        })
+                ;
+
+                builder.show();
+
 
 
                 break;
@@ -1149,6 +1280,33 @@ public class Util extends Activity {
 
                 //builder.show();
                 dialog.show();
+
+
+                break;
+
+            /**
+             * ACT: DISABLE/ENABLE LOCK SCREEN
+             */
+            case ACT_LOCKSCREENENABLE:
+            case ACT_LOCKSCREENDISABLE:
+
+                if (isEditing) {
+                    showMessageBox("You cannot edit Lock screen enable/disable action. You can only remove it.", true);
+                    return ;
+                }
+
+                // save action & create new row
+                final DialogOptions lockcond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                lockcond.setSetting("text1", opt.getTitle());
+                lockcond.setSetting("text2", "Lock screen will be "+
+                                ((opt.getOptionType() == DialogOptions.type.ACT_LOCKSCREENENABLE) ? "enabled" : "disabled")
+                );
+
+                //addNewAction(context, cond);
+                addNewConditionOrAction(context, lockcond, 0);
 
 
                 break;

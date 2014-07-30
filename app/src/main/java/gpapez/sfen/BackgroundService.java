@@ -29,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -82,6 +83,59 @@ public class BackgroundService extends Service {
         add(getClass().getPackage().getName() +".ALARM_TRIGGER");
         add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
     }};
+    
+    // list of available broacast rules
+    protected final HashMap<String, ArrayList<DialogOptions.type>> mBroadcastRules =
+            new HashMap<String, ArrayList<DialogOptions.type>>() {{
+                // display on/off
+                put(Intent.ACTION_SCREEN_ON, new ArrayList<DialogOptions.type>(){{add(DialogOptions.type.SCREEN_ON);}});
+                put(Intent.ACTION_SCREEN_OFF, new ArrayList<DialogOptions.type>(){{add(DialogOptions.type.SCREEN_OFF);}});
+
+                // network state
+                put(WifiManager.NETWORK_STATE_CHANGED_ACTION,
+                        new ArrayList<DialogOptions.type>(){{
+                            add(DialogOptions.type.WIFI_CONNECT);
+                            add(DialogOptions.type.WIFI_DISCONNECT);
+                        }});
+
+                // geofence
+                put(getClass().getPackage().getName() +".GEOFENCE_ENTER",
+                        new ArrayList<DialogOptions.type>(){{
+                            add(DialogOptions.type.LOCATION_ENTER);
+                        }});
+
+                put(getClass().getPackage().getName() +".GEOFENCE_EXIT",
+                        new ArrayList<DialogOptions.type>(){{
+                            add(DialogOptions.type.LOCATION_LEAVE);
+                        }});
+
+                // alarm trigger
+                put(getClass().getPackage().getName() +".ALARM_TRIGGER",
+                        new ArrayList<DialogOptions.type>(){{
+                            add(DialogOptions.type.TIMERANGE);
+                            add(DialogOptions.type.TIME);
+                            add(DialogOptions.type.DAYSOFWEEK);
+                        }});
+
+                // location changed (cell changes)
+                put(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED",
+                        new ArrayList<DialogOptions.type>(){{
+                            add(DialogOptions.type.CELL_IN);
+                            add(DialogOptions.type.CELL_OUT);
+                        }});
+
+                // event enabled & disabled can trigger all/any checks
+                put(getClass().getPackage().getName() +".EVENT_ENABLED",
+                        new ArrayList<DialogOptions.type>(){{
+                            add(null);
+                        }});
+                put(getClass().getPackage().getName() +".EVENT_DISABLED",
+                        new ArrayList<DialogOptions.type>(){{
+                            add(null);
+                        }});
+            }};
+
+
 
 
     @Override
@@ -93,7 +147,7 @@ public class BackgroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // believe it or not, but this notification will take care of our
         // background service!
-        Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+        //Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
 
         // set intent
         sIntent = intent;
@@ -196,8 +250,6 @@ public class BackgroundService extends Service {
         // save new alarms to preferences
         mPreferences.setPreferences("alarms", mActiveAlarms);
 
-
-
         // destroy all geofences
         geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
     }
@@ -227,7 +279,20 @@ public class BackgroundService extends Service {
     protected void EventFinder(Context context, Intent intent) {
         // loop through all events, check only the enabled ones..
         for (Event e : Main.getInstance().events) {
-            if (e.isEnabled() /* & !e.isRunning() */) {
+            // run the event only if:
+            // #1 is enabled
+            // AND
+            // #2 hasrun=false & runonce=true
+            // OR
+            // #3 runonce=false
+            // OLD IF CONDITION:
+            //if (e.isEnabled() /* & !e.isRunning() */) {
+            // NEW IF CONDITION
+            if (e.isEnabled() &&
+                    (( !e.isHasRun() && e.isRunOnce() )
+                    ||
+                    ( !e.isRunOnce()))
+                    ) {
                 // if it is still not running, then, we have a candidate to check conditions..
                 if (areEventConditionsMet(context, intent, e)) {
 
@@ -242,14 +307,23 @@ public class BackgroundService extends Service {
                 // conditions aren't met; switch event to not running (if maybe they were)
                 else {
                     e.setRunning(false);
+                    e.setHasRun(false);
                 }
+            }
+            // maybe it isn't enabled
+            // maybe it did run already
+            // or something else o_O
+            else {
+                e.setRunning(false);
+                //e.setHasRun(false);
             }
         }
 
         // if there's no events running OR events stopping, clear notification
-        if (!isOneRunning || isOneStopping) {
+        if ((!isOneRunning && isOneStopping) || (!isOneRunning && !isOneStopping)) {
             Log.d("sfen", "no events running.");
             mUtil.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+            // what.
         }
 
         // clear all variables
@@ -617,6 +691,58 @@ public class BackgroundService extends Service {
 
                     break;
 
+
+                case EVENT_RUNNING:
+                case EVENT_NOTRUNNING:
+
+                    // check if specified event has boolean status of running set to true/false
+
+                    // retrieve event ID's from settings
+                    ArrayList<Integer> mEventsToCheck = gson.fromJson(cond.getSetting("selectevents"),
+                            new TypeToken<List<Integer>>(){}.getType());
+
+
+                    // loop through all events,
+                    // find the one that is included in settings,
+                    // return true/false
+                    //int mCurrentID = cond.getUniqueID();
+                    boolean mFound = false;
+                    for (Event single : Main.getInstance().events) {
+
+                        // match was found
+                        if (mEventsToCheck.contains(single.getUniqueID())) {
+                            mFound = true;
+
+                            // EVENT_RUNNING
+                            if (cond.getOptionType() == DialogOptions.type.EVENT_RUNNING) {
+                                if (single.isRunning())
+                                    conditionResults.add(true);
+                                else
+                                    conditionResults.add(false);
+                            }
+
+                            // EVENT_NOTRUNNING
+                            else if (cond.getOptionType() == DialogOptions.type.EVENT_NOTRUNNING) {
+                                if (!single.isRunning())
+                                    conditionResults.add(true);
+                                else
+                                    conditionResults.add(false);
+                            }
+
+                            // since we found one, we can break the loop
+                            break;
+
+
+                        }
+                    }
+
+                    // if we didn't find anything, we return false
+                    if (!mFound)
+                        conditionResults.add(false);
+
+
+                    break;
+
                 default:
                     Log.e("sfen", "No case match ("+ cond.getOptionType() +"). Returning false.");
 
@@ -678,10 +804,11 @@ public class BackgroundService extends Service {
         WifiManager wifiManager;
         ConnectivityManager conMan;
 
-        // if even is already running and this isn't first run of app,
+        // if event is already running and this isn't first run of app,
         // don't re-run actions
         if (
                 (e.isRunning() && !e.isForceRun()) ||
+                (e.isRunning() && e.isForceRun()) ||
                 (!e.isEnabled() && !e.isForceRun())
                 ) {
             Log.e("sfen", e.getName() +" is already running. Skipping actions.");
@@ -862,6 +989,24 @@ public class BackgroundService extends Service {
 
                     break;
 
+                case ACT_LOCKSCREENDISABLE:
+
+                    Main.getInstance().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
+                    break;
+
+                case ACT_LOCKSCREENENABLE:
+
+                    //KeyguardManager keyguardManager = (KeyguardManager)getSystemService(sInstance.KEYGUARD_SERVICE);
+                    //KeyguardManager.KeyguardLock lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
+                    //lock.reenableKeyguard();
+
+                    //DevicePolicyManager mDPM = new DevicePolicyManager();
+                    //mDPM.lockNow();
+
+                    //Main.getInstance().getWindow().addFlags(WindowManager.LayoutParams.KEY);
+
+                    break;
 
                 default:
 
@@ -872,6 +1017,9 @@ public class BackgroundService extends Service {
 
         // first time actions are run. now set event to running.
         e.setRunning(true);
+
+        // set hasrun boolean to true also
+        e.setHasRun(true);
 
         // disable force run
         e.setForceRun(false);
@@ -897,6 +1045,9 @@ public class BackgroundService extends Service {
 
 
         for (Event e : events) {
+
+            // ONE TIME ONLY
+            //System.out.println("*** ONE TIME ONLY ***");
 
             for (DialogOptions single : e.getConditions()) {
                 //System.out.println(e.getName() + " >>> " + single.getTitle());
@@ -1023,7 +1174,6 @@ public class BackgroundService extends Service {
             }
 
             // disable event and set it to running=off
-            //e.setRunning(false);
             e.setForceRun(false);
         }
 

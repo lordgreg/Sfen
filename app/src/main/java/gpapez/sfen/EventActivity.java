@@ -51,9 +51,11 @@ public class EventActivity extends Activity {
         add(new DialogOptions("Disconnected from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
         add(new DialogOptions("Screen On", "If screen is on", R.drawable.ic_screen, DialogOptions.type.SCREEN_ON));
         add(new DialogOptions("Screen Off", "If screen is off", R.drawable.ic_screen, DialogOptions.type.SCREEN_OFF));
-
         add(new DialogOptions("Connected to Cells", "When connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_IN));
         add(new DialogOptions("Not connected to Cells", "When not connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_OUT));
+
+        add(new DialogOptions("Event running", "Another Event currently running", R.drawable.ic_launcher, DialogOptions.type.EVENT_RUNNING));
+        add(new DialogOptions("Event not running", "Another Event currently not running", R.drawable.ic_launcher, DialogOptions.type.EVENT_NOTRUNNING));
     }};
 
     // list of possible Actions in Options
@@ -68,6 +70,8 @@ public class EventActivity extends Activity {
         add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
         add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
         add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
+        add(new DialogOptions("Enable lock screen", "Will enable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENENABLE));
+        add(new DialogOptions("Disable lock screen", "Will disable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENDISABLE));
 
         //add(new DialogOptions("Show dialog with text", "Dialog window with specific text will be shown", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_DIALOGWITHTEXT));
         //add(new DialogOptions("Play sound", "Play specific sound", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_PLAYSOUND));
@@ -236,6 +240,8 @@ public class EventActivity extends Activity {
         event.setActions(actions);
         event.setEnabled(((Switch) findViewById(R.id.event_enabled)).isChecked());
         event.setMatchAllConditions(((CheckBox) findViewById(R.id.event_allconditions)).isChecked());
+        event.setRunOnce(((CheckBox) findViewById(R.id.event_runonce)).isChecked());
+
         // TODO: add one or all settings for current event if needed
         // event.setSetting("this", "test");
 
@@ -249,7 +255,7 @@ public class EventActivity extends Activity {
         }
 
         // lets create option from main activity that we're actually saving event
-        Main.getInstance().options.put("eventSave", "1");
+        //Main.getInstance().options.put("eventSave", "1");
         //Main.getInstance().options.put("eventName", eventName.getText().toString());
 
 
@@ -259,6 +265,17 @@ public class EventActivity extends Activity {
             // but because we've updated the event, force refresh
             event.setForceRun(true);
             Main.getInstance().sendBroadcast("EVENT_ENABLED");
+        }
+        // otherwise, if event went disabled, stop it
+        else if (!event.isEnabled()) {
+            //event.setForceRun(true);
+            event.setRunning(false);
+            event.setEnabled(false);
+            event.setHasRun(false);
+            //event.setRunOnce(false);
+            //Util.showNotification(BackgroundService.getInstance(),
+            //        getString(R.string.app_name), "", R.drawable.ic_launcher);
+            //Main.getInstance().sendBroadcast("EVENT_DISABLED");
         }
 
         finish();
@@ -278,6 +295,7 @@ public class EventActivity extends Activity {
         ((Switch) findViewById(R.id.event_enabled)).setChecked(event.isEnabled());
         //((Switch) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
         ((CheckBox) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
+        ((CheckBox) findViewById(R.id.event_runonce)).setChecked(event.isRunOnce());
 
         // add all conditions to container
         //ArrayList<DialogOptions> tempConditions = event.getConditions();

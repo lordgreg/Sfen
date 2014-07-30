@@ -19,7 +19,18 @@ public class Event {
     private boolean running = false;
     private boolean matchAllConditions = true;
     private boolean forceRun = false;
+    private boolean runOnce = false;
+    private boolean hasRun = false;
     private int uniqueID = -1;
+
+
+    public Event() {
+        super();
+        if (uniqueID == -1) {
+            uniqueID = new Random().nextInt(Integer.MAX_VALUE) + 1;
+        }
+    }
+
 
     public boolean isMatchAllConditions() {
         return matchAllConditions;
@@ -37,6 +48,22 @@ public class Event {
         this.matchAllConditions = matchAllConditions;
     }
 
+    public boolean isRunOnce() {
+        return runOnce;
+    }
+
+    public void setRunOnce(boolean runOnce) {
+        this.runOnce = runOnce;
+    }
+
+    public boolean isHasRun() {
+        return hasRun;
+    }
+
+    public void setHasRun(boolean hasRun) {
+        this.hasRun = hasRun;
+    }
+
     private ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
     private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
@@ -52,13 +79,6 @@ public class Event {
 
     public int getUniqueID() {
         return uniqueID;
-    }
-
-    public Event() {
-        super();
-        if (uniqueID == -1) {
-            uniqueID = new Random().nextInt(Integer.MAX_VALUE) + 1;
-        }
     }
 
     public String getName() {

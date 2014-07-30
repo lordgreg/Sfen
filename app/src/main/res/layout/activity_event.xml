@@ -50,18 +50,6 @@
         android:checked="true" />
 
 
-    <CheckBox
-        android:button="@null"
-        android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Match all conditions?"
-        android:onClick="onClickEventAllConditions"
-        android:padding="6dip"
-        android:layout_margin="5dp"
-        android:id="@+id/event_allconditions"
-        android:checked="true" />
-
     <!--
     parent="@android:style/Widget.Button"
 
@@ -116,6 +104,42 @@
             android:animateLayoutChanges="true" />
 
     </ScrollView>
+
+
+    <!-- ADVANCED PART -->
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Advanced"
+        android:id="@+id/textViewAdvanced"
+        android:autoText="false"
+        style="?android:attr/listSeparatorTextViewStyle" />
+
+    <CheckBox
+        android:button="@null"
+        android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Match all conditions?"
+        android:onClick="onClickEventAllConditions"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:id="@+id/event_allconditions"
+        android:checked="true" />
+
+    <CheckBox
+        android:button="@null"
+        android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Trigger only once"
+        android:onClick="onClickEventAllConditions"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:id="@+id/event_runonce"
+        android:checked="false" />
+
+
 
 </LinearLayout>
 </ScrollView>
