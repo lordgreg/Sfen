@@ -1,5 +1,6 @@
 package gpapez.sfen;
 
+import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,23 +10,101 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 
+import java.util.Calendar;
+
 /**
  * Created by Gregor on 14.7.2014.
  */
 public class Receiver extends BroadcastReceiver {
+
+    // every X seconds, wakelock will wake up our device;
+    // set time here (miliseconds!)
+    //final long WAKELOCK_TIMER = 5 * 60 * 1000;
+    final long WAKELOCK_TIMER = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+
+    // wakelock object which will store our alarm status
+    Alarm mAlarmWakeLock = null;
+
+    boolean mCallBroadcast = true;
+
+
+
+    /**
+     * RECEIVER FUNCTION
+     * @param context
+     * @param intent
+     */
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         BackgroundService.getInstance().receiverAction = action;
+
+        // wakelock object that will eventually trigger on specific broadcasts.
         PowerManager.WakeLock mWakeLock = null;
 
-        boolean mCallBroadcast = true;
         Log.i("sfen", "received: " + action);
 
         /**
          * For all possible broadcasts, we have to check if we have any Event
          * that matches all the conditions, right-io?
+         *
+         * TODO: WRONG-io! here's idea:
+         * * all broadcasts OTHER THAN EVENT_ENABLE set hasRun to false.
+         *
+         GEOLOCATION_ENTER broadcast:
+         -sets hasRun = false
+         1st run,
+         - condition check checks event LOCATION_ENTER, since hasRun==false, it continues with condition running
+         - condition checks goes through. hasRun is set to TRUE
+
+         EVENT_ENABLED
+         2nd run
+         - condition checks checks event LOCATION_ENTER, since hasRun==TRUE, condition returns FALSE.
          */
+
+        /**
+         * screen off will create alarm that will wake up the phone every now and then to
+         * eventfinders
+         */
+        if (action.equals(Intent.ACTION_SCREEN_OFF)) {
+            if (mAlarmWakeLock == null) {
+                mAlarmWakeLock = new Alarm(context);
+                mAlarmWakeLock.mIntentExtra = "wake-a-lambada!";
+                // Set the alarm to start at 8:30 a.m.
+                Calendar calendar = Calendar.getInstance();
+
+                mAlarmWakeLock.CreateInexactAlarmRepeating(calendar,
+                        //AlarmManager.INTERVAL_FIFTEEN_MINUTES
+                        WAKELOCK_TIMER // one minute
+                );
+            }
+
+
+        }
+
+        /**
+         * cancel sleepalarm when we turn on screen
+         * aka. we wake up the phone
+         */
+        if (action.equals(Intent.ACTION_SCREEN_ON)) {
+            System.out.println("screen on!");
+            if (mAlarmWakeLock != null)
+                mAlarmWakeLock.RemoveAlarm();
+        }
+
+
+
         if (action.equals(getClass().getPackage().getName() +".ALARM_TRIGGER")) {
+
+            // SLEEPY ALARM HERE
+            if (intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
+                    !intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("")) {
+
+                Log.i("sfen", "Wakelock alarm trigger: "+
+                                intent.getStringExtra("ALARM_TRIGGER_EXTRA")
+                );
+
+            }
+
 
             // when triggering for alarm, we have to use wakelock so it wakes
             // up the device and calls eventfinder

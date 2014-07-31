@@ -633,6 +633,10 @@ public class BackgroundService extends Service {
 
                     if (cellInfo.isError()) {
                         Log.d("sfen", cellInfo.getError());
+
+                        // TODO: think what you want to do in later development stage
+                        // if cellinfo gets error, are we returning false?
+                        // or false_positive?
                         conditionResults.add(false);
                     }
                     else {

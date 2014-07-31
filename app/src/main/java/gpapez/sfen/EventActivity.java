@@ -349,7 +349,7 @@ public class EventActivity extends Activity {
         // auto open soft keyboard
         //InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         //imm.showSoftInput(eventName, InputMethodManager.SHOW_IMPLICIT);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
 
         builder
@@ -382,6 +382,11 @@ public class EventActivity extends Activity {
                         }
                         else {
                             Util.showMessageBox("Event name cannot be empty.", false);
+                        }
+
+                        // close the keyboard if any
+                        if (imm != null) {
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
                         }
                     }
                 });

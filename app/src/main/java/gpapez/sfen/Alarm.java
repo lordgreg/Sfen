@@ -21,6 +21,7 @@ public class Alarm {
     private AlarmManager mAlarmManager;
     private int mConditionID;
     private int mAlarmID = new Random().nextInt();
+    protected String mIntentExtra = "";
 
     // use transient with gson 1.7.1
     private transient Context mContext;
@@ -42,24 +43,21 @@ public class Alarm {
     }
 
     /**
-     * destroying current alarm
-     */
-    protected void RemoveAlarm() {
-        mAlarmManager.cancel(mPendingIntent);
-    }
-
-    /**
      * get pendingintent or if null, create new one!
      */
     protected PendingIntent getPendingIntent() {
         if (mPendingIntent != null)
             return mPendingIntent;
         else {
+            Intent mIntent = new Intent(getClass().getPackage().getName() +".ALARM_TRIGGER");
+
+            if (!mIntentExtra.equals(""))
+                mIntent.putExtra("ALARM_TRIGGER_EXTRA", mIntentExtra);
 
             return PendingIntent.getBroadcast(
                     mContext,
                     mAlarmID,
-                    new Intent(getClass().getPackage().getName() +".ALARM_TRIGGER"),
+                    mIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT
             );
 
@@ -76,11 +74,27 @@ public class Alarm {
 
         mAlarmManager = (AlarmManager)mContext.getSystemService(Activity.ALARM_SERVICE);
 
-        // TODO: Consider using  setInexactRepeating()
-        // https://developer.android.com/training/scheduling/alarms.html
+
         mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, getPendingIntent());
         System.out.println("*** Starting repeating alarm at: "+ cal.getTime().toString()
-                +" (repeating every "+ interval +" seconds)");
+                +" (repeating every "+ interval +" miliseconds)");
+    }
+
+    /**
+     * create single INEXACT alarm repeating every X
+     * https://developer.android.com/training/scheduling/alarms.html
+     */
+    protected void CreateInexactAlarmRepeating(Calendar cal, long interval) {
+        isRepeating = true;
+        mPendingIntent = getPendingIntent();
+
+
+        mAlarmManager = (AlarmManager)mContext.getSystemService(Activity.ALARM_SERVICE);
+
+
+        mAlarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, getPendingIntent());
+        System.out.println("*** Starting Inexact repeating alarm at: "+ cal.getTime().toString()
+                +" (repeating every "+ interval +" miliseconds)");
     }
 
     /**
@@ -105,6 +119,12 @@ public class Alarm {
 
     }
 
+    /**
+     * destroying current alarm
+     */
+    protected void RemoveAlarm() {
+        mAlarmManager.cancel(mPendingIntent);
+    }
 
     /**
      * retrieve the alarm
