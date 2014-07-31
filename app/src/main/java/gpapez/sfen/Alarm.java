@@ -69,13 +69,18 @@ public class Alarm {
     /**
      * create single alarm repeating every X seconds
      */
-    protected void CreateAlarmRepeating(Calendar cal, int intervalSeconds) {
+    protected void CreateAlarmRepeating(Calendar cal, long interval) {
         isRepeating = true;
         mPendingIntent = getPendingIntent();
 
+
         mAlarmManager = (AlarmManager)mContext.getSystemService(Activity.ALARM_SERVICE);
-        mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), intervalSeconds*1000, getPendingIntent());
-        //System.out.println("*** starting at: "+ cal.getTime().toString());
+
+        // TODO: Consider using  setInexactRepeating()
+        // https://developer.android.com/training/scheduling/alarms.html
+        mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, getPendingIntent());
+        System.out.println("*** Starting repeating alarm at: "+ cal.getTime().toString()
+                +" (repeating every "+ interval +" seconds)");
     }
 
     /**

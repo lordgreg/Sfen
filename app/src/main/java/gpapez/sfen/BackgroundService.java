@@ -1,5 +1,6 @@
 package gpapez.sfen;
 
+import android.app.AlarmManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -84,59 +85,6 @@ public class BackgroundService extends Service {
         add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
     }};
     
-    // list of available broacast rules
-    protected final HashMap<String, ArrayList<DialogOptions.type>> mBroadcastRules =
-            new HashMap<String, ArrayList<DialogOptions.type>>() {{
-                // display on/off
-                put(Intent.ACTION_SCREEN_ON, new ArrayList<DialogOptions.type>(){{add(DialogOptions.type.SCREEN_ON);}});
-                put(Intent.ACTION_SCREEN_OFF, new ArrayList<DialogOptions.type>(){{add(DialogOptions.type.SCREEN_OFF);}});
-
-                // network state
-                put(WifiManager.NETWORK_STATE_CHANGED_ACTION,
-                        new ArrayList<DialogOptions.type>(){{
-                            add(DialogOptions.type.WIFI_CONNECT);
-                            add(DialogOptions.type.WIFI_DISCONNECT);
-                        }});
-
-                // geofence
-                put(getClass().getPackage().getName() +".GEOFENCE_ENTER",
-                        new ArrayList<DialogOptions.type>(){{
-                            add(DialogOptions.type.LOCATION_ENTER);
-                        }});
-
-                put(getClass().getPackage().getName() +".GEOFENCE_EXIT",
-                        new ArrayList<DialogOptions.type>(){{
-                            add(DialogOptions.type.LOCATION_LEAVE);
-                        }});
-
-                // alarm trigger
-                put(getClass().getPackage().getName() +".ALARM_TRIGGER",
-                        new ArrayList<DialogOptions.type>(){{
-                            add(DialogOptions.type.TIMERANGE);
-                            add(DialogOptions.type.TIME);
-                            add(DialogOptions.type.DAYSOFWEEK);
-                        }});
-
-                // location changed (cell changes)
-                put(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED",
-                        new ArrayList<DialogOptions.type>(){{
-                            add(DialogOptions.type.CELL_IN);
-                            add(DialogOptions.type.CELL_OUT);
-                        }});
-
-                // event enabled & disabled can trigger all/any checks
-                put(getClass().getPackage().getName() +".EVENT_ENABLED",
-                        new ArrayList<DialogOptions.type>(){{
-                            add(null);
-                        }});
-                put(getClass().getPackage().getName() +".EVENT_DISABLED",
-                        new ArrayList<DialogOptions.type>(){{
-                            add(null);
-                        }});
-            }};
-
-
-
 
     @Override
     public void onCreate() {
@@ -147,7 +95,8 @@ public class BackgroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // believe it or not, but this notification will take care of our
         // background service!
-        //Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+        Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+
 
         // set intent
         sIntent = intent;
@@ -186,6 +135,7 @@ public class BackgroundService extends Service {
                 //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
                 PhoneStateListener.LISTEN_CELL_LOCATION
         );
+        //mPhoneManager.listen(mPhoneReceiver,PhoneStateListener.LISTEN_NONE);
 
 
         // create alarm object
@@ -239,14 +189,30 @@ public class BackgroundService extends Service {
         // unregister our receiver
         unregisterReceiver(receiver);
 
-        // cancel alarms (if up)
-        for (Alarm single : mActiveAlarms) {
-            // stop the alarm
-            single.RemoveAlarm();
+        // cancel phone state listener
+        mPhoneManager.listen(mPhoneReceiver,PhoneStateListener.LISTEN_NONE);
 
-            // remove it from array of active alarms
-            mActiveAlarms.remove(single);
+
+        // cancel alarms (if up)
+        if (mActiveAlarms.size() > 0) {
+            ArrayList<Alarm> mAlarmsDelete = new ArrayList<Alarm>();
+            for (Alarm single : mActiveAlarms) {
+                mAlarmsDelete.add(single);
+            }
+
+            if (mAlarmsDelete.size() > 0) {
+                //System.out.println("*** deleting "+ mAlarmsDelete.size() +" alarms.");
+                for (Alarm single : mAlarmsDelete) {
+                    // stop the alarm
+                    single.RemoveAlarm();
+
+                    // remove it from array of active alarms
+                    mActiveAlarms.remove(single);
+                }
+            }
+
         }
+
         // save new alarms to preferences
         mPreferences.setPreferences("alarms", mActiveAlarms);
 
@@ -286,13 +252,13 @@ public class BackgroundService extends Service {
             // OR
             // #3 runonce=false
             // OLD IF CONDITION:
-            //if (e.isEnabled() /* & !e.isRunning() */) {
+            if (e.isEnabled() /* & !e.isRunning() */) {
             // NEW IF CONDITION
-            if (e.isEnabled() &&
-                    (( !e.isHasRun() && e.isRunOnce() )
-                    ||
-                    ( !e.isRunOnce()))
-                    ) {
+//            if (e.isEnabled() &&
+//                    (( !e.isHasRun() && e.isRunOnce() )
+//                    ||
+//                    ( !e.isRunOnce()))
+//                    ) {
                 // if it is still not running, then, we have a candidate to check conditions..
                 if (areEventConditionsMet(context, intent, e)) {
 
@@ -444,6 +410,7 @@ public class BackgroundService extends Service {
 
                 case WIFI_CONNECT:
 
+
                     ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -538,9 +505,18 @@ public class BackgroundService extends Service {
                         //cal.add(Calendar.DATE, 1);
                     }
 
-                    /*Log.e("test", "current date: "+ cal.getTime().toString());
-                    Log.e("test", "start date: "+ cStart.getTime().toString());
-                    Log.e("test", "end date: "+ cEnd.getTime().toString());*/
+                    // also, check if current date is lower than start date
+                    // AND start & end times aren't in the same day
+                    if (cal.before(cStart) &&
+                            cStart.get(Calendar.DAY_OF_YEAR) != cEnd.get(Calendar.DAY_OF_YEAR)
+                            ) {
+                        //cal.add(Calendar.DATE, 1);
+                        cStart.add(Calendar.DATE, -1);
+                    }
+
+//                    Log.e("test", "current date: "+ cal.getTime().toString());
+//                    Log.e("test", "start date: "+ cStart.getTime().toString());
+//                    Log.e("test", "end date: "+ cEnd.getTime().toString());
 
 
                     //Date current = cal.getTime();
@@ -1107,10 +1083,10 @@ public class BackgroundService extends Service {
 
                         // check if we're enabling or disabling event.
                         if (e.isEnabled()) {
-                            Log.d("sfen", "Creating alarm for condition: "+ single.getTitle());
+                            Log.d("sfen", "Creating alarms (2) for condition: "+ single.getTitle());
 
                             // interval for both created alarms will be 24 hours
-                            int intervalSeconds = 24*60*60;
+                            long interval = AlarmManager.INTERVAL_DAY;
 
 
                             /*
@@ -1127,7 +1103,7 @@ public class BackgroundService extends Service {
                             timeStart.set(Calendar.SECOND, 0);
 
                             mAlarm = new Alarm(sInstance, single.getUniqueID());
-                            mAlarm.CreateAlarmRepeating(timeStart, intervalSeconds);
+                            mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
 
@@ -1143,8 +1119,17 @@ public class BackgroundService extends Service {
                             //timeEnd.add(Calendar.MINUTE, 1);
                             timeEnd.set(Calendar.SECOND, 0);
 
+
+                            // TIMES CHECK.
+                            // if endTime is lower than startTime, it usually means endTime has to
+                            // be tomorrow
+                            if (timeEnd.before(timeStart))
+                                timeEnd.add(Calendar.DATE, 1);
+
+
+
                             mAlarm = new Alarm(sInstance, single.getUniqueID());
-                            mAlarm.CreateAlarmRepeating(timeEnd, intervalSeconds);
+                            mAlarm.CreateAlarmRepeating(timeEnd, interval);
                             mActiveAlarms.add(mAlarm);
 
                         }

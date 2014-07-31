@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.gregor.myapplication.R;
@@ -256,6 +258,85 @@ public class Main extends Activity
             clipboard.setPrimaryClip(clip);
 
             Util.showMessageBox("Events exported to clipboard!", true);
+
+        }
+
+        // import settings
+        if (id == R.id.action_import) {
+            final TextView info = new TextView(sInstance);
+            info.setText("Paste import string:");
+            final EditText input = new EditText(sInstance);
+            LinearLayout newView = new LinearLayout(sInstance);
+            LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            newView.setLayoutParams(parms);
+            newView.setOrientation(LinearLayout.VERTICAL);
+            newView.setPadding(15, 15, 15, 15);
+            newView.addView(info, 0);
+            newView.addView(input, 1);
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(Main.getInstance());
+
+            builder
+                    .setView(newView)
+                    .setIcon(R.drawable.ic_launcher)
+                    .setTitle("Sfen!")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+
+                            if (input.length() == 0) {
+                                Util.showMessageBox("Nothing to import!", true);
+                                return;
+                            }
+
+                            Gson gson = new Gson();
+
+                            String json = input.getText().toString();
+
+                            //protected ArrayList<Event> events = new ArrayList<Event>();
+                            ArrayList<Event> mPastedEvents = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
+
+                            // add to current EVENTS array
+                            events.addAll(0, mPastedEvents);
+
+                            // refresh view
+                            refreshEventsView();
+
+
+
+                            // save action & create new row
+                            /*
+                            final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(),
+                                    opt.getIcon(), opt.getOptionType());
+
+                            cond.setSetting("text1", opt.getTitle());
+                            cond.setSetting("text2", input.getText().toString());
+                            cond.setSetting("text", input.getText().toString());
+
+                            if (isEditing)
+                                removeConditionOrAction(index, opt);
+
+                            addNewConditionOrAction(context, cond, 0);*/
+
+                        }
+                    })
+                            //.set
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // just close the dialog if we didn't select the days
+                            dialog.dismiss();
+
+                        }
+                    });
+
+
+            builder.show();
+
+
 
         }
 

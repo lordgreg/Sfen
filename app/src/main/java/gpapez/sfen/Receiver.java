@@ -25,10 +25,12 @@ public class Receiver extends BroadcastReceiver {
          * For all possible broadcasts, we have to check if we have any Event
          * that matches all the conditions, right-io?
          */
-        // when triggering for alarm, we have to use wakelock
         if (action.equals(getClass().getPackage().getName() +".ALARM_TRIGGER")) {
+
+            // when triggering for alarm, we have to use wakelock so it wakes
+            // up the device and calls eventfinder
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sfen");
             mWakeLock.acquire();
 
         }

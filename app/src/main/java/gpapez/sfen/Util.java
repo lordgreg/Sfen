@@ -15,6 +15,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.service.notification.StatusBarNotification;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,7 @@ import java.io.DataOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -532,6 +534,15 @@ public class Util extends Activity {
                 break;
 
             /**
+             * TIME: single time condition
+             */
+            case TIME:
+
+
+
+                break;
+
+            /**
              * WIFI Access Points
              */
             case WIFI_CONNECT:
@@ -701,22 +712,20 @@ public class Util extends Activity {
                 // array of cell towers we are showing in dialog
                 final ArrayList<String> mCellTowers = new ArrayList<String>();
 
-
                 // if editing, retrieve saved cells
                 ArrayList<String> mCellsFromSettings = null;
                 if (isEditing) {
                     mCellsFromSettings = gson.fromJson(opt.getSetting("selectedcell"),
                                 new TypeToken<List<String>>(){}.getType());
+
+                    // if we have cells stored, add them to selected cells
+                    // and add them to visible cells
+                    if (mCellsFromSettings != null) {
+                        mSelectedCells.addAll(mCellsFromSettings);
+                        mCellTowers.addAll(mCellsFromSettings);
+                    }
                 }
 
-                // create new array of strings, depending on the size of our settings
-                //final String[] mCellTowers;
-                if (mCellsFromSettings != null) {
-                    mCellTowers.addAll(0, mCellsFromSettings);
-                }
-
-
-                // TODO: fix boolean arrays when one is saved, one new is found.
 
                 // get current cell tower ID
                 //TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
@@ -726,12 +735,15 @@ public class Util extends Activity {
                     showMessageBox(cellInfo.getError(), true);
                     break;
                 }
-
                 // save current cell id
                 String mCellCurrent = cellInfo.getCellId();
-
+                //String mCellCurrent = "1337:1337:1337";
                 // set the size of booleans to match settings
                 boolean[] mCellChecked = new boolean[mCellTowers.size()];
+
+                // check all cells from settings
+                // aka set their parameters to TRUE
+                Arrays.fill(mCellChecked, Boolean.TRUE);
 
                 // boolean that will change if current
                 boolean mCellIsAlreadyStored = false;
@@ -745,7 +757,8 @@ public class Util extends Activity {
                         if (mCellTowers.contains(mCellCurrent)) {
 
                             mCellIsAlreadyStored = true;
-                            mCellChecked[i] = true;
+                            //mCellChecked[i] = true;
+                            //System.out.println("we found a match");
                             break;
                         }
 
@@ -757,7 +770,7 @@ public class Util extends Activity {
 
                 //System.out.println("cell checked: "+ mCellChecked.toString());
 
-                // if cell tower is new, add it to array
+                // if cell tower is new, and not storred in array add it to array
                 if (!mCellIsAlreadyStored) {
                     mCellTowers.add(mCellCurrent);
 
@@ -769,6 +782,10 @@ public class Util extends Activity {
                 }
 
                 //System.out.println("cell checked: "+ mCellChecked.toString());
+//                if (2==2) {
+//                    System.out.println("*** test");
+//                    return;
+//                }
 
                 // create array of strings from ArrayList for celltowers
                 String[] mCellTowerStrings = new String[mCellTowers.size()];
@@ -1369,7 +1386,6 @@ public class Util extends Activity {
 
     }
 
-
     /**
      * SHOW YES/NO DIALOG
      *
@@ -1620,20 +1636,6 @@ public class Util extends Activity {
 
         return rText;
     }
-
-    private List<ApplicationInfo> getInstalledPackages() {
-
-        PackageManager mPackageManager = Main.getInstance().getPackageManager();
-        //mPackageManager.addPermission();
-//get a list of installed apps.
-        //List<ApplicationInfo>
-        return mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-    }
-
-    private PackageManager getPackages() {
-        return getPackageManager();
-    }
-
 
 
 }

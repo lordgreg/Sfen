@@ -70,8 +70,9 @@ public class EventActivity extends Activity {
         add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
         add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
         add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
-        add(new DialogOptions("Enable lock screen", "Will enable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENENABLE));
-        add(new DialogOptions("Disable lock screen", "Will disable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENDISABLE));
+
+        //add(new DialogOptions("Enable lock screen", "Will enable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENENABLE));
+        //add(new DialogOptions("Disable lock screen", "Will disable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENDISABLE));
 
         //add(new DialogOptions("Show dialog with text", "Dialog window with specific text will be shown", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_DIALOGWITHTEXT));
         //add(new DialogOptions("Play sound", "Play specific sound", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_PLAYSOUND));

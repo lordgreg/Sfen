@@ -66,7 +66,7 @@ public class CellConnectionInfo {
         } catch (Exception e) {
             isError = true;
             errorString = "No mobile connection.";
-            Log.e("sfen", e.toString());
+            Log.e("sfen", errorString +"("+ e.toString() +")");
             e.printStackTrace();
         }
     }
