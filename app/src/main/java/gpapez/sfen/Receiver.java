@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
-import android.provider.Settings;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -62,6 +61,26 @@ public class Receiver extends BroadcastReceiver {
          */
 
         /**
+         * check if GPS is enabled/disabled
+         */
+        if (action.equals("android.location.MODE_CHANGED")) {
+
+            // we wont call broadcast in any other case than in GPS enabled or disabled!
+            //mCallBroadcast = false;
+
+//            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+//
+////            List<String> providers = locationManager.getProviders(true);
+////            System.out.println("enabled providers: "+ providers.toString());
+//
+//            boolean gpsEnabled = false;
+//            try{gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);}catch(Exception ex){}
+//            System.out.println("gps enabled: "+ gpsEnabled);
+
+
+        }
+
+        /**
          * screen off will create alarm that will wake up the phone every now and then to
          * eventfinders
          */
@@ -69,12 +88,11 @@ public class Receiver extends BroadcastReceiver {
             if (mAlarmWakeLock == null) {
                 mAlarmWakeLock = new Alarm(context);
                 mAlarmWakeLock.mIntentExtra = "wake-a-lambada!";
-                // Set the alarm to start at 8:30 a.m.
+
                 Calendar calendar = Calendar.getInstance();
 
                 mAlarmWakeLock.CreateInexactAlarmRepeating(calendar,
-                        //AlarmManager.INTERVAL_FIFTEEN_MINUTES
-                        WAKELOCK_TIMER // one minute
+                        WAKELOCK_TIMER
                 );
             }
 
@@ -148,6 +166,9 @@ public class Receiver extends BroadcastReceiver {
         // release wakelock if set
         if (mWakeLock != null)
             mWakeLock.release();
+
+        // set mCallBroadcast back to true
+        mCallBroadcast = true;
     }
 
 }

@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.gregor.myapplication.R;
-
 public class Log extends Activity {
     private static Log sInstance = null;
 

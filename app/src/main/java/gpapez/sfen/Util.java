@@ -15,7 +15,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.service.notification.StatusBarNotification;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +26,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.gregor.myapplication.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -538,7 +536,55 @@ public class Util extends Activity {
              */
             case TIME:
 
+                // create dialog parts
+                final TimePicker timePicker = new TimePicker(context);
+                timePicker.setIs24HourView(true);
 
+
+                // we're editing option, get stored time out of settings
+                if (isEditing) {
+                    timePicker.setCurrentHour(Integer.parseInt(opt.getSetting("hour")));
+                    timePicker.setCurrentMinute(Integer.parseInt(opt.getSetting("minute")));
+                }
+
+                builder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Pick time")
+                        .setView(timePicker)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+
+                                // add new condition
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(),
+                                        opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("hour", timePicker.getCurrentHour().toString());
+                                cond.setSetting("minute", timePicker.getCurrentMinute().toString());
+                                cond.setSetting("text1", "Specific Time");
+                                cond.setSetting("text2", "At exactly " +
+                                        String.format("%02d", timePicker.getCurrentHour()) + ":" +
+                                        String.format("%02d", timePicker.getCurrentMinute())
+                                        + "");
+
+                                // editing.
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+                                addNewConditionOrAction(context, cond, index);
+
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+
+                builder.show();
 
                 break;
 
@@ -699,6 +745,33 @@ public class Util extends Activity {
 
                 break;
 
+
+            /**
+             * CONDITION: GPS on/off
+             */
+            case GPS_ENABLED:
+            case GPS_DISABLED:
+
+                if (isEditing) {
+                    showMessageBox("You cannot edit GPS On/Off Condition. You can only remove it.", true);
+                    return ;
+                }
+
+                // save action & create new row
+                final DialogOptions condGps = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                condGps.setSetting("text1", opt.getTitle());
+                condGps.setSetting("text2", "GPS is "+
+                        ((opt.getOptionType() == DialogOptions.type.GPS_ENABLED) ? "On" : "Off")
+                        +".");
+
+                //addNewAction(context, cond);
+                addNewConditionOrAction(context, condGps, 0);
+
+
+                break;
 
             /**
              * CONDITION: Connecting/disconnecting on Cell Towers
@@ -1003,6 +1076,30 @@ public class Util extends Activity {
             addNewConditionOrAction(context, cond, 0);
 
             break;
+
+            /**
+             * ACTION: PLAY SFEN
+             */
+            case ACT_PLAYSFEN:
+
+                // are we trying to edit the notification? because, uhm... we can't
+                if (isEditing) {
+                    showMessageBox("You cannot edit Play Sfen action. You can only remove it.", true);
+                    return ;
+                }
+
+                // save action & create new row
+                final DialogOptions condPlaySfen = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
+                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                condPlaySfen.setSetting("text1", opt.getTitle());
+                condPlaySfen.setSetting("text2", "Sound of Sfen will be heard");
+
+                //addNewAction(context, cond);
+                addNewConditionOrAction(context, condPlaySfen, 0);
+
+                break;
 
             /**
              * ACTION: ENABLE OR DISABLE WIFI
@@ -1574,6 +1671,9 @@ public class Util extends Activity {
             }
         });
 
+        /**
+         * delete button for single item
+         */
         newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

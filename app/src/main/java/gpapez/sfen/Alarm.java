@@ -58,6 +58,7 @@ public class Alarm {
                     mContext,
                     mAlarmID,
                     mIntent,
+                    //new Intent(getClass().getPackage().getName() +".ALARM_TRIGGER").putExtra("ALARM_TRIGGER_EXTRA", mIntentExtra),
                     PendingIntent.FLAG_UPDATE_CURRENT
             );
 

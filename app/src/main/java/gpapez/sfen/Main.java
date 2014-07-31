@@ -2,6 +2,7 @@ package gpapez.sfen;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.ClipData;
@@ -20,7 +21,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.gregor.myapplication.R;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -76,9 +76,31 @@ public class Main extends Activity
                 .setTabListener(this));
 
 
-        // create & start service
-        bgService = new Intent(this, BackgroundService.class);
-        startService(bgService);
+        /**
+         * Find our service in the list of all running services
+         * If found, get its intent and we're good to continue its activity
+         *
+         * Otherwise, create new BackGround service.
+         */
+        boolean mIsBackgroundServiceRunning = false;
+
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            //System.out.println("service: "+ service.service.getClassName());
+            if ((getClass().getPackage().getName() +".BackgroundService").equals(service.service.getClassName())) {
+                //System.out.println("our background service is running.");
+                bgService = BackgroundService.getInstance().sIntent;
+                mIsBackgroundServiceRunning = true;
+                sendBroadcast("EVENT_ENABLED");
+
+                break;
+            }
+        }
+
+        if (!mIsBackgroundServiceRunning) {
+            bgService = new Intent(this, BackgroundService.class);
+            startService(bgService);
+        }
 
         // end of onCreate
         isCreating = false;

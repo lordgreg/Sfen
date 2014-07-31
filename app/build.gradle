@@ -5,7 +5,7 @@ android {
     buildToolsVersion '20.0.0'
 
     defaultConfig {
-        applicationId "com.example.gregor.myapplication"
+        applicationId "gpapez.sfen"
         minSdkVersion 14
         targetSdkVersion 17
         versionCode 1

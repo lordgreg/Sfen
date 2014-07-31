@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -23,14 +25,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.gregor.myapplication.R;
 import com.google.android.gms.location.Geofence;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -75,6 +75,7 @@ public class BackgroundService extends Service {
         add(Intent.ACTION_SCREEN_ON);                   // screen on
         add(Intent.ACTION_SCREEN_OFF);                  // screen off
         //add(Intent.ACTION_AIRPLANE_MODE_CHANGED);     // toggle airplane
+        add(LocationManager.MODE_CHANGED_ACTION);
 
         // in-app broadcast calls
         add(getClass().getPackage().getName() +".EVENT_ENABLED");
@@ -106,9 +107,17 @@ public class BackgroundService extends Service {
 
 
         // get alarm preferences
+        /**
+         * REMIND ME AGAIN...
+         *
+         * why would we need to save alarms in preferences? o_O
+         */
+        /*
         mActiveAlarms = (ArrayList<Alarm>) mPreferences.getPreferences("alarms", Preferences.REQUEST_TYPE.ALARMS);
         if (mActiveAlarms == null)
             mActiveAlarms = new ArrayList<Alarm>();
+            */
+        mActiveAlarms = new ArrayList<Alarm>();
 
 
         // start our receiver
@@ -119,7 +128,6 @@ public class BackgroundService extends Service {
             //Log.e("adding broad to intent", sBroadcasts.get(i));
             intentFilter.addAction(sBroadcasts.get(i));
         }
-        //intentFilter.addCategory("com.example.gregor.myapplication.CATEGORY_LOCATION_SERVICES");
         registerReceiver(receiver, intentFilter);
 
 
@@ -135,38 +143,8 @@ public class BackgroundService extends Service {
                 //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
                 PhoneStateListener.LISTEN_CELL_LOCATION
         );
-        //mPhoneManager.listen(mPhoneReceiver,PhoneStateListener.LISTEN_NONE);
 
 
-        // create alarm object
-//        mAlarm = new Alarm(sInstance);
-//        Calendar cal = Calendar.getInstance();
-//        cal.setTimeInMillis(System.currentTimeMillis());
-//        //cal.set(Calendar.HOUR_OF_DAY, 18);
-//        //cal.set(Calendar.MINUTE, 32);
-//
-//        // add 5 seconds to current time and we get when when next trigger happens. yep, in 5seconds o_O
-//        cal.add(Calendar.SECOND, 5);
-//        //System.out.println("current time to start trigger: "+ cal.toString());
-//        mAlarm.CreateAlarm(cal); // this one starts in
-//        mActiveAlarms.add(mAlarm);
-//
-//        // start this one with X seconds from now
-//        mAlarm = new Alarm(sInstance);
-//        mAlarm.CreateAlarm(5);
-//        mActiveAlarms.add(mAlarm);
-
-
-        // start this one repeating
-        //mAlarm = new Alarm(sInstance);
-        //mAlarm.CreateAlarmRepeating(cal, 8);
-
-        //PendingIntent mAlarmPi = PendingIntent.getBroadcast(this, 0, new Intent("com.example.gregor.myapplication.ALARM_TRIGGER"), 0);
-        //mAlarmManager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
-        //mAlarmManager.set(AlarmManager.RTC_WAKEUP, 5000, mAlarmPi);
-
-        // check, for the first time of our app history, if we have a candidate..
-        //EventFinder(this, intent);
 
         // also check for the first time and never again, for the condition triggers
         // refresh condition timers
@@ -199,6 +177,7 @@ public class BackgroundService extends Service {
             for (Alarm single : mActiveAlarms) {
                 mAlarmsDelete.add(single);
             }
+            //mActiveAlarms.removeAll(mAlarmsDelete);
 
             if (mAlarmsDelete.size() > 0) {
                 //System.out.println("*** deleting "+ mAlarmsDelete.size() +" alarms.");
@@ -213,8 +192,11 @@ public class BackgroundService extends Service {
 
         }
 
+        if (mActiveAlarms.size() == 0)
+            Log.d("sfen", "All alarms removed.");
+
         // save new alarms to preferences
-        mPreferences.setPreferences("alarms", mActiveAlarms);
+        //mPreferences.setPreferences("alarms", mActiveAlarms);
 
         // destroy all geofences
         geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
@@ -245,13 +227,6 @@ public class BackgroundService extends Service {
     protected void EventFinder(Context context, Intent intent) {
         // loop through all events, check only the enabled ones..
         for (Event e : Main.getInstance().events) {
-            // run the event only if:
-            // #1 is enabled
-            // AND
-            // #2 hasrun=false & runonce=true
-            // OR
-            // #3 runonce=false
-            // OLD IF CONDITION:
             if (e.isEnabled() /* & !e.isRunning() */) {
             // NEW IF CONDITION
 //            if (e.isEnabled() &&
@@ -260,7 +235,54 @@ public class BackgroundService extends Service {
 //                    ( !e.isRunOnce()))
 //                    ) {
                 // if it is still not running, then, we have a candidate to check conditions..
-                if (areEventConditionsMet(context, intent, e)) {
+
+
+                /**
+                 * any broadcast EXCEPT "EVENT_ENABLED" can re-trigger loading actions IF
+                 * we told him to runOnce only.
+                 */
+                // event runs only once? then all broadcasts EXCEPT event_enable can re-run it
+                boolean canContinueRunning = false;
+
+                if (receiverAction.equals(getClass().getPackage().getName() +".EVENT_ENABLED")
+                        && e.isRunOnce() && e.isRunOnce() && !e.isForceRun())
+                    canContinueRunning = false;
+                else
+                    canContinueRunning = true;
+
+                //System.out.println("can continue running? "+ canContinueRunning);
+                /*
+                if (e.isRunOnce() &&
+                        !receiverAction.equals(getClass().getPackage().getName() +".EVENT_ENABLED")) {
+                    System.out.println("*** even though event "+ e.getName() +" is set to run once, "+ receiverAction +" has " +
+                            "prority to start it again.");
+                    canContinueRunning = true;
+                    //e.setHasRun(false);
+                }
+                else if (!e.isRunOnce()) {
+                    System.out.println("*** event "+ e.getName() +" can run freely. it was called by "+ receiverAction);
+                    canContinueRunning = true;
+                    //e.setHasRun(false);
+                }
+                else if (e.isHasRun() && e.isRunOnce()) {
+                    System.out.println("*** event though "+ e.getName() +" has been run, it can run all the time, even from "+ receiverAction);
+                }
+                else {
+                    System.out.println("*** event "+ e.getName() +" cannot continue anymore since the call was from "+
+                    receiverAction +" and the event has run already ("+ e.isHasRun() +").");
+                    canContinueRunning = false;
+                }
+*/
+//                    System.out.println("*** RECEIVED: "+ receiverAction);
+//                    System.out.println("*** RUN ONCE ONLY? "+ e.isRunOnce());
+//                    System.out.println("*** HAS BEEN RUN? "+ e.isHasRun());
+//                    System.out.println("*** is event allowed to run actions? "+
+//                                    (receiverAction.equals(getClass().getPackage().getName() +".EVENT_ENABLED") ? false : true)
+//                    );
+
+
+
+                if (areEventConditionsMet(context, intent, e) && canContinueRunning) {
 
                     isOneRunning = true;
 
@@ -273,7 +295,7 @@ public class BackgroundService extends Service {
                 // conditions aren't met; switch event to not running (if maybe they were)
                 else {
                     e.setRunning(false);
-                    e.setHasRun(false);
+                    //e.setHasRun(false);
                 }
             }
             // maybe it isn't enabled
@@ -322,6 +344,9 @@ public class BackgroundService extends Service {
         // array with booleans for all conditions
         ArrayList<Boolean> conditionResults = new ArrayList<Boolean>();
         Log.d("sfen", "EVENT "+ e.getName());
+
+
+
         for (DialogOptions cond : conditions) {
             Log.d("sfen", "condition "+ cond.getOptionType());
 
@@ -359,6 +384,36 @@ public class BackgroundService extends Service {
 
                         else
                             conditionResults.add(false);
+
+                    }
+
+
+                    break;
+
+
+                case GPS_ENABLED:
+                case GPS_DISABLED:
+
+                    LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+                    //            List<String> providers = locationManager.getProviders(true);
+                    //            System.out.println("enabled providers: "+ providers.toString());
+
+                    boolean gpsEnabled = false;
+                    try{gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);}catch(Exception ex){}
+                    //System.out.println("gps enabled: "+ gpsEnabled);
+
+                    if (gpsEnabled) {
+                        if (cond.getOptionType() == DialogOptions.type.GPS_ENABLED)
+                            conditionResults.add(true);
+                        else
+                            conditionResults.add(false);
+                    }
+                    else {
+                        if (cond.getOptionType() == DialogOptions.type.GPS_ENABLED)
+                            conditionResults.add(false);
+                        else
+                            conditionResults.add(true);
 
                     }
 
@@ -507,12 +562,12 @@ public class BackgroundService extends Service {
 
                     // also, check if current date is lower than start date
                     // AND start & end times aren't in the same day
-                    if (cal.before(cStart) &&
-                            cStart.get(Calendar.DAY_OF_YEAR) != cEnd.get(Calendar.DAY_OF_YEAR)
-                            ) {
-                        //cal.add(Calendar.DATE, 1);
-                        cStart.add(Calendar.DATE, -1);
-                    }
+//                    if (cal.before(cStart) &&
+//                            cStart.get(Calendar.DAY_OF_YEAR) != cEnd.get(Calendar.DAY_OF_YEAR)
+//                            ) {
+//                        //cal.add(Calendar.DATE, 1);
+//                        cStart.add(Calendar.DATE, -1);
+//                    }
 
 //                    Log.e("test", "current date: "+ cal.getTime().toString());
 //                    Log.e("test", "start date: "+ cStart.getTime().toString());
@@ -531,6 +586,30 @@ public class BackgroundService extends Service {
 
                     break;
 
+                case TIME:
+
+                    // compare current time against triggered time
+                    Calendar mCurrentTime = Calendar.getInstance();
+                    Calendar mSavedTime = Calendar.getInstance();
+
+                    mSavedTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("hour")));
+                    mSavedTime.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("minute")));
+
+                    // compare hours and minutes now
+                    if (mCurrentTime.get(Calendar.HOUR_OF_DAY) == mSavedTime.get(Calendar.HOUR_OF_DAY) &&
+                            mCurrentTime.get(Calendar.MINUTE) == mSavedTime.get(Calendar.MINUTE)
+                            ) {
+                        System.out.println("*** TIME TRIGGER FOUND A MATCH!");
+                        conditionResults.add(true);
+
+                    }
+                    else
+                        conditionResults.add(false);
+
+
+
+
+                    break;
 
                 case LOCATION_ENTER:
                     //System.out.println("entering location checker");
@@ -724,7 +803,7 @@ public class BackgroundService extends Service {
                     break;
 
                 default:
-                    Log.e("sfen", "No case match ("+ cond.getOptionType() +"). Returning false.");
+                    Log.e("sfen", "No case match ("+ cond.getOptionType() +" in areEventConditionsMet). Returning false.");
 
                     conditionResults.add(false);
 
@@ -975,6 +1054,21 @@ public class BackgroundService extends Service {
 
                     break;
 
+                case ACT_PLAYSFEN:
+
+                    MediaPlayer mp = MediaPlayer.create(context, R.raw.sfen_sound);
+                    mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            mp.release();
+                        }
+
+                    });
+                    mp.start();
+
+                    break;
+
                 case ACT_LOCKSCREENENABLE:
 
                     //KeyguardManager keyguardManager = (KeyguardManager)getSystemService(sInstance.KEYGUARD_SERVICE);
@@ -1023,11 +1117,7 @@ public class BackgroundService extends Service {
         ArrayList<Alarm> mAlarmsCreate = new ArrayList<Alarm>();
         ArrayList<Alarm> mAlarmsDelete = new ArrayList<Alarm>();
 
-
         for (Event e : events) {
-
-            // ONE TIME ONLY
-            //System.out.println("*** ONE TIME ONLY ***");
 
             for (DialogOptions single : e.getConditions()) {
                 //System.out.println(e.getName() + " >>> " + single.getTitle());
@@ -1087,7 +1177,7 @@ public class BackgroundService extends Service {
 
                         // check if we're enabling or disabling event.
                         if (e.isEnabled()) {
-                            Log.d("sfen", "Creating alarms (2) for condition: "+ single.getTitle());
+                            Log.d("sfen", "Creating alarms (2) for condition: "+ single.getTitle() +" of "+ e.getName());
 
                             // interval for both created alarms will be 24 hours
                             long interval = AlarmManager.INTERVAL_DAY;
@@ -1139,7 +1229,7 @@ public class BackgroundService extends Service {
                         }
                         // disabling event, stop all timers
                         else {
-                            Log.d("sfen", "Disabling alarm(s) for condition: " + single.getTitle());
+                            Log.d("sfen", "Disabling alarm(s) for condition: " + single.getTitle() +" of "+ e.getName());
 
                             // remove every single one
                             for (Alarm singleAlarm : mActiveAlarms) {
@@ -1154,8 +1244,108 @@ public class BackgroundService extends Service {
 
                         break;
 
+                    /**
+                     * TIME
+                     */
+                    case TIME:
+
+                        // if enabling event, start single alarm
+                        if (e.isEnabled()) {
+                            Log.d("sfen", "Creating alarms for condition: "+ single.getTitle() +" of "+ e.getName());
+
+                            // interval for timer
+                            long interval = AlarmManager.INTERVAL_DAY;
+
+                            Calendar timeStart = Calendar.getInstance();
+                            timeStart.setTimeInMillis(System.currentTimeMillis());
+                            timeStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("hour")));
+                            timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("minute")));
+                            timeStart.set(Calendar.SECOND, 0);
+
+                            mAlarm = new Alarm(sInstance, single.getUniqueID());
+                            mAlarm.CreateAlarmRepeating(timeStart, interval);
+                            mActiveAlarms.add(mAlarm);
+
+                            // second alarm should trigger one minute after timestart to recheck
+                            timeStart.add(Calendar.MINUTE, 1);
+
+                            mAlarm = new Alarm(sInstance, single.getUniqueID());
+                            mAlarm.CreateAlarmRepeating(timeStart, interval);
+                            mActiveAlarms.add(mAlarm);
+
+                        }
+
+                        // if disabling event, delete single alarm
+                        else {
+
+                            // remove alarm
+                            for (Alarm singleAlarm : mActiveAlarms) {
+                                if (singleAlarm.getConditionID() == single.getUniqueID()) {
+                                    // we found a match in active alarms
+                                    //mActiveAlarms.remove(singleAlarm);
+                                    mAlarmsDelete.add(singleAlarm);
+                                }
+
+                            }
+
+                        }
+
+
+                        break;
+
+                    /**
+                     * DAYSOFWEEK
+                     */
+                    case DAYSOFWEEK:
+
+                        // if enabling event, start single alarm
+                        if (e.isEnabled()) {
+                            Log.d("sfen", "Creating alarms for condition: "+ single.getTitle() +" of "+ e.getName());
+
+                            //System.out.println("*** SETTINGS for condition are:");
+                            //System.out.println(single.getSettings().toString());
+
+                            // no matter what days we picked, we only need 1 recurring alarm and repeat
+                            // it every day, one second after midnight.
+                            if (single.getSetting("selectedDays") != null) {
+
+                                long interval = AlarmManager.INTERVAL_DAY;
+
+                                Calendar timeStart = Calendar.getInstance();
+                                timeStart.setTimeInMillis(System.currentTimeMillis());
+                                timeStart.set(Calendar.HOUR_OF_DAY, 0);
+                                timeStart.set(Calendar.MINUTE, 1);
+                                timeStart.set(Calendar.SECOND, 0);
+
+                                mAlarm = new Alarm(sInstance, single.getUniqueID());
+                                mAlarm.CreateAlarmRepeating(timeStart, interval);
+                                mActiveAlarms.add(mAlarm);
+
+
+                            }
+
+
+                        }
+                        // if disabling event, delete single alarm
+                        else {
+
+                            // remove alarm
+                            for (Alarm singleAlarm : mActiveAlarms) {
+                                if (singleAlarm.getConditionID() == single.getUniqueID()) {
+                                    // we found a match in active alarms
+                                    //mActiveAlarms.remove(singleAlarm);
+                                    mAlarmsDelete.add(singleAlarm);
+                                }
+
+                            }
+
+                        }
+
+
+                        break;
+
                     default:
-                        Log.d("sfen", "No case match ("+ single.getOptionType() +").");
+                        Log.d("sfen", "No case match ("+ single.getOptionType() +" in updateEventConditionTimers).");
 
                         break;
 
@@ -1197,7 +1387,7 @@ public class BackgroundService extends Service {
             mAlarmsDelete = null;
 
             // save new alarms to preferences
-            mPreferences.setPreferences("alarms", mActiveAlarms);
+            //mPreferences.setPreferences("alarms", mActiveAlarms);
         }
 
 
