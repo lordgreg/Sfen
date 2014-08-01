@@ -92,7 +92,6 @@ public class Main extends Activity
                 bgService = BackgroundService.getInstance().sIntent;
                 mIsBackgroundServiceRunning = true;
                 sendBroadcast("EVENT_ENABLED");
-
                 break;
             }
         }
@@ -137,10 +136,15 @@ public class Main extends Activity
                 events = getEventsFromPreferences();
 
                 // this is our first run, let set all events running boolean to false
-                for (int i = 0; i < events.size(); i++) {
-                    events.get(i).setRunning(false);
-                    events.get(i).setHasRun(false);
-                    //events.get(i).set;
+                /**
+                 * if bgService is already running, don't touch anything!
+                 */
+                if (bgService == null) {
+                    for (int i = 0; i < events.size(); i++) {
+                        events.get(i).setRunning(false);
+                        events.get(i).setHasRun(false);
+                        //events.get(i).set;
+                    }
                 }
             }
             else
@@ -245,8 +249,10 @@ public class Main extends Activity
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            stopService(bgService);
-                            BackgroundService.getInstance().stopForeground(true);
+                            if (bgService != null) {
+                                stopService(bgService);
+                                BackgroundService.getInstance().stopForeground(true);
+                            }
                             finish();
 
                         }

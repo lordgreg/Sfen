@@ -98,7 +98,6 @@ public class BackgroundService extends Service {
         // background service!
         Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
 
-
         // set intent
         sIntent = intent;
 
@@ -131,18 +130,18 @@ public class BackgroundService extends Service {
         registerReceiver(receiver, intentFilter);
 
 
-        // TODO: create new objects of GeoLocation & mPhoneReceiver ONLY if we have at least one event
+        // done: create new objects of GeoLocation & mPhoneReceiver ONLY if we have at least one event
         // start GeoLocation class
-        geoLocation = new GeoLocation(sInstance);
+        //geoLocation = new GeoLocation(sInstance);
 
         // start phone listener
-        mPhoneManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        mPhoneReceiver = new ReceiverPhoneState();
-
-        mPhoneManager.listen(mPhoneReceiver,
-                //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
-                PhoneStateListener.LISTEN_CELL_LOCATION
-        );
+//        mPhoneManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+//        mPhoneReceiver = new ReceiverPhoneState();
+//
+//        mPhoneManager.listen(mPhoneReceiver,
+//                //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
+//                PhoneStateListener.LISTEN_CELL_LOCATION
+//        );
 
 
 
@@ -160,6 +159,9 @@ public class BackgroundService extends Service {
         return null;
     }
 
+    /**
+     * Destroy service
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -168,7 +170,8 @@ public class BackgroundService extends Service {
         unregisterReceiver(receiver);
 
         // cancel phone state listener
-        mPhoneManager.listen(mPhoneReceiver,PhoneStateListener.LISTEN_NONE);
+        if (mPhoneManager != null)
+            mPhoneManager.listen(mPhoneReceiver,PhoneStateListener.LISTEN_NONE);
 
 
         // cancel alarms (if up)
@@ -199,7 +202,8 @@ public class BackgroundService extends Service {
         //mPreferences.setPreferences("alarms", mActiveAlarms);
 
         // destroy all geofences
-        geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
+        if (geoLocation != null)
+            geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
     }
 
 
@@ -1120,7 +1124,36 @@ public class BackgroundService extends Service {
         for (Event e : events) {
 
             for (DialogOptions single : e.getConditions()) {
-                //System.out.println(e.getName() + " >>> " + single.getTitle());
+
+                /**
+                 * start specific libraries if condition uses them
+                 */
+                // GEOFENCES library
+                if ((single.getOptionType() == DialogOptions.type.LOCATION_ENTER ||
+                        single.getOptionType() == DialogOptions.type.LOCATION_LEAVE) &&
+                        geoLocation == null
+                        ) {
+                    // start GeoLocation class
+                    geoLocation = new GeoLocation(sInstance);
+                    Log.i("sfen", "Enabling GeoLocation lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
+                }
+
+                // TELEPHONYMANAGER library
+                if ((single.getOptionType() == DialogOptions.type.CELL_IN ||
+                        single.getOptionType() == DialogOptions.type.CELL_OUT) &&
+                        mPhoneManager == null && mPhoneReceiver == null
+                        ) {
+                    // start phone listener
+                    mPhoneManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                    mPhoneReceiver = new ReceiverPhoneState();
+
+                    mPhoneManager.listen(mPhoneReceiver,
+                            //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
+                            PhoneStateListener.LISTEN_CELL_LOCATION
+                    );
+                    Log.i("sfen", "Enabling TelephonyManager lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
+                }
+
 
                 // generate hashcode
                 String hashCode = e.getUniqueID() +""+ single.getUniqueID();
@@ -1195,6 +1228,7 @@ public class BackgroundService extends Service {
                             timeStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("fromHour")));
                             timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("fromMinute")));
                             timeStart.set(Calendar.SECOND, 0);
+
 
                             mAlarm = new Alarm(sInstance, single.getUniqueID());
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
@@ -1351,6 +1385,29 @@ public class BackgroundService extends Service {
 
                 }
             }
+
+            /**
+             * checking if we need extra prerequisites for ACTIONS
+             */
+            for (DialogOptions single : e.getConditions()) {
+
+                // ROOT?
+                // ACT_MOBILEENABLE, ACT_MOBILEDISABLE
+                if ((single.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE ||
+                        single.getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE) &&
+                        geoLocation == null
+                        ) {
+                    // start GeoLocation class
+                    geoLocation = new GeoLocation(sInstance);
+                    Log.i("sfen", "Enabling Root mode. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
+
+                    mUtil.callRootCommand("");
+                }
+
+
+            }
+
+
 
             // disable event and set it to running=off
             e.setForceRun(false);

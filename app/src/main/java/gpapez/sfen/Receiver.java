@@ -42,23 +42,6 @@ public class Receiver extends BroadcastReceiver {
 
         Log.i("sfen", "received: " + action);
 
-        /**
-         * For all possible broadcasts, we have to check if we have any Event
-         * that matches all the conditions, right-io?
-         *
-         * TODO: WRONG-io! here's idea:
-         * * all broadcasts OTHER THAN EVENT_ENABLE set hasRun to false.
-         *
-         GEOLOCATION_ENTER broadcast:
-         -sets hasRun = false
-         1st run,
-         - condition check checks event LOCATION_ENTER, since hasRun==false, it continues with condition running
-         - condition checks goes through. hasRun is set to TRUE
-
-         EVENT_ENABLED
-         2nd run
-         - condition checks checks event LOCATION_ENTER, since hasRun==TRUE, condition returns FALSE.
-         */
 
         /**
          * check if GPS is enabled/disabled
@@ -85,11 +68,19 @@ public class Receiver extends BroadcastReceiver {
          * eventfinders
          */
         if (action.equals(Intent.ACTION_SCREEN_OFF)) {
+
+            /**
+             * create inexact repeating alarm here.
+             */
+            //if (mAlarmWakeLock != null)
+            //    mAlarmWakeLock.RemoveAlarm();
             if (mAlarmWakeLock == null) {
+                Log.i("sfen", "Adding inexact alarm.");
                 mAlarmWakeLock = new Alarm(context);
                 mAlarmWakeLock.mIntentExtra = "wake-a-lambada!";
 
                 Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.MILLISECOND, (int)WAKELOCK_TIMER);
 
                 mAlarmWakeLock.CreateInexactAlarmRepeating(calendar,
                         WAKELOCK_TIMER
@@ -104,9 +95,11 @@ public class Receiver extends BroadcastReceiver {
          * aka. we wake up the phone
          */
         if (action.equals(Intent.ACTION_SCREEN_ON)) {
-            System.out.println("screen on!");
-            if (mAlarmWakeLock != null)
+            //System.out.println("screen on!");
+            if (mAlarmWakeLock != null) {
+                Log.i("sfen", "Removing inexact alarm.");
                 mAlarmWakeLock.RemoveAlarm();
+            }
         }
 
 

@@ -1717,8 +1717,10 @@ public class Util extends Activity {
             Process su = Runtime.getRuntime().exec("su");
             DataOutputStream sudoStream = new DataOutputStream(su.getOutputStream());
 
-            sudoStream.writeBytes(command +"\n");
-            sudoStream.flush();
+            if (!command.equals("")) {
+                sudoStream.writeBytes(command + "\n");
+                sudoStream.flush();
+            }
 
             sudoStream.writeBytes("exit\n");
             sudoStream.flush();
