@@ -24,11 +24,38 @@ public class Event {
     private int uniqueID = -1;
 
 
+    private ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
+    private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
+
+    private HashMap<String, String> settings;
+
+
     public Event() {
         super();
         if (uniqueID == -1) {
             uniqueID = new Random().nextInt(Integer.MAX_VALUE) + 1;
         }
+    }
+
+    /**
+     * check through all actions and return true if any of them is set to ACT_NOTIFICATION;
+     * @return boolean
+     */
+    public void updateNotification() {
+
+        for (DialogOptions single : actions) {
+            if (single.getOptionType() == DialogOptions.type.ACT_NOTIFICATION) {
+                //notification.saveData();
+                BackgroundService.getInstance().mNotification.saveData(
+                        this.name, this.name, R.drawable.ic_launcher
+                );
+                break;
+            }
+        }
+
+
+        //return false;
+
     }
 
 
@@ -64,10 +91,6 @@ public class Event {
         this.hasRun = hasRun;
     }
 
-    private ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
-    private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
-
-    private HashMap<String, String> settings;
 
     public boolean isRunning() {
         return running;

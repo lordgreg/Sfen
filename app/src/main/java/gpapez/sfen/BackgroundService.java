@@ -63,6 +63,9 @@ public class BackgroundService extends Service {
     protected ReceiverPhoneState mPhoneReceiver;
     protected TelephonyManager mPhoneManager;
 
+    // notification
+    protected Notification mNotification;
+
 
     // class specific
     private static BackgroundService sInstance = null;
@@ -96,13 +99,16 @@ public class BackgroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // believe it or not, but this notification will take care of our
         // background service!
-        Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+        //Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
 
         // set intent
         sIntent = intent;
 
         // start preferences
         mPreferences = new Preferences(Main.getInstance());
+
+        // create notification object
+        mNotification = new Notification();
 
 
         // get alarm preferences
@@ -204,6 +210,10 @@ public class BackgroundService extends Service {
         // destroy all geofences
         if (geoLocation != null)
             geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
+
+
+        // clear notification
+        mNotification.Destroy();
     }
 
 
@@ -232,14 +242,6 @@ public class BackgroundService extends Service {
         // loop through all events, check only the enabled ones..
         for (Event e : Main.getInstance().events) {
             if (e.isEnabled() /* & !e.isRunning() */) {
-            // NEW IF CONDITION
-//            if (e.isEnabled() &&
-//                    (( !e.isHasRun() && e.isRunOnce() )
-//                    ||
-//                    ( !e.isRunOnce()))
-//                    ) {
-                // if it is still not running, then, we have a candidate to check conditions..
-
 
                 /**
                  * any broadcast EXCEPT "EVENT_ENABLED" can re-trigger loading actions IF
@@ -268,7 +270,10 @@ public class BackgroundService extends Service {
                 // conditions aren't met; switch event to not running (if maybe they were)
                 else {
                     e.setRunning(false);
-                    //e.setHasRun(false);
+
+                    // remove from notification list
+                    mNotification.removeEventFromList(e.getName());
+
                 }
             }
             // maybe it isn't enabled
@@ -276,16 +281,20 @@ public class BackgroundService extends Service {
             // or something else o_O
             else {
                 e.setRunning(false);
-                //e.setHasRun(false);
+
+                // remove from notification list
+                mNotification.removeEventFromList(e.getName());
             }
         }
 
         // if there's no events running OR events stopping, clear notification
         if ((!isOneRunning && isOneStopping) || (!isOneRunning && !isOneStopping)) {
             Log.d("sfen", "no events running.");
-            mUtil.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
+            mNotification.resetInformation();
+            //mUtil.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
             // what.
         }
+
 
         // clear all variables
         isOneRunning = false;
@@ -293,10 +302,17 @@ public class BackgroundService extends Service {
         mTriggeredGeoFenceTransition = -1;
         mTriggeredGeofences = null;
 
+
         // if we have main activity window open, refresh them
         if (Main.getInstance().isVisible) {
             Main.getInstance().refreshEventsView();
         }
+
+        /**
+         * if we have data to show or not, we are going to show notification now and we're
+         * going to win this. o_O
+         */
+        mNotification.showNotification();
 
     }
 
@@ -838,6 +854,9 @@ public class BackgroundService extends Service {
                 Log.d("sfen", "Turning off " + e.getName());
                 e.setRunning(false);
 
+                // remove event from notification list
+                mNotification.removeEventFromList(e.getName());
+
                 // we have updated even though we are returning false
                 isOneStopping = true;
             }
@@ -870,6 +889,12 @@ public class BackgroundService extends Service {
                 (!e.isEnabled() && !e.isForceRun())
                 ) {
             Log.e("sfen", e.getName() +" is already running. Skipping actions.");
+
+            /**
+             * even if disabled, let's check if event has notifications and overwrite them
+             */
+            e.updateNotification();
+
             return ;
         }
 
@@ -882,7 +907,8 @@ public class BackgroundService extends Service {
 
                 // popup notification!
                 case ACT_NOTIFICATION:
-                    mUtil.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
+                    //mUtil.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
+                    mNotification.saveData(e.getName(), e.getName(), R.drawable.ic_launcher);
 
                     break;
 
@@ -1090,6 +1116,9 @@ public class BackgroundService extends Service {
 
         // first time actions are run. now set event to running.
         e.setRunning(true);
+
+        // add it to notifications
+        mNotification.addEventToList(e.getName());
 
         // set hasrun boolean to true also
         e.setHasRun(true);

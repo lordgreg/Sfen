@@ -16,6 +16,11 @@ import java.util.Calendar;
  */
 public class Receiver extends BroadcastReceiver {
 
+    /**
+     * singleton object
+     */
+    private Receiver sInstance;
+
     // every X seconds, wakelock will wake up our device;
     // set time here (miliseconds!)
     //final long WAKELOCK_TIMER = 5 * 60 * 1000;
@@ -25,7 +30,6 @@ public class Receiver extends BroadcastReceiver {
     Alarm mAlarmWakeLock = null;
 
     boolean mCallBroadcast = true;
-
 
 
     /**
@@ -99,6 +103,7 @@ public class Receiver extends BroadcastReceiver {
             if (mAlarmWakeLock != null) {
                 Log.i("sfen", "Removing inexact alarm.");
                 mAlarmWakeLock.RemoveAlarm();
+                mAlarmWakeLock = null;
             }
         }
 

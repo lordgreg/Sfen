@@ -5,10 +5,10 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Random;
-import android.util.Log;
 
 /**
  * Created by Gregor on 22.7.2014.
@@ -58,7 +58,9 @@ public class Alarm {
 
             return PendingIntent.getBroadcast(
                     //mContext,
-                    Main.getInstance(),
+                    //Main.getInstance(),
+                    BackgroundService.getInstance(),
+                    //Receiver.class,
                     mAlarmID,
                     mIntent,
                     //new Intent(getClass().getPackage().getName() +".ALARM_TRIGGER").putExtra("ALARM_TRIGGER_EXTRA", mIntentExtra),

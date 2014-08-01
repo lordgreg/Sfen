@@ -1,6 +1,7 @@
 package gpapez.sfen;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -24,7 +25,7 @@ public class Preferences {
 
     public Preferences(Activity context) {
         mGson = new Gson();
-        mPreferences = context.getPreferences(context.MODE_PRIVATE);
+        mPreferences = Main.getInstance().getPreferences(Context.MODE_PRIVATE);
     }
 
     public void setPreferences(String prefName, Object obj) {
