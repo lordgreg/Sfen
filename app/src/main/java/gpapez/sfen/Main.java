@@ -157,6 +157,10 @@ public class Main extends Activity
 
             setContentView(R.layout.activity_main_profiles);
 
+            mContainerView = (ViewGroup) findViewById(R.id.container);
+
+            refreshProfilesView();
+
         }
 
         // SHOWING WHITELIST
@@ -186,6 +190,7 @@ public class Main extends Activity
 
         //if (options.get("eventSave") == "1") {
             //addNewEvent();
+        if (mTabPosition == 0)
             refreshEventsView();
         //}
     }
@@ -387,6 +392,23 @@ public class Main extends Activity
         EasyTracker.getInstance(this).activityStop(this);  // Add this method.
     }
 
+
+    /**
+     * refresh PROFILES view
+     */
+    protected void refreshProfilesView() {
+        // always clear container first
+        mContainerView.removeAllViews();
+
+        // if array is empty, show "add new profile" textview
+        if (events.size() == 0) {
+            findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
+        }
+        else {
+            findViewById(android.R.id.empty).setVisibility(View.GONE);
+        }
+
+    }
 
     /**
      * after resuming the app, we will usually come to the main activity with nothing on it.

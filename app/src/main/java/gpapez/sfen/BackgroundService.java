@@ -249,41 +249,10 @@ public class BackgroundService extends Service {
                 boolean canContinueRunning = false;
 
                 if (receiverAction.equals(getClass().getPackage().getName() +".EVENT_ENABLED")
-                        && e.isRunOnce() && e.isRunOnce() && !e.isForceRun())
+                        && e.isRunOnce() && e.isHasRun() && !e.isForceRun())
                     canContinueRunning = false;
                 else
                     canContinueRunning = true;
-
-                //System.out.println("can continue running? "+ canContinueRunning);
-                /*
-                if (e.isRunOnce() &&
-                        !receiverAction.equals(getClass().getPackage().getName() +".EVENT_ENABLED")) {
-                    System.out.println("*** even though event "+ e.getName() +" is set to run once, "+ receiverAction +" has " +
-                            "prority to start it again.");
-                    canContinueRunning = true;
-                    //e.setHasRun(false);
-                }
-                else if (!e.isRunOnce()) {
-                    System.out.println("*** event "+ e.getName() +" can run freely. it was called by "+ receiverAction);
-                    canContinueRunning = true;
-                    //e.setHasRun(false);
-                }
-                else if (e.isHasRun() && e.isRunOnce()) {
-                    System.out.println("*** event though "+ e.getName() +" has been run, it can run all the time, even from "+ receiverAction);
-                }
-                else {
-                    System.out.println("*** event "+ e.getName() +" cannot continue anymore since the call was from "+
-                    receiverAction +" and the event has run already ("+ e.isHasRun() +").");
-                    canContinueRunning = false;
-                }
-*/
-//                    System.out.println("*** RECEIVED: "+ receiverAction);
-//                    System.out.println("*** RUN ONCE ONLY? "+ e.isRunOnce());
-//                    System.out.println("*** HAS BEEN RUN? "+ e.isHasRun());
-//                    System.out.println("*** is event allowed to run actions? "+
-//                                    (receiverAction.equals(getClass().getPackage().getName() +".EVENT_ENABLED") ? false : true)
-//                    );
-
 
 
                 if (areEventConditionsMet(context, intent, e) && canContinueRunning) {
@@ -599,14 +568,40 @@ public class BackgroundService extends Service {
                     mSavedTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("hour")));
                     mSavedTime.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("minute")));
 
-                    // compare hours and minutes now
+                    /**
+                     * comparison with range included
+                     *
+                     * current--3min <= saved-3min &&
+                     * current+3min >= saved+3min
+                     */
+                    long range = 3 * 60 * 1000; // 3 minute
+                    long difference = Math.abs(mCurrentTime.getTimeInMillis() - mSavedTime.getTimeInMillis());
+
+                    //System.out.println("*** difference between two times (ms): "+ difference);
+                    //System.out.println("*** diff: "+ difference +", range: "+ range);
+
+
+                    /**
+                     * compare EXACT hour and minute of saved vs current time.
+                     */
                     if (mCurrentTime.get(Calendar.HOUR_OF_DAY) == mSavedTime.get(Calendar.HOUR_OF_DAY) &&
                             mCurrentTime.get(Calendar.MINUTE) == mSavedTime.get(Calendar.MINUTE)
                             ) {
-                        System.out.println("*** TIME TRIGGER FOUND A MATCH!");
+                        Log.d("sfen", "Current time is the same as saved time.");
                         conditionResults.add(true);
 
                     }
+
+                    /**
+                     * compare if current time is IN RANGE of saved time.
+                     * if so, return condition as TRUE.
+                     */
+                    if (difference <= range) {
+                        Log.d("sfen", "Current time is in range of saved time.");
+                        conditionResults.add(true);
+                    }
+
+
                     else
                         conditionResults.add(false);
 
@@ -867,7 +862,7 @@ public class BackgroundService extends Service {
         WifiManager wifiManager;
         ConnectivityManager conMan;
 
-        // if event is already running and this isn't first run of app,
+        // if event is already running
         // don't re-run actions
         if (
                 (e.isRunning() && !e.isForceRun()) ||
@@ -1300,8 +1295,10 @@ public class BackgroundService extends Service {
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
-                            // second alarm should trigger one minute after timestart to recheck
-                            timeStart.add(Calendar.MINUTE, 1);
+                            // second alarm should trigger 10 minutes after timestart to recheck
+                            // why? because, it is possible alarm wont start on correct minute
+                            // that's why i've implemented
+                            timeStart.add(Calendar.MINUTE, 10);
 
                             mAlarm = new Alarm(sInstance, single.getUniqueID());
                             mAlarm.CreateAlarmRepeating(timeStart, interval);

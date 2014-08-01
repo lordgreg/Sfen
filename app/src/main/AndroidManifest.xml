@@ -47,7 +47,7 @@
             android:parentActivityName="gpapez.sfen.Main" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.gregor.myapplication.Main" />
+                android:value="gpapez.sfen.Main" />
         </activity>
 
         <service
@@ -67,7 +67,7 @@
             android:parentActivityName="gpapez.sfen.Main" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.gregor.myapplication.Main" />
+                android:value="gpapez.sfen.Main" />
         </activity>
 
         <receiver android:name="gpapez.sfen.Receiver" >
