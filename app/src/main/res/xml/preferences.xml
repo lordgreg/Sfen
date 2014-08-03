@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="General" >
+        <CheckBoxPreference
+            android:title="Enable Root"
+            android:defaultValue="false"
+            android:summary="Some options in applications will only work if Root is enabled"
+            android:key="rootEnable"/>
+
+        <CheckBoxPreference
+            android:title="Start at boot"
+            android:defaultValue="false"
+            android:summary="Sfen will launch itself when device boots up"
+            android:key="launchAtBoot" />
+        <!--android:numeric="integer"-->
+        <EditTextPreference
+            android:title="Deep Sleep Wakelock"
+            android:defaultValue="15"
+            android:numeric="integer"
+            android:summary="Sfen will wake up every %s minutes to check for Event conditions"
+            android:key="wakelockTimer" />
+    </PreferenceCategory>
+</PreferenceScreen>

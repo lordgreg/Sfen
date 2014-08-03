@@ -44,10 +44,17 @@
         <activity
             android:name="gpapez.sfen.EventActivity"
             android:label="@string/title_activity_event"
-            android:parentActivityName="gpapez.sfen.Main" >
+            android:parentActivityName=".Main" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="gpapez.sfen.Main" />
+                android:value=".Main" />
+        </activity>
+        <activity android:name=".PreferencesActivity"
+            android:label="Preferences"
+            android:parentActivityName=".Main">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Main" />
         </activity>
 
         <service
@@ -62,7 +69,7 @@
         </service>
 
         <activity
-            android:name="gpapez.sfen.Log"
+            android:name=".Logs"
             android:label="@string/title_activity_log"
             android:parentActivityName="gpapez.sfen.Main" >
             <meta-data

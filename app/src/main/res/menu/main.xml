@@ -29,8 +29,9 @@
     <item android:id="@+id/action_import"
         android:title="Import settings"
         />
-    <item android:id="@+id/action_viewlog"
-        android:title="View log" />
+
+    <item android:id="@+id/action_preferences"
+        android:title="Preferences" />
 
 
 </menu>

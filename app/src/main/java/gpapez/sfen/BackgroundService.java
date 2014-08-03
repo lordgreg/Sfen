@@ -41,21 +41,40 @@ import java.util.List;
  */
 public class BackgroundService extends Service {
 
-    final Receiver receiver = new Receiver();
-    protected String receiverAction = "";
+    /**
+     *
+     * VARIABLES
+     *
+     */
+
+
+    /**
+     * BackgroundService specific variables
+     */
+    // singleton variable
+    private static BackgroundService sInstance;
+
+    // intent variable
+    protected static Intent sIntent;
+
     private boolean isOneRunning = false;
     private boolean isOneStopping = false;
+
+    // variable will get updated from Receiver after disconnecting from Wifi
     protected String mLatestSSID = "";
 
-    protected Preferences mPreferences;
+    // mReceiver object which runs on start
+    private Receiver mReceiver;
+    protected String receiverAction = "";
+
     protected Util mUtil = new Util();
 
     // alarmmanager
-    protected Alarm mAlarm;
-    protected ArrayList<Alarm> mActiveAlarms = new ArrayList<Alarm>();
+    private Alarm mAlarm;
+    private ArrayList<Alarm> mActiveAlarms = new ArrayList<Alarm>();
 
     // geofence init
-    private GeoLocation geoLocation;
+    private GeoLocation mGeoLocation;
     protected List<Geofence> mTriggeredGeofences = new ArrayList<Geofence>();
     protected int mTriggeredGeoFenceTransition = -1;
 
@@ -63,92 +82,71 @@ public class BackgroundService extends Service {
     protected ReceiverPhoneState mPhoneReceiver;
     protected TelephonyManager mPhoneManager;
 
+    // root manager
+    protected Sudo mSudo;
+
     // notification
     protected Notification mNotification;
 
-
-    // class specific
-    private static BackgroundService sInstance = null;
-    protected Intent sIntent = null;
-
-    // list of all allowable broadcasts
-    private static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
-        // system-based broadcast calls
-        add(WifiManager.NETWORK_STATE_CHANGED_ACTION);  // wifi disable/enable/connect/disconnect
-        add(Intent.ACTION_SCREEN_ON);                   // screen on
-        add(Intent.ACTION_SCREEN_OFF);                  // screen off
-        //add(Intent.ACTION_AIRPLANE_MODE_CHANGED);     // toggle airplane
-        add(LocationManager.MODE_CHANGED_ACTION);
-
-        // in-app broadcast calls
-        add(getClass().getPackage().getName() +".EVENT_ENABLED");
-        add(getClass().getPackage().getName() +".EVENT_DISABLED");
-        add(getClass().getPackage().getName() +".GEOFENCE_ENTER");
-        add(getClass().getPackage().getName() +".GEOFENCE_EXIT");
-        add(getClass().getPackage().getName() +".ALARM_TRIGGER");
-        add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
-    }};
-    
 
     @Override
     public void onCreate() {
         sInstance = this;
     }
 
+
+    /**
+     * onStartCommand (INIT!)
+     *
+     *
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // believe it or not, but this notification will take care of our
-        // background service!
-        //Util.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
-
-        // set intent
+        /**
+         * singleton intent
+         */
         sIntent = intent;
 
-        // start preferences
-        mPreferences = new Preferences(Main.getInstance());
-
-        // create notification object
+        /**
+         * notification object has to be defined in background checker. even if app is closed,
+         * notification iwthing background service will continue (until we close down
+         * the applicaton through Exit menu)
+         */
         mNotification = new Notification();
 
 
-        // get alarm preferences
         /**
-         * REMIND ME AGAIN...
-         *
-         * why would we need to save alarms in preferences? o_O
+         * alarm list variable
          */
-        /*
-        mActiveAlarms = (ArrayList<Alarm>) mPreferences.getPreferences("alarms", Preferences.REQUEST_TYPE.ALARMS);
-        if (mActiveAlarms == null)
-            mActiveAlarms = new ArrayList<Alarm>();
-            */
         mActiveAlarms = new ArrayList<Alarm>();
 
+        /**
+         * sudo async class
+         *
+         */
+        mSudo = new Sudo();
 
-        // start our receiver
+        // trigger sudo at start so we won't have problems later
+        if (Preferences.getSharedPreferences().getBoolean("rootEnable", false)) {
+            mSudo.isRootEnabled();
+        }
+
+
+        /**
+         * mReceiver init
+         */
+        mReceiver = new Receiver();
         IntentFilter intentFilter = new IntentFilter();
 
         // add allowable broadcasts
-        for (int i = 0; i < sBroadcasts.size(); i++) {
-            //Log.e("adding broad to intent", sBroadcasts.get(i));
-            intentFilter.addAction(sBroadcasts.get(i));
+        for (int i = 0; i < Receiver.sBroadcasts.size(); i++) {
+            intentFilter.addAction(Receiver.sBroadcasts.get(i));
         }
-        registerReceiver(receiver, intentFilter);
-
-
-        // done: create new objects of GeoLocation & mPhoneReceiver ONLY if we have at least one event
-        // start GeoLocation class
-        //geoLocation = new GeoLocation(sInstance);
-
-        // start phone listener
-//        mPhoneManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-//        mPhoneReceiver = new ReceiverPhoneState();
-//
-//        mPhoneManager.listen(mPhoneReceiver,
-//                //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
-//                PhoneStateListener.LISTEN_CELL_LOCATION
-//        );
-
+        registerReceiver(mReceiver, intentFilter);
 
 
         // also check for the first time and never again, for the condition triggers
@@ -157,6 +155,16 @@ public class BackgroundService extends Service {
             updateEventConditionTimers(Main.getInstance().events);
 
 
+        // first time, check for root!
+
+
+        /**
+         * START_STICKY
+         *
+         * if this service's process is killed while it is started (after returning from
+         * onStartCommand(Intent, int, int)), then leave it in the started state but don't
+         * retain this delivered intent.
+         */
         return START_STICKY;
     }
 
@@ -166,14 +174,16 @@ public class BackgroundService extends Service {
     }
 
     /**
-     * Destroy service
+     *
+     * DESTRUCTOR
+     *
      */
     @Override
     public void onDestroy() {
         super.onDestroy();
 
         // unregister our receiver
-        unregisterReceiver(receiver);
+        unregisterReceiver(mReceiver);
 
         // cancel phone state listener
         if (mPhoneManager != null)
@@ -208,8 +218,8 @@ public class BackgroundService extends Service {
         //mPreferences.setPreferences("alarms", mActiveAlarms);
 
         // destroy all geofences
-        if (geoLocation != null)
-            geoLocation.RemoveGeofences(geoLocation.getTransitionPendingIntent());
+        if (mGeoLocation != null)
+            mGeoLocation.RemoveGeofences(mGeoLocation.getTransitionPendingIntent());
 
 
         // clear notification
@@ -232,11 +242,15 @@ public class BackgroundService extends Service {
             return sInstance;
     }
 
-    /**
+    /***********************************************************************************************
+     *
+     *
      * EVENT CHECKER!
      *
      * This function os the reason of our existence! It is this function which is going to check
      * if there is any event that can be triggered by eny broadcast!
+     *
+     ***********************************************************************************************
      */
     protected void EventFinder(Context context, Intent intent) {
         // loop through all events, check only the enabled ones..
@@ -304,8 +318,9 @@ public class BackgroundService extends Service {
 
 
         // if we have main activity window open, refresh them
-        if (Main.getInstance().isVisible) {
-            Main.getInstance().refreshEventsView();
+        if (Main.getInstance().isVisible && Main.getInstance().mTabPosition == 0) {
+            //Main.getInstance().refreshEventsView();
+            Main.getInstance().refreshCurrentView();
         }
 
         /**
@@ -314,14 +329,16 @@ public class BackgroundService extends Service {
          */
         mNotification.showNotification();
 
+
     }
 
-    /**
+    /***********************************************************************************************
      * Checks Event for all conditions and returns boolean for every condition
      * @param context
      * @param intent
      * @param e
      * @return boolean if event conditions are met.
+     ***********************************************************************************************
      */
     private boolean areEventConditionsMet(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
@@ -870,11 +887,12 @@ public class BackgroundService extends Service {
 
     }
 
-    /**
+    /***********************************************************************************************
      * RUN ACTIONS
      * @param context
      * @param intent
      * @param e
+     ***********************************************************************************************
      */
     private void runEventActions(Context context, Intent intent, Event e) {
         Gson gson = new Gson();
@@ -943,7 +961,8 @@ public class BackgroundService extends Service {
                     //if (conMan.getNetworkInfo(0).getState() != NetworkInfo.State.CONNECTED) {
 
                         // continue only if we have root
-                        mUtil.callRootCommand("svc data enable");
+                        //mUtil.callRootCommand("svc data enable");
+                        mSudo.callRootCommand("svc data enable");
 
                     //}
 
@@ -961,7 +980,8 @@ public class BackgroundService extends Service {
                     //if (conMan.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED) {
                         // TODO: ADD root options! (mobile data toggle!) su -c "svc data disable"
                         // continue only if we have root
-                        mUtil.callRootCommand("svc data disable");
+                        //mUtil.callRootCommand("svc data disable");
+                    mSudo.callRootCommand("svc data disable");
 
                     //}
 
@@ -1128,11 +1148,12 @@ public class BackgroundService extends Service {
 
     }
 
-    /**
+    /***********************************************************************************************
      * Function will create event condition timers
      * or geofaces if needed by specific condition. Easy as pie.
      *
      * @param events Array Of Events (can be only one too)
+     ***********************************************************************************************
      */
     protected void updateEventConditionTimers(ArrayList<Event> events) {
 
@@ -1155,10 +1176,10 @@ public class BackgroundService extends Service {
                 // GEOFENCES library
                 if ((single.getOptionType() == DialogOptions.type.LOCATION_ENTER ||
                         single.getOptionType() == DialogOptions.type.LOCATION_LEAVE) &&
-                        geoLocation == null
+                        mGeoLocation == null
                         ) {
                     // start GeoLocation class
-                    geoLocation = new GeoLocation(sInstance);
+                    mGeoLocation = new GeoLocation(sInstance);
                     Log.i("sfen", "Enabling GeoLocation lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
                 }
 
@@ -1176,6 +1197,16 @@ public class BackgroundService extends Service {
                             PhoneStateListener.LISTEN_CELL_LOCATION
                     );
                     Log.i("sfen", "Enabling TelephonyManager lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
+                }
+
+                // SUDO ACCESS
+                if ((single.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE ||
+                        single.getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE) &&
+                        mSudo == null)
+                {
+                    mSudo = new Sudo();
+
+                    //mSudo.isRootEnabled();
                 }
 
 
@@ -1421,13 +1452,14 @@ public class BackgroundService extends Service {
                 // ACT_MOBILEENABLE, ACT_MOBILEDISABLE
                 if ((single.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE ||
                         single.getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE) &&
-                        geoLocation == null
+                        mGeoLocation == null
                         ) {
                     // start GeoLocation class
-                    geoLocation = new GeoLocation(sInstance);
+                    mGeoLocation = new GeoLocation(sInstance);
                     Log.i("sfen", "Enabling Root mode. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
 
-                    mUtil.callRootCommand("");
+                    //mUtil.callRootCommand("");
+                    mSudo.isRootEnabled();
                 }
 
 
@@ -1446,12 +1478,12 @@ public class BackgroundService extends Service {
         // REMOVING FENCES
         if (mGeoIds.size() > 0) {
             // destroy specific ID's
-            geoLocation.RemoveGeofencesById(mGeoIds);
+            mGeoLocation.RemoveGeofencesById(mGeoIds);
         }
 
         // ADDING FENCES
         else if (mGeofences.size() > 0) {
-            geoLocation.AddGeofences(mGeofences);
+            mGeoLocation.AddGeofences(mGeofences);
         }
 
         // TIMERS
@@ -1477,7 +1509,20 @@ public class BackgroundService extends Service {
     }
 
 
-
+    /**
+     *
+     * SEND NEW BROADCAST
+     *
+     * NON-STATIC!
+     */
+    protected void sendBroadcast(String broadcast) {
+        if (broadcast.length() > 0) {
+            Intent intent = new Intent();
+            //android.util.Log.e("send broadcast", sInstance.getClass().getPackage().getName() +"."+ broadcast);
+            intent.setAction(getClass().getPackage().getName() +"."+ broadcast);
+            sendBroadcast(intent);
+        }
+    }
 
 
 

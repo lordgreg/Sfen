@@ -3,6 +3,7 @@ package gpapez.sfen;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -23,9 +24,13 @@ public class Preferences {
     public enum REQUEST_TYPE {EVENTS, ALARMS, SETTINGS};
     private REQUEST_TYPE mRequestType;
 
+
+
+
     public Preferences(Activity context) {
         mGson = new Gson();
-        mPreferences = Main.getInstance().getPreferences(Context.MODE_PRIVATE);
+
+        mPreferences = context.getPreferences(Context.MODE_PRIVATE);
     }
 
     public void setPreferences(String prefName, Object obj) {
@@ -81,4 +86,16 @@ public class Preferences {
 
         return returnObj;
     }
+
+
+    /**
+     * Retrieve shared preference
+     */
+    protected static SharedPreferences getSharedPreferences() {
+
+        return PreferenceManager
+                .getDefaultSharedPreferences(BackgroundService.getInstance());
+
+    }
+
 }

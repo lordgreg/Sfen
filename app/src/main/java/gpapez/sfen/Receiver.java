@@ -4,11 +4,13 @@ import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -20,6 +22,31 @@ public class Receiver extends BroadcastReceiver {
      * singleton object
      */
     private Receiver sInstance;
+
+
+    /**
+     * LIST OF AVAILABLE BROADCASTS
+     */
+    protected static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
+        // system-based broadcast calls
+        add(WifiManager.NETWORK_STATE_CHANGED_ACTION);  // wifi disable/enable/connect/disconnect
+        add(Intent.ACTION_SCREEN_ON);                   // screen on
+        add(Intent.ACTION_SCREEN_OFF);                  // screen off
+        //add(Intent.ACTION_AIRPLANE_MODE_CHANGED);     // toggle airplane
+        add(LocationManager.MODE_CHANGED_ACTION);
+
+        // in-app broadcast calls
+        add(getClass().getPackage().getName() +".EVENT_ENABLED");
+        add(getClass().getPackage().getName() +".EVENT_DISABLED");
+        add(getClass().getPackage().getName() +".GEOFENCE_ENTER");
+        add(getClass().getPackage().getName() +".GEOFENCE_EXIT");
+        add(getClass().getPackage().getName() +".ALARM_TRIGGER");
+        add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
+        add(getClass().getPackage().getName() +".ROOT_GRANTED");
+
+    }};
+
+
 
     // every X seconds, wakelock will wake up our device;
     // set time here (miliseconds!)

@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class Log extends Activity {
-    private static Log sInstance = null;
+public class Logs extends Activity {
+    private static Logs sInstance = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +44,9 @@ public class Log extends Activity {
      * if it does not exist, it creates new instance.
      * @return instance of current class
      */
-    public static Log getInstance() {
+    public static Logs getInstance() {
         if (sInstance == null) {
-            return new Log();
+            return new Logs();
         }
         else
             return sInstance;

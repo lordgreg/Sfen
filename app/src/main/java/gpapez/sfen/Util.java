@@ -39,7 +39,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.DataOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1711,33 +1710,35 @@ public class Util extends Activity {
     }
 
 
-    protected void callRootCommand(String command) {
-
-        try {
-            Process su = Runtime.getRuntime().exec("su");
-            DataOutputStream sudoStream = new DataOutputStream(su.getOutputStream());
-
-            if (!command.equals("")) {
-                sudoStream.writeBytes(command + "\n");
-                sudoStream.flush();
-            }
-
-            sudoStream.writeBytes("exit\n");
-            sudoStream.flush();
-            su.waitFor();
-
-        }
-        catch (Exception e) {
-            e.getStackTrace();
-        }
-
-    }
+//    @Deprecated
+//    protected void callRootCommand(String command) {
+//
+//        try {
+//            Process su = Runtime.getRuntime().exec("su");
+//            DataOutputStream sudoStream = new DataOutputStream(su.getOutputStream());
+//
+//            if (!command.equals("")) {
+//                sudoStream.writeBytes(command + "\n");
+//                sudoStream.flush();
+//            }
+//
+//            sudoStream.writeBytes("exit\n");
+//            sudoStream.flush();
+//            su.waitFor();
+//
+//        }
+//        catch (Exception e) {
+//            e.getStackTrace();
+//        }
+//
+//    }
 
     protected String replaceTextPatterns(String text) {
         String rText = text;
 
         return rText;
     }
+
 
 
 }

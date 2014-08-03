@@ -13,7 +13,7 @@
 <!-- Note that this LinearLayout has the "animateLayoutChanges" property set to true.
      This tells the framework to automatically animate child views (in this case, rows)
      as they are added to and removed from the LinearLayout. -->
-    <LinearLayout android:id="@+id/container"
+    <LinearLayout android:id="@+id/container_events"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
