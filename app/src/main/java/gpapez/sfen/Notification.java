@@ -213,7 +213,7 @@ public class Notification {
      * check if notification variables are full or empty.
      */
     protected boolean hasStoredData() {
-        if (mTitle == null && mDescription == null && mIcon == -1)
+        if (mTitle == null && mIcon == -1)
             return false;
         else
             return true;
@@ -258,7 +258,6 @@ public class Notification {
         mTitle = title;
         mDescription = description;
         mIcon = icon;
-        //System.out.println("saved data: "+ mTitle +", "+ mDescription +", "+ mIcon);
     }
 
     /**
@@ -270,10 +269,17 @@ public class Notification {
             output += single +"\n";
         }
 
-        if (mRunningEvents.size() == 0)
-            output = "There are currently no Events running.";
+        if (mRunningEvents.size() == 0) {
+            /**
+             * we cannot return NO EVENTS running; maybe there are events running, but
+             * don't have notification!?
+             */
+            output = "";
+            //output = "There are currently no Events running.";
 //         if (mRunningEvents.size() <= 1)
 //            output = "";
+
+        }
 
         //System.out.println("*** OUTPUT: "+ output);
         return output;

@@ -1,5 +1,6 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:overScrollMode="always"
@@ -28,9 +29,9 @@
 
     <TextView
         style="@android:style/Widget.ListView"
-        android:text="Event Name"
-        android:id="@+id/event_name"
-        android:onClick="onClickEventName"
+        android:text="Profile name"
+        android:id="@+id/profile_name"
+        android:onClick="onClickProfileName"
         android:clickable="true"
         android:padding="6dip"
         android:layout_margin="5dp"
@@ -38,16 +39,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <Switch
-        android:onClick="onClickEventEnabled"
+    <TextView
+        style="@android:style/Widget.ListView"
+        android:text="Icon"
+        android:id="@+id/profile_icon"
+        android:onClick="onClickProfileIcon"
         android:clickable="true"
-        android:id="@+id/event_enabled"
         android:padding="6dip"
         android:layout_margin="5dp"
-        android:text="Enabled"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:checked="true" />
+        android:layout_height="wrap_content" />
 
 
     <!--
@@ -64,16 +65,97 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Conditions"
+        android:text="Sound"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView2" />
+
+    <TextView
+        style="@android:style/Widget.ListView"
+        android:text="Volumes"
+        android:id="@+id/profile_volumes"
+        android:onClick="onClickVolumes"
+        android:clickable="true"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <CheckBox
+        android:button="@null"
+        android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Vibrate"
+        android:onClick="onClickProfileVibrate"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:id="@+id/profile_vibrate"
+        android:checked="false" />
+
+    <!-- RINGTONE -->
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:padding="6dip"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:onClick="onClickProfileRingtone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView android:id="@android:id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:onClick="onClickProfileRingtone"
+            android:textAppearance="?android:attr/textAppearance"
+            android:text="Ringtone" />
+
+        <TextView android:id="@android:id/text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:singleLine="true"
+            android:onClick="onClickProfileRingtone"
+            android:text="File selected" />
+    </LinearLayout>
+
+
+    <!-- NOTIFICATION -->
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:padding="6dip"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:onClick="onClickProfileNotificationSound"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView android:id="@android:id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:onClick="onClickProfileNotificationSound"
+            android:textAppearance="?android:attr/textAppearance"
+            android:text="Notification sound" />
+
+        <TextView android:id="@android:id/text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:singleLine="true"
+            android:onClick="onClickProfileNotificationSound"
+            android:text="File selected" />
+    </LinearLayout>
+
 
     <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="10dp">
 
         <!-- Note that this LinearLayout has the "animateLayoutChanges" property set to true.
              This tells the framework to automatically animate child views (in this case, rows)
              as they are added to and removed from the LinearLayout. -->
-        <LinearLayout android:id="@+id/condition_container"
+        <LinearLayout android:id="@+id/soundanddisplay_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -83,15 +165,20 @@
 
     </ScrollView>
 
+
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Profile"
+        android:text="Actions"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView3" />
 
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="10dp">
 
-        <LinearLayout android:id="@+id/profile_container"
+        <!-- Note that this LinearLayout has the "animateLayoutChanges" property set to true.
+             This tells the framework to automatically animate child views (in this case, rows)
+             as they are added to and removed from the LinearLayout. -->
+        <LinearLayout android:id="@+id/action_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -99,8 +186,15 @@
             android:divider="?android:dividerHorizontal"
             android:animateLayoutChanges="true" />
 
+    </ScrollView>
+
 
     <!-- ADVANCED PART -->
+    <!--
+
+        THERE IS NO ADVANCED PART FOR PROFILES!
+    -->
+    <!--
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -134,6 +228,7 @@
         android:checked="false" />
 
 
+    -->
 
 </LinearLayout>
 </ScrollView>

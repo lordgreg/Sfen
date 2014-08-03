@@ -49,6 +49,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Main" />
         </activity>
+        <activity
+            android:name="gpapez.sfen.ProfileActivity"
+            android:label="@string/title_activity_profile"
+            android:parentActivityName=".Main" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Main" />
+        </activity>
         <activity android:name=".PreferencesActivity"
             android:label="Preferences"
             android:parentActivityName=".Main">

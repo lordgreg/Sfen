@@ -6,15 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.os.Vibrator;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -27,7 +22,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.location.Geofence;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,8 +51,8 @@ public class BackgroundService extends Service {
     // intent variable
     protected static Intent sIntent;
 
-    private boolean isOneRunning = false;
-    private boolean isOneStopping = false;
+    protected boolean isOneRunning = false;
+    protected boolean isOneStopping = false;
 
     // variable will get updated from Receiver after disconnecting from Wifi
     protected String mLatestSSID = "";
@@ -88,7 +82,22 @@ public class BackgroundService extends Service {
     // notification
     protected Notification mNotification;
 
+    /**
+     * EVENTS, PROFILES
+     */
+    protected ArrayList<Event> events = new ArrayList<Event>();
+    protected ArrayList<Profile> profiles = new ArrayList<Profile>();
 
+    // preferences object
+    protected Preferences mPreferences;
+
+
+    /***********************************************************************************************
+     *
+     * CONSTRUCTORS
+     *
+     ***********************************************************************************************
+     */
     @Override
     public void onCreate() {
         sInstance = this;
@@ -117,6 +126,27 @@ public class BackgroundService extends Service {
          * the applicaton through Exit menu)
          */
         mNotification = new Notification();
+
+
+        /**
+         * GETTING EVENTS from PREFERENCES
+         */
+        mPreferences = new Preferences(Main.getInstance());
+
+        events = (ArrayList<Event>) mPreferences.getPreferences("events", Preferences.REQUEST_TYPE.EVENTS);
+
+        if (events == null) {
+            events = new ArrayList<Event>();
+        }
+
+
+        profiles = (ArrayList<Profile>) mPreferences.getPreferences("profiles", Preferences.REQUEST_TYPE.PROFILES);
+
+        if (profiles == null) {
+            profiles = new ArrayList<Profile>();
+        }
+
+
 
 
         /**
@@ -151,8 +181,8 @@ public class BackgroundService extends Service {
 
         // also check for the first time and never again, for the condition triggers
         // refresh condition timers
-        if (Main.getInstance().events.size() > 0)
-            updateEventConditionTimers(Main.getInstance().events);
+        if (events.size() > 0)
+            updateEventConditionTimers(events);
 
 
         // first time, check for root!
@@ -242,6 +272,7 @@ public class BackgroundService extends Service {
             return sInstance;
     }
 
+
     /***********************************************************************************************
      *
      *
@@ -254,7 +285,7 @@ public class BackgroundService extends Service {
      */
     protected void EventFinder(Context context, Intent intent) {
         // loop through all events, check only the enabled ones..
-        for (Event e : Main.getInstance().events) {
+        for (Event e : events) {
             if (e.isEnabled() /* & !e.isRunning() */) {
 
                 /**
@@ -271,13 +302,19 @@ public class BackgroundService extends Service {
                     canContinueRunning = true;
 
 
-                if (areEventConditionsMet(context, intent, e) && canContinueRunning) {
+                if (e.areEventConditionsMet(context, intent, e) && canContinueRunning) {
 
                     isOneRunning = true;
 
                     // wow. conditions are met! you know what that means?
                     // we trigger actions!
                     runEventActions(context, intent, e);
+
+
+                    // TODO: RUN EVENT PROFILE
+                    //runProfileSettings(e.getProfile());
+                    //runProfileActions(e.getProfile());
+
 
                     // TODO: store action to log.
                 }
@@ -332,591 +369,26 @@ public class BackgroundService extends Service {
 
     }
 
-    /***********************************************************************************************
-     * Checks Event for all conditions and returns boolean for every condition
-     * @param context
-     * @param intent
-     * @param e
-     * @return boolean if event conditions are met.
-     ***********************************************************************************************
-     */
-    private boolean areEventConditionsMet(Context context, Intent intent, Event e) {
-        Gson gson = new Gson();
-        boolean ret = false;
-        final String action = intent.getAction();
 
-        ArrayList<DialogOptions> conditions = e.getConditions();
 
-        // array with booleans for all conditions
-        ArrayList<Boolean> conditionResults = new ArrayList<Boolean>();
-        Log.d("sfen", "EVENT "+ e.getName());
-
-
-
-        for (DialogOptions cond : conditions) {
-            Log.d("sfen", "condition "+ cond.getOptionType());
-
-            // single condition variables
-            //String hashCode = ""+ e.hashCode() + cond.hashCode();
-            String hashCode = e.getUniqueID() +""+ cond.getUniqueID();
-
-            switch (cond.getOptionType()) {
-                case SCREEN_ON:
-                    // if we're triggering after screen is going on?
-                    if (action.equals("android.intent.action.SCREEN_ON")) {
-                        conditionResults.add(true);
-                    }
-                    // this wasnt called by broadcast, lets check if screen is on then
-                    else {
-                        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-                        if (powerManager.isScreenOn())
-                            conditionResults.add(true);
-
-                        else
-                            conditionResults.add(false);
-                    }
-
-                    break;
-
-                case SCREEN_OFF:
-                    // totally opposite of turning screen on :)
-                    if (action.equals("android.intent.action.SCREEN_OFF")) {
-                        conditionResults.add(true);
-                    }
-                    else {
-                        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-                        if (!powerManager.isScreenOn())
-                            conditionResults.add(true);
-
-                        else
-                            conditionResults.add(false);
-
-                    }
-
-
-                    break;
-
-
-                case GPS_ENABLED:
-                case GPS_DISABLED:
-
-                    LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-
-                    //            List<String> providers = locationManager.getProviders(true);
-                    //            System.out.println("enabled providers: "+ providers.toString());
-
-                    boolean gpsEnabled = false;
-                    try{gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);}catch(Exception ex){}
-                    //System.out.println("gps enabled: "+ gpsEnabled);
-
-                    if (gpsEnabled) {
-                        if (cond.getOptionType() == DialogOptions.type.GPS_ENABLED)
-                            conditionResults.add(true);
-                        else
-                            conditionResults.add(false);
-                    }
-                    else {
-                        if (cond.getOptionType() == DialogOptions.type.GPS_ENABLED)
-                            conditionResults.add(false);
-                        else
-                            conditionResults.add(true);
-
-                    }
-
-
-                    break;
-
-
-                case DAYSOFWEEK:
-
-                    if (cond.getSetting("selectedDays") == null) return false;
-
-                    gson = new Gson();
-                    final ArrayList<Integer> days = gson.fromJson(cond.getSetting("selectedDays"),
-                            new TypeToken<List<Integer>>(){}.getType());
-
-                    // 0=monday, 1=tuesday ... 6=sunday
-                    //String[] days = cond.getSetting("selectedDays");
-                    Calendar calendar = Calendar.getInstance();
-                    int currentDay = calendar.get(Calendar.DAY_OF_WEEK); // start from 0
-
-                    //System.out.println("current day: "+ currentDay +"; saved days: "+ days.toString());
-
-                    currentDay = calendar.get(Calendar.DAY_OF_WEEK);
-                    //System.out.println("mon, tue, sat, sun: "+ Calendar.MONDAY +", "+ Calendar.TUESDAY +", "+ Calendar.SATURDAY +", "+ Calendar.SUNDAY);
-
-                    // is current day in array of selected days?
-                    // its not, so break the loop and return false
-                    // java Calendar.DAY =  mon, tue, sat, sun: 2, 3, 7, 1
-                    // our array            mon, tue, sat, sun: 0, 1, 5, 6
-
-                    // because of my logic explained above, i have to change currentDay retrieved
-                    // from Calendar;
-                    //currentDay = currentDay+5;
-                    //if (currentDay>=7) currentDay = currentDay - 7;
-                    currentDay = (currentDay+5 >= 7) ? currentDay-2 : currentDay+5;
-
-                    //System.out.println("current day new: "+ currentDay);
-
-                    if (days.indexOf(currentDay) == -1) {
-                        conditionResults.add(false);
-                    }
-
-                    // it is, so fix return value for the next condition;
-                    else
-                        conditionResults.add(true);
-
-
-                    break;
-
-                case WIFI_CONNECT:
-
-
-                    ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-                    // first thing if condition WIFI_CONNECT, are we connected to wifi?
-                    if (networkInfo.isConnected()) {
-                        //System.out.println("yes, we are connected. "+ networkInfo.getTypeName());
-
-                        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-
-                        String currentSsid = wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1);
-
-                        //System.out.println(wifiInfo.toString());
-                        final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
-                                new TypeToken<List<String>>(){}.getType());
-
-                        // what ssid we connected on?
-                        //System.out.println("ssid "+ wifiInfo.getSSID());
-                        //System.out.println(wifiInfo.toString());
-                        //System.out.println("is current ssid in condition array? "+ ssid.indexOf(currentSsid));
-
-                        // if connected ssid = the one from array of conditioned, return true.
-                        if (ssid.indexOf(currentSsid) != -1) {
-                            conditionResults.add(true);
-                        }
-                        else
-                            conditionResults.add(false);
-
-
-
-                    }
-                    // wifi connect case should return false otherwise, since we're not connected
-                    // anyways
-                    else {
-                        conditionResults.add(false);
-                    }
-
-
-                    break;
-
-
-                case WIFI_DISCONNECT:
-
-                    ConnectivityManager dconnManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo dcnetworkInfo = dconnManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-                    // first thing if condition WIFI_DISCONNECT, did we disconnected?
-                    if (!dcnetworkInfo.isConnected()) {
-                        //System.out.println("we aren't connected to any wifi. latest remembered ssid was "+ mLatestSSID);
-
-                        // get ssid from settings
-                        final ArrayList<String> ssid = gson.fromJson(cond.getSetting("selectedWifi"),
-                                new TypeToken<List<String>>(){}.getType());
-
-                        //for (String single : ssid) {
-                        if (ssid.indexOf(mLatestSSID) != -1)
-                            conditionResults.add(true);
-                        else
-                            conditionResults.add(false);
-                        //}
-                    }
-                    // if we connected, just return false
-                    else {
-                        conditionResults.add(false);
-                    }
-
-
-
-                    break;
-
-
-                case TIMERANGE:
-                    Calendar current = Calendar.getInstance();
-
-                    // add 1 second to current if we got a trigger just on the same second as start
-                    // time
-                    Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.SECOND, 1);
-
-                    Calendar cStart = Calendar.getInstance();
-                    Calendar cEnd = Calendar.getInstance();
-
-                    cStart.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("fromHour")));
-                    cStart.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("fromMinute")));
-
-                    cEnd.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("toHour")));
-                    cEnd.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("toMinute")));
-
-                    // if end time is small than start time, usually means end date is after midnight
-                    if (cEnd.before(cStart)) {
-                        cEnd.add(Calendar.DATE, 1);
-                        //cal.add(Calendar.DATE, 1);
-                    }
-
-                    // also, check if current date is lower than start date
-                    // AND start & end times aren't in the same day
-//                    if (cal.before(cStart) &&
-//                            cStart.get(Calendar.DAY_OF_YEAR) != cEnd.get(Calendar.DAY_OF_YEAR)
-//                            ) {
-//                        //cal.add(Calendar.DATE, 1);
-//                        cStart.add(Calendar.DATE, -1);
-//                    }
-
-//                    Log.e("test", "current date: "+ cal.getTime().toString());
-//                    Log.e("test", "start date: "+ cStart.getTime().toString());
-//                    Log.e("test", "end date: "+ cEnd.getTime().toString());
-
-
-                    //Date current = cal.getTime();
-                    if (cal.after(cStart) && cal.before((cEnd))) {
-                        conditionResults.add(true);
-                    }
-
-                    else {
-                        conditionResults.add(false);
-                    }
-
-
-                    break;
-
-                case TIME:
-
-                    // compare current time against triggered time
-                    Calendar mCurrentTime = Calendar.getInstance();
-                    Calendar mSavedTime = Calendar.getInstance();
-
-                    mSavedTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("hour")));
-                    mSavedTime.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("minute")));
-
-                    /**
-                     * comparison with range included
-                     *
-                     * current--3min <= saved-3min &&
-                     * current+3min >= saved+3min
-                     */
-                    long range = 3 * 60 * 1000; // 3 minute
-                    long difference = Math.abs(mCurrentTime.getTimeInMillis() - mSavedTime.getTimeInMillis());
-
-                    //System.out.println("*** difference between two times (ms): "+ difference);
-                    //System.out.println("*** diff: "+ difference +", range: "+ range);
-
-
-                    /**
-                     * compare EXACT hour and minute of saved vs current time.
-                     */
-                    if (mCurrentTime.get(Calendar.HOUR_OF_DAY) == mSavedTime.get(Calendar.HOUR_OF_DAY) &&
-                            mCurrentTime.get(Calendar.MINUTE) == mSavedTime.get(Calendar.MINUTE)
-                            ) {
-                        Log.d("sfen", "Current time is the same as saved time.");
-                        conditionResults.add(true);
-
-                    }
-
-                    /**
-                     * compare if current time is IN RANGE of saved time.
-                     * if so, return condition as TRUE.
-                     */
-                    if (difference <= range) {
-                        Log.d("sfen", "Current time is in range of saved time.");
-                        conditionResults.add(true);
-                    }
-
-
-                    else
-                        conditionResults.add(false);
-
-
-
-
-                    break;
-
-                case LOCATION_ENTER:
-                    //System.out.println("entering location checker");
-
-                    // do we have triggered geofences AND is triggered transition ENTER?
-                    if (mTriggeredGeofences != null && mTriggeredGeoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-
-                        for (Geofence single : mTriggeredGeofences) {
-                            Log.d("sfen", "req id from triggered geofence: "+ single.getRequestId() +"; current event/condition hashcode = "+ hashCode);
-
-                            // if the triggered geoface has the same hashid than current event, we have a match!
-                            if (single.getRequestId().equals(hashCode)) {
-                                conditionResults.add(true);
-                            }
-                        }
-                    }
-                    // if triggered geofences are empty, result is false
-                    else {
-                        // not yet...
-                        // result will be false ONLY if distance between CURRENTLOC LatLng
-                        // and SAVED LatLng is greater than radius set.
-                        AndroidLocation loc;
-                        loc = new AndroidLocation(context);
-
-                        if (loc.isError())
-                            conditionResults.add(false);
-                        else {
-
-                            // is current > saved?
-                            float[] results = new float[1];
-                            Location.distanceBetween(loc.getLatitude(), loc.getLongitude(),
-                                    Double.parseDouble(cond.getSetting("latitude")),
-                                    Double.parseDouble(cond.getSetting("longitude")), results);
-
-                            System.out.println("distance between current location and "+ cond.getDescription() +": "+ results[0] +" in meters.");
-                            if (results[0] < Float.parseFloat(cond.getSetting("radius"))) {
-                                conditionResults.add(true);
-                            }
-                            else {
-                                conditionResults.add(false);
-                            }
-
-                        }
-                    }
-
-                    break;
-
-
-                case LOCATION_LEAVE:
-                    // do we have triggered geofences AND is triggered transition ENTER?
-                    if (mTriggeredGeofences != null && mTriggeredGeoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-
-                        for (Geofence single : mTriggeredGeofences) {
-                            Log.d("sfen", "req id from triggered geofence: "+ single.getRequestId() +"; current event/condition hashcode = "+ hashCode);
-
-                            // if the triggered geoface has the same hashid than current event, we have a match!
-                            if (single.getRequestId().equals(hashCode)) {
-                                conditionResults.add(true);
-                            }
-                        }
-                    }
-                    // if triggered geofences are empty, result is false
-                    else {
-                        // not yet...
-                        // result will be false ONLY if distance between CURRENTLOC LatLng
-                        // and SAVED LatLng is greater than radius set.
-                        AndroidLocation loc;
-                        loc = new AndroidLocation(context);
-
-                        if (loc.isError())
-                            conditionResults.add(false);
-                        else {
-
-                            // is current > saved?
-                            float[] results = new float[1];
-                            Location.distanceBetween(loc.getLatitude(), loc.getLongitude(),
-                                    Double.parseDouble(cond.getSetting("latitude")),
-                                    Double.parseDouble(cond.getSetting("longitude")), results);
-
-                            Log.i("sfen", "distance between current location and "+ cond.getDescription() +": "+ results[0] +" in meters.");
-                            if (results[0] > Float.parseFloat(cond.getSetting("radius"))) {
-                                conditionResults.add(true);
-                            }
-                            else {
-                                conditionResults.add(false);
-                            }
-
-                        }
-                    }
-
-                    break;
-
-
-                case CELL_IN:
-                case CELL_OUT:
-
-                    // condition with CELL was called, lets check current CELL ID and saved CELLS
-                    // if current matches any of saved, we return true.
-                    CellConnectionInfo cellInfo = new CellConnectionInfo(Main.getInstance());
-
-                    if (cellInfo.isError()) {
-                        Log.d("sfen", cellInfo.getError());
-
-                        // TODO: think what you want to do in later development stage
-                        // if cellinfo gets error, are we returning false?
-                        // or false_positive?
-                        conditionResults.add(false);
-                    }
-                    else {
-                        // we received cellinfo, find a match now
-
-                        // parse to ArrayList first
-                        ArrayList<String> mCells = gson.fromJson(cond.getSetting("selectedcell"),
-                                new TypeToken<List<String>>(){}.getType());
-
-                        // current cell is in saved cells, we have a match.
-                        // depending if we need CELL_IN or CELL_OUT
-                        // current cell is stored
-                        if (mCells.contains(cellInfo.getCellId())) {
-                            // CELL IN returns true
-                            if (cond.getOptionType() == DialogOptions.type.CELL_IN)
-                                conditionResults.add(true);
-                            // CELL OUT returns false
-                            else
-                                conditionResults.add(false);
-                        }
-                        // current cell is NOT stored
-                        else {
-                            // CELL IN returns FALSE
-                            if (cond.getOptionType() == DialogOptions.type.CELL_IN)
-                                conditionResults.add(false);
-                            // CELL OUT returns TRUE
-                            else
-                                conditionResults.add(true);
-                        }
-
-                    }
-
-                    break;
-
-
-                case EVENT_RUNNING:
-                case EVENT_NOTRUNNING:
-
-                    // check if specified event has boolean status of running set to true/false
-
-                    // retrieve event ID's from settings
-                    ArrayList<Integer> mEventsToCheck = gson.fromJson(cond.getSetting("selectevents"),
-                            new TypeToken<List<Integer>>(){}.getType());
-
-
-                    // loop through all events,
-                    // find the one that is included in settings,
-                    // return true/false
-                    //int mCurrentID = cond.getUniqueID();
-                    boolean mFound = false;
-                    for (Event single : Main.getInstance().events) {
-
-                        // match was found
-                        if (mEventsToCheck.contains(single.getUniqueID())) {
-                            mFound = true;
-
-                            // EVENT_RUNNING
-                            if (cond.getOptionType() == DialogOptions.type.EVENT_RUNNING) {
-                                if (single.isRunning())
-                                    conditionResults.add(true);
-                                else
-                                    conditionResults.add(false);
-                            }
-
-                            // EVENT_NOTRUNNING
-                            else if (cond.getOptionType() == DialogOptions.type.EVENT_NOTRUNNING) {
-                                if (!single.isRunning())
-                                    conditionResults.add(true);
-                                else
-                                    conditionResults.add(false);
-                            }
-
-                            // since we found one, we can break the loop
-                            break;
-
-
-                        }
-                    }
-
-                    // if we didn't find anything, we return false
-                    if (!mFound)
-                        conditionResults.add(false);
-
-
-                    break;
-
-                default:
-                    Log.e("sfen", "No case match ("+ cond.getOptionType() +" in areEventConditionsMet). Returning false.");
-
-                    conditionResults.add(false);
-
-                    break;
-
-            }
-
-        }
-
-        // if we matching all conditions, find if any returned false
-        if (e.isMatchAllConditions()) {
-            // nope, one returned false, so return false.
-            if (conditionResults.indexOf(false) != -1) {
-                ret = false;
-            }
-            else
-                ret = true;
-        }
-        // we need to match at least one condition
-        else {
-            // got at least one true result?
-            if (conditionResults.indexOf(true) != -1) {
-                ret = true;
-            }
-            else
-                ret = false;
-        }
-
-        // if all conditions are false, that means the Event is NOT running!
-        // switch event running boolean to false.
-        if (conditionResults.indexOf(true) == -1) {
-            if (e.isRunning()) {
-                Log.d("sfen", "Turning off " + e.getName());
-                e.setRunning(false);
-
-                // remove event from notification list
-                mNotification.removeEventFromList(e.getName());
-
-                // we have updated even though we are returning false
-                isOneStopping = true;
-            }
-        }
-
-        // if we have to
-        Log.d("sfen", "match all? "+ e.isMatchAllConditions() +" (results from conditions: "+
-                conditionResults.toString() +"); RETURN RESULT: "+ ret);
-        //System.out.println(conditionResults.toString());
-        return ret;
-
-    }
 
     /***********************************************************************************************
-     * RUN ACTIONS
-     * @param context
-     * @param intent
-     * @param e
+     * RUN PROFILE ACTIONS
+     *
+     * Runs all actions in specified Profile
      ***********************************************************************************************
      */
-    private void runEventActions(Context context, Intent intent, Event e) {
+    protected void runProfileActions(Profile p) {
+
         Gson gson = new Gson();
         WifiManager wifiManager;
         ConnectivityManager conMan;
 
-        // if event is already running
-        // don't re-run actions
-        if (
-                (e.isRunning() && !e.isForceRun()) ||
-                (e.isRunning() && e.isForceRun()) ||
-                (!e.isEnabled() && !e.isForceRun())
-                ) {
-            Log.e("sfen", e.getName() +" is already running. Skipping actions.");
 
-            /**
-             * even if disabled, let's check if event has notifications and overwrite them
-             */
-            e.updateNotification();
+        ArrayList<DialogOptions> actions = p.getActions();
+        // TODO: run event profile's actions
+        // ArrayList<DialogOptions> actions = e.getProfile().getActions();
 
-            return ;
-        }
-
-        ArrayList<DialogOptions> actions = e.getActions();
         // loop through all actions and run them
         for (DialogOptions act : actions) {
             Log.i("sfen", "action: "+ act.getTitle() +"("+ act.getOptionType() +")");
@@ -926,7 +398,7 @@ public class BackgroundService extends Service {
                 // popup notification!
                 case ACT_NOTIFICATION:
                     //mUtil.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
-                    mNotification.saveData(e.getName(), e.getName(), R.drawable.ic_launcher);
+                    mNotification.saveData(p.getName(), p.getName(), R.drawable.ic_launcher);
 
                     break;
 
@@ -960,9 +432,9 @@ public class BackgroundService extends Service {
                     // if not connected yet, meaning enable it now!
                     //if (conMan.getNetworkInfo(0).getState() != NetworkInfo.State.CONNECTED) {
 
-                        // continue only if we have root
-                        //mUtil.callRootCommand("svc data enable");
-                        mSudo.callRootCommand("svc data enable");
+                    // continue only if we have root
+                    //mUtil.callRootCommand("svc data enable");
+                    mSudo.callRootCommand("svc data enable");
 
                     //}
 
@@ -978,9 +450,9 @@ public class BackgroundService extends Service {
 //Util.showMessageBox("mobile state: "+ conMan.getNetworkInfo(0).getState(), false);
                     // if connected, disable data.
                     //if (conMan.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED) {
-                        // TODO: ADD root options! (mobile data toggle!) su -c "svc data disable"
-                        // continue only if we have root
-                        //mUtil.callRootCommand("svc data disable");
+                    // TODO: ADD root options! (mobile data toggle!) su -c "svc data disable"
+                    // continue only if we have root
+                    //mUtil.callRootCommand("svc data disable");
                     mSudo.callRootCommand("svc data disable");
 
                     //}
@@ -1034,7 +506,7 @@ public class BackgroundService extends Service {
                     mText = mUtil.replaceTextPatterns(mText);
 
                     final WindowManager manager =
-                            (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                            (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                     WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
                     layoutParams.gravity = Gravity.CENTER;
                     layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
@@ -1043,7 +515,7 @@ public class BackgroundService extends Service {
                     //layoutParams.flags |= WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON;
                     //layoutParams.screenBrightness = 0.9f;
 
-                    final View newView = View.inflate(context.getApplicationContext(), R.layout.dialog_windowmanager, null);
+                    final View newView = View.inflate(sInstance.getApplicationContext(), R.layout.dialog_windowmanager, null);
 
                     Button okButton = (Button) newView.findViewById(R.id.wm_button);
                     TextView info = (TextView) newView.findViewById(R.id.wm_text);
@@ -1082,13 +554,13 @@ public class BackgroundService extends Service {
 
                     String packageName = act.getSetting("packagename");
 
-                    PackageManager pm = context.getPackageManager();
+                    PackageManager pm = getPackageManager();
                     // open app
                     //Intent appIntent = new Intent(Intent.ACTION_MAIN);
                     //appIntent.setClassName("com.android.settings", "com.android.settings.Settings");
                     Intent appIntent = pm.getLaunchIntentForPackage(packageName);
                     if (appIntent != null)
-                        context.startActivity(appIntent);
+                        startActivity(appIntent);
 
 
                     break;
@@ -1101,7 +573,7 @@ public class BackgroundService extends Service {
 
                 case ACT_PLAYSFEN:
 
-                    MediaPlayer mp = MediaPlayer.create(context, R.raw.sfen_sound);
+                    MediaPlayer mp = MediaPlayer.create(sInstance, R.raw.sfen_sound);
                     mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
                         @Override
@@ -1133,6 +605,55 @@ public class BackgroundService extends Service {
 
             }
         }
+
+
+    }
+
+
+    /***********************************************************************************************
+     * RUN PROFILE SETTINGS
+     *
+     * Runs all specified settings of profile
+     ***********************************************************************************************
+     */
+    protected void runProfileSettings(Profile p) {
+        System.out.println("editing sound options...");
+
+
+        // to vibrate
+        // http://developer.android.com/reference/android/media/AudioManager.html#getRingerMode%28%29
+    }
+
+
+    /***********************************************************************************************
+     * RUN ACTIONS
+     * @param context
+     * @param intent
+     * @param e
+     ***********************************************************************************************
+     */
+    private void runEventActions(Context context, Intent intent, Event e) {
+        // if event is already running
+        // don't re-run actions
+        if (
+                (e.isRunning() && !e.isForceRun()) ||
+                (e.isRunning() && e.isForceRun()) ||
+                (!e.isEnabled() && !e.isForceRun())
+                ) {
+            Log.e("sfen", e.getName() +" is already running. Skipping actions.");
+
+            /**
+             * even if disabled, let's check if event has notifications and overwrite them
+             */
+            e.updateNotification();
+
+            return ;
+        }
+
+        /**
+         * run profile actions
+         */
+        runProfileActions(e.getProfile());
 
         // first time actions are run. now set event to running.
         e.setRunning(true);
@@ -1308,7 +829,6 @@ public class BackgroundService extends Service {
                             // be tomorrow
                             if (timeEnd.before(timeStart))
                                 timeEnd.add(Calendar.DATE, 1);
-
 
 
                             mAlarm = new Alarm(sInstance, single.getUniqueID());

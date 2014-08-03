@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -950,7 +949,7 @@ public class Util extends Activity {
 
                 // fill shown events array, but exclude current event (if editing!)
 
-                for (final Event e : Main.getInstance().events) {
+                for (final Event e : BackgroundService.getInstance().events) {
                     // if we're editing AND current event isn't the editing one OR
                     // if we're not editing
                     // put event to array
@@ -1483,61 +1482,21 @@ public class Util extends Activity {
     }
 
     /**
-     * SHOW YES/NO DIALOG
-     *
-     * @param context
-     * @param question is the message we're passing to user
-     * @param options possible options (hashmap keys):
-     *                "title" sets title
-     *                "positiveButton" sets positive button string
-     *                "negativeButton" sets negative button string
-     *                "icon" (converts to int) sets icon for dialog
-     * @return returns true/false depending on which button did user pressed.
-     * @return returns the proper value in Main.options array.
-     */
-    protected void showYesNoDialog(final Activity context, String question, HashMap<String, String> options) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        final FragmentManager fm = context.getFragmentManager();
-        sBoolean = false;
-
-        final String title = (options.get("title") != null) ? options.get("title") : "Question";
-        final String positiveButton = (options.get("positiveButton") != null) ? options.get("positiveButton") : "Yes";
-        final String negativeButton = (options.get("negativeButton") != null) ? options.get("negativeButton") : "No";
-        final int icon = (options.get("icon") != null) ? Integer.parseInt(options.get("icon")) : R.drawable.ic_launcher;
-
-        builder.setIcon(R.drawable.ic_launcher);
-        builder.setTitle("Question");
-        builder.setMessage(question);
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-                sBoolean = true;
-            }
-        });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-                sBoolean = false;
-            }
-        });
-
-        builder.show();
-
-
-        Main.getInstance().options.put("showYesNoDialog", ""+ sBoolean);
-        sBoolean = false;
-    }
-
-
-    /**
      * remove single Condition or Action
      *
      * @param
      */
     private void removeConditionOrAction(final int index, final DialogOptions entry) {
+
+        /**
+         * if removing action, call ProfileActivity function
+         */
+        if (entry.isAction()) {
+            ProfileActivity.getInstance().removeAction(index, entry);
+            return ;
+        }
+
+
         // when clicking recycle bin at condition/action, remove it from view and
         // from array of all conditions/actions
 
@@ -1612,6 +1571,15 @@ public class Util extends Activity {
      * add new condition OR action
      */
     protected void addNewConditionOrAction(final Activity context, final DialogOptions entry, final int index) {
+
+        /**
+         * if adding action, call ProfileActivity function
+         */
+        if (entry.isAction()) {
+            ProfileActivity.getInstance().addNewAction(context, entry, index);
+            return ;
+        }
+
 
         // the only thing we have to check if we're editing entry is,
         // if we have at least one setting stored. if so, all is good in our wonderland
@@ -1708,30 +1676,6 @@ public class Util extends Activity {
 
 
     }
-
-
-//    @Deprecated
-//    protected void callRootCommand(String command) {
-//
-//        try {
-//            Process su = Runtime.getRuntime().exec("su");
-//            DataOutputStream sudoStream = new DataOutputStream(su.getOutputStream());
-//
-//            if (!command.equals("")) {
-//                sudoStream.writeBytes(command + "\n");
-//                sudoStream.flush();
-//            }
-//
-//            sudoStream.writeBytes("exit\n");
-//            sudoStream.flush();
-//            su.waitFor();
-//
-//        }
-//        catch (Exception e) {
-//            e.getStackTrace();
-//        }
-//
-//    }
 
     protected String replaceTextPatterns(String text) {
         String rText = text;

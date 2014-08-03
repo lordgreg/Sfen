@@ -14,7 +14,6 @@ public class MainTabListener implements ActionBar.TabListener {
 
     public MainTabListener(Fragment fragment) {
         mFragmentSelected = fragment;
-        System.out.println("listening");
     }
 
     @Override

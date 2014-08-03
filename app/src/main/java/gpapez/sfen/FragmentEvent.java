@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,10 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Profile Window
@@ -29,9 +26,6 @@ public class FragmentEvent extends Fragment {
 
     // singleton
     private static FragmentEvent sInstance;
-
-    // placeholder for current Event
-    protected Profile profile = null;
 
     // container for our profiles
     private ViewGroup mContainerView;
@@ -49,50 +43,29 @@ public class FragmentEvent extends Fragment {
          */
         sInstance = this;
 
-        /**
-         * get events from preferences
-         */
-        //Main.getInstance().events = Main.getInstance().getEventsFromPreferences();
-        //System.out.println("events size: "+ Main.getInstance().events.size() +" "+ Main.getInstance().events.toString());
-
-
-
     }
 
     //@Nullable
     //@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-
-        /**
-         * set container view
-         */
-        mContainerView = (ViewGroup) Main.getInstance().findViewById(R.id.container);
-
         /**
          * set View
          */
         mView = inflater.inflate(R.layout.activity_main_events, container, false);
-        //TextView textview = (TextView) view.findViewById(R.id.tabtextview);
-        //textview.setText(R.string.One);
-
-        /**
-         * forward view to Main
-         */
-        Main.getInstance().mCurrentFragmentView = mView;
 
 
         /**
          * refresh events view
-         */
-        // this is our first run, let set all events running boolean to false
-        /**
+         *
+         * this is our first run, let set all events running boolean to false
+         *
          * if bgService is already running, don't touch anything!
          */
         if (Main.getInstance().bgService == null) {
-            for (int i = 0; i < Main.getInstance().events.size(); i++) {
-                Main.getInstance().events.get(i).setRunning(false);
-                Main.getInstance().events.get(i).setHasRun(false);
+            for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
+                BackgroundService.getInstance().events.get(i).setRunning(false);
+                BackgroundService.getInstance().events.get(i).setHasRun(false);
             }
         }
         else {
@@ -128,32 +101,13 @@ public class FragmentEvent extends Fragment {
      * this function will take care of that! go through events array and fill it up, yo?
      */
     public void refreshEventsView() {
-        // always clear container first
-        //System.out.println("refreshing view");
 
-        /*
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        final View dialogView = inflater.inflate(R.layout.dialog_pick_condition, null);
-        final ViewGroup mContainerOptions = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
-         */
-
-        // container
-        //mContainerView = (ViewGroup) findViewById(R.id.fragment_container);
-        //final LayoutInflater inflater = LayoutInflater.from(sInstance);
-        //View view = inflater.inflate(R.layout.activity_main_events, container, false);
-        //final View mainView = fragmentEvent.getView();
-        //final View mainView = mCurrentFragmentView;
-        //final View mainView = fragmentEvent.on
-        //final View mainView = (ViewGroup) LayoutInflater.from(Main.getInstance()).inflate(
-        //        R.layout.main_single_item, mContainerView, false);
-        //            final ViewGroup newRow = (ViewGroup) LayoutInflater.from(Main.getInstance()).inflate(
-        //R.layout.main_single_item, mContainerView, false);
         mContainerView = (ViewGroup) mView.findViewById(R.id.container_events);
         mContainerView.removeAllViews();
 
 
         // if events array is empty, show "add new event" textview
-        if (Main.getInstance().events.size() == 0) {
+        if (BackgroundService.getInstance().events.size() == 0) {
             //Main.getInstance().findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
             mView.findViewById(android.R.id.empty).setVisibility(View.VISIBLE);
         }
@@ -162,7 +116,7 @@ public class FragmentEvent extends Fragment {
         }
 
         // fill the events from array
-        for (final Event e : Main.getInstance().events) {
+        for (final Event e : BackgroundService.getInstance().events) {
             final ViewGroup newRow = (ViewGroup) LayoutInflater.from(Main.getInstance()).inflate(
                     R.layout.main_single_item, mContainerView, false);
 
@@ -250,7 +204,9 @@ public class FragmentEvent extends Fragment {
             mContainerView.addView(newRow, 0);
 
             // update preferences
-            updateEventsFromPreferences();
+            BackgroundService.getInstance().mPreferences.setPreferences("events",
+                    BackgroundService.getInstance().events);
+            //updateEventsFromPreferences();
 
         }
 
@@ -265,7 +221,7 @@ public class FragmentEvent extends Fragment {
     private void onClickSingleEvent(Event e) {
         Intent i = new Intent(Main.getInstance(), EventActivity.class);
         i.putExtra("sEvent", (new Gson().toJson(e)));
-        i.putExtra("sEventIndexKey", Main.getInstance().events.indexOf(e));
+        i.putExtra("sEventIndexKey", BackgroundService.getInstance().events.indexOf(e));
         startActivity(i);
     }
 
@@ -289,6 +245,11 @@ public class FragmentEvent extends Fragment {
                         // The 'which' argument contains the index position
                         // of the selected item
                         // 0 edit, 1 enable/disable, 2 delete
+                        if (which == 0) {
+
+                            onClickSingleEvent(e);
+
+                        }
                         if (which == 1) {
                             if (e.isEnabled()) {
                                 e.setEnabled(false);
@@ -309,8 +270,18 @@ public class FragmentEvent extends Fragment {
                             }
 
                             // update events array
-                            Main.getInstance().events.set(Main.getInstance().events.indexOf(e), e);
-                            updateEventsFromPreferences();
+                            BackgroundService.getInstance().events.set(BackgroundService.getInstance().events.indexOf(e), e);
+                            //updateEventsFromPreferences();
+
+                            /**
+                             * update preferences
+                             */
+                            BackgroundService.getInstance().mPreferences.setPreferences("events",
+                                    BackgroundService.getInstance().events);
+
+                            /**
+                             * refresh view
+                             */
                             refreshEventsView();
 
                             // enable/disable timers, if any
@@ -327,8 +298,11 @@ public class FragmentEvent extends Fragment {
 
                             // delete row AND spot in events
                             mContainerView.removeView(newRow);
-                            Main.getInstance().events.remove(e);
-                            updateEventsFromPreferences();
+                            BackgroundService.getInstance().events.remove(e);
+
+                            // update preferences
+                            BackgroundService.getInstance().mPreferences.setPreferences("events",
+                                    BackgroundService.getInstance().events);
                         }
 
                     }
@@ -344,54 +318,6 @@ public class FragmentEvent extends Fragment {
 
         // open the dialog now :)
         builder.show();
-    }
-
-
-    /**
-     * update preferences with events
-     */
-    private void updateEventsFromPreferences() {
-        // preferences object
-        SharedPreferences mPrefs = Main.getInstance().getPreferences(Main.getInstance().MODE_PRIVATE);
-
-        // retrieve object from preferences
-        Gson gson = new Gson();
-        String json = mPrefs.getString("events", "");
-
-        // store all to preferences again
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        json = gson.toJson(Main.getInstance().events);
-        prefsEditor.putString("events", json);
-        prefsEditor.commit();
-
-    }
-
-    /**
-     * get from preferences
-     */
-    protected ArrayList<Event> getEventsFromPreferences() {
-        // preferences object
-        SharedPreferences mPrefs = Main.getInstance().getPreferences(Main.getInstance().MODE_PRIVATE);
-
-        // return object
-        ArrayList<Event> returnObj = new ArrayList<Event>();
-
-        // retrieve object from preferences
-        Gson gson = new Gson();
-        String json = mPrefs.getString("events", "");
-
-        //protected ArrayList<Event> events = new ArrayList<Event>();
-        ArrayList<Event> eventsPrefs = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
-
-        // if preferences exist and current events array don't
-        if (eventsPrefs != null) {
-            if (eventsPrefs.size() > 0) {
-                returnObj = eventsPrefs;
-            }
-        }
-
-        return returnObj;
-
     }
 
 
