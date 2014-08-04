@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class EventActivity extends Activity {
     private static EventActivity sInstance = null;
-    protected ViewGroup mContainerCondition, mContainerAction;
+    protected ViewGroup mContainerCondition;
     protected ViewGroup mContainerProfile;
 
     // containers if we're editing activity
@@ -31,7 +31,6 @@ public class EventActivity extends Activity {
     protected boolean isChanged = false;
     protected int updateKey = -1;
     protected ArrayList<DialogOptions> updatedConditions;
-    protected ArrayList<DialogOptions> updatedActions;
 
 
     // placeholder for current Event
@@ -42,7 +41,6 @@ public class EventActivity extends Activity {
 
     // arrays for conditions and actions
     protected ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
-    protected ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
 
     // list of possible Conditions in Options
@@ -65,28 +63,6 @@ public class EventActivity extends Activity {
 
     }};
 
-    // list of possible Actions in Options
-    //context.getResources().getDrawable(R.drawable.ic_launcher)
-    static final ArrayList<DialogOptions> optActions = new ArrayList<DialogOptions>() {{
-        //add(new DialogOptions("Show notification", "Will show notification in notification area", android.R.drawable.ic_dialog_info, DialogOptions.type.ACT_NOTIFICATION));
-        add(new DialogOptions("Show notification", "Will show notification in notification area", R.drawable.ic_notification, DialogOptions.type.ACT_NOTIFICATION));
-        add(new DialogOptions("Enable Wifi", "Enable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
-        add(new DialogOptions("Disable Wifi", "Disable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
-        add(new DialogOptions("Enable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
-        add(new DialogOptions("Disable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
-        add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
-        add(new DialogOptions("Play Sfen", "Will make a sheep sound", R.drawable.ic_sound, DialogOptions.type.ACT_PLAYSFEN));
-        add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
-        add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
-
-        //add(new DialogOptions("Enable lock screen", "Will enable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENENABLE));
-        //add(new DialogOptions("Disable lock screen", "Will disable lock screen", R.drawable.ic_lock, DialogOptions.type.ACT_LOCKSCREENDISABLE));
-
-        //add(new DialogOptions("Show dialog with text", "Dialog window with specific text will be shown", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_DIALOGWITHTEXT));
-        //add(new DialogOptions("Play sound", "Play specific sound", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_PLAYSOUND));
-        //add(new DialogOptions("Open application", "Opens specified application", android.R.drawable.ic_dialog_alert, DialogOptions.type.ACT_OPENAPPLICATION));
-    }};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +73,6 @@ public class EventActivity extends Activity {
         sInstance = this;
 
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
-        mContainerAction = (ViewGroup) findViewById(R.id.action_container);
         mContainerProfile = (ViewGroup) findViewById(R.id.profile_container);
 
         // CONDITION
@@ -126,7 +101,6 @@ public class EventActivity extends Activity {
             event = (new Gson()).fromJson(getIntent().getExtras().getString("sEvent"), Event.class);
             updateKey = getIntent().getIntExtra("sEventIndexKey", -1);
             updatedConditions = new ArrayList<DialogOptions>();
-            updatedActions = new ArrayList<DialogOptions>();
             profile = event.getProfile();
 
             getActionBar().setTitle("Editing "+ event.getName());
@@ -267,7 +241,6 @@ public class EventActivity extends Activity {
 
         event.setName(((TextView) findViewById(R.id.event_name)).getText().toString());
         event.setConditions(conditions);
-        event.setActions(actions);
         event.setEnabled(((Switch) findViewById(R.id.event_enabled)).isChecked());
         event.setMatchAllConditions(((CheckBox) findViewById(R.id.event_allconditions)).isChecked());
         event.setRunOnce(((CheckBox) findViewById(R.id.event_runonce)).isChecked());

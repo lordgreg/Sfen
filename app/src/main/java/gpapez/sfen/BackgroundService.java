@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.Vibrator;
@@ -22,7 +23,17 @@ import android.widget.TextView;
 
 import com.google.android.gms.location.Geofence;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -565,6 +576,40 @@ public class BackgroundService extends Service {
 
                     break;
 
+                case ACT_OPENSHORTCUT:
+
+                    /**
+                     * get Intent from saved setting
+                     *
+                     * http://stackoverflow.com/questions/22533432/create-object-from-gson-string-doesnt-work
+                     */
+                    class UriDeserializer implements JsonDeserializer<Uri> {
+                        @Override
+                        public Uri deserialize(final JsonElement src, final Type srcType,
+                                               final JsonDeserializationContext context) throws JsonParseException {
+                            return Uri.parse(src.getAsString());
+                        }
+                    }
+
+                    Gson gsonIntent = new GsonBuilder()
+                            .registerTypeAdapter(Uri.class, new UriDeserializer())
+                            .create();
+
+                    //Intent intent = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
+                    //Intent intent = new Intent(Intent.EXTRA_SHORTCUT_INTENT);
+                    Intent intent = gsonIntent.fromJson(act.getSetting("shortcut_intent"), Intent.class);
+                    //intent.
+                    intent.getParcelableArrayExtra(Intent.EXTRA_SHORTCUT_INTENT);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    //System.out.println("*** Opening intent\n"+ act.getSetting("shortcut_intent"));
+
+
+                    startActivity(intent);
+
+                    break;
+
+
                 case ACT_LOCKSCREENDISABLE:
 
                     Main.getInstance().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -649,6 +694,15 @@ public class BackgroundService extends Service {
 
             return ;
         }
+
+        /**
+         * set profile as active, others are ready.
+         * (if fragment Profile is not null
+         */
+//        if (Main.getInstance().fragmentProfile != null)
+//            Main.getInstance().fragmentProfile.activateProfile(e.getProfile());
+
+
 
         /**
          * run profile actions

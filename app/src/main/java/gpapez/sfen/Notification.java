@@ -60,9 +60,11 @@ public class Notification {
      * DESTRUCTOR
      */
     public void Destroy() {
-        mNotificationManager.cancel(APPLICATION_ID);
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(APPLICATION_ID);
 
-        mPendingIntent.cancel();
+            mPendingIntent.cancel();
+        }
     }
 
     /**

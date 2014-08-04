@@ -7,14 +7,20 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetHost;
+import android.appwidget.AppWidgetHostView;
+import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1396,6 +1402,110 @@ public class Util extends Activity {
 
                 break;
 
+
+            /**
+             * ACT: open shortcut
+             */
+            case ACT_OPENSHORTCUT:
+
+
+                if (isEditing) {
+                    showMessageBox("You cannot edit Shortcut action. You can only delete it.", true);
+                    return ;
+                }
+                /**
+                 * widgets
+                 */
+/*
+                AppWidgetManager wmanager=AppWidgetManager.getInstance(Main.getInstance());
+                List<AppWidgetProviderInfo>infoList=wmanager.getInstalledProviders();
+                for(AppWidgetProviderInfo shinfo:infoList)
+                {
+
+                    Log.d("sfen", "Name-" + shinfo.label);
+                    Log.d("sfen", "Configure Name-"+shinfo.configure);
+                    Log.d("sfen", "Provider Name-"+shinfo.provider);
+
+
+                }
+                */
+                final int REQUEST_PICK_SHORTCUT = 0x100;
+                final int REQUEST_CREATE_SHORTCUT = 0x200;
+
+                Intent intent = new Intent(Intent.ACTION_PICK_ACTIVITY);
+                intent.putExtra(Intent.EXTRA_INTENT, new Intent(Intent.ACTION_CREATE_SHORTCUT));
+                intent.putExtra(Intent.EXTRA_TITLE, "Select shortcut");
+                ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+
+/*
+                //com.google.android.gm/com.google.android.gm.widget.GmailWidgetProvider
+
+                String packageName = "com.google.android.gm/com.google.android.gm.widget.GmailWidgetProvider";
+
+                PackageManager pmOpen = Main.getInstance().getPackageManager();
+                // open app
+                //Intent appIntent = new Intent(Intent.ACTION_MAIN);
+                //appIntent.setClassName("com.android.settings", "com.android.settings.Settings");
+                Intent appIntent = pmOpen.getLaunchIntentForPackage(packageName);
+                appIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                if (appIntent != null)
+                    startActivity(appIntent);
+*/
+/*
+                List<ResolveInfo> appList = new ArrayList<ResolveInfo>();
+
+                final PackageManager mPackageManager = Main.getInstance().getPackageManager();
+                List<PackageInfo> packages = mPackageManager.getInstalledPackages(0);
+                Intent mainIntent = new Intent(Intent.ACTION_MAIN);
+                mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                for(PackageInfo pi : packages) {
+                    mainIntent.setPackage(pi.packageName);
+                    List<ResolveInfo> activityList = mPackageManager.queryIntentActivities(mainIntent, 0);
+                    for(ResolveInfo ri : activityList) {
+                        appList.add(ri);
+                        System.out.println("resolve info: "+ ri.resolvePackageName);
+                        System.out.println("parent activity: "+ ri.activityInfo.parentActivityName);
+                        System.out.println("resolve package name: "+ ri.resolvePackageName);
+
+                    }
+                }
+
+                Collections.sort(appList, new ResolveInfo.DisplayNameComparator(mPackageManager));
+
+                System.out.println("resolve info list");
+                System.out.println(appList.toString());
+*/
+
+
+
+/*
+
+                final PackageManager pm1 = context.getPackageManager();
+                mPackageManager.queryIntentActivities(mainIntent, 0);
+
+
+                for (final PackageInfo packageInfo : pm1.getInstalledPackages(PackageManager.GET_META_DATA)) {
+                    //if ((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+                    //    break;
+                    // don't show apps that don't have launch activity
+                    if (pm1.getLaunchIntentForPackage(packageInfo.packageName) != null ||
+                            (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0
+                            ) {
+                    }
+
+
+                    System.out.println("*** "+ packageInfo.applicationInfo.loadLabel(pm1).toString());
+
+                    //String test
+
+                }*/
+
+
+
+
+
+                break;
+
             /**
              * ACT: DISABLE/ENABLE LOCK SCREEN
              */
@@ -1500,28 +1610,15 @@ public class Util extends Activity {
         // when clicking recycle bin at condition/action, remove it from view and
         // from array of all conditions/actions
 
-        // remove ACTION from container first
-        if (entry.isAction()) {
-            EventActivity.getInstance().mContainerAction.removeViewAt(index);
-        }
         // remove CONDITION from container first
-        else {
-            EventActivity.getInstance().mContainerCondition.removeViewAt(index);
-        }
+        EventActivity.getInstance().mContainerCondition.removeViewAt(index);
         //container.removeView(newRow);
 
         // UPDATING SINGLE EVENT!!!
         // remove from conditions, depending on if we're adding to new event
         // or existing event
         if (EventActivity.getInstance().isUpdating) {
-            // updating ACTION
-            if (entry.isAction()) {
-                EventActivity.getInstance().updatedActions.remove(
-                        EventActivity.getInstance().updatedActions.indexOf(entry)
-                );
-            }
-            // otherwise, updating CONDITION
-            else {
+
                 // since we're deleting condition, we have to call
                 // updateChecker: updateEventConditionTimers
                 // we are forcing event of current entry to disable, then enable
@@ -1541,7 +1638,7 @@ public class Util extends Activity {
                 EventActivity.getInstance().updatedConditions.remove(
                         EventActivity.getInstance().updatedConditions.indexOf(entry)
                 );
-            }
+
 
             // we changed something, so set the changed boolean
             EventActivity.getInstance().isChanged = true;
@@ -1551,18 +1648,10 @@ public class Util extends Activity {
 
         // CREATING SINGLE EVENT!!!
         else {
-            // adding ACTION
-            if (entry.isAction()) {
-                EventActivity.getInstance().actions.remove(
-                        EventActivity.getInstance().actions.indexOf(entry)
-                );
-            }
             // adding CONDITION
-            else {
-                EventActivity.getInstance().conditions.remove(
-                        EventActivity.getInstance().conditions.indexOf(entry)
-                );
-            }
+            EventActivity.getInstance().conditions.remove(
+                    EventActivity.getInstance().conditions.indexOf(entry)
+            );
         }
     }
 
@@ -1587,19 +1676,12 @@ public class Util extends Activity {
 
         // add condition to list of conditions of Event
         if (EventActivity.getInstance().isUpdating) {
-            // updating action/cond
-            if (entry.isAction())
-                EventActivity.getInstance().updatedActions.add(entry);
-            else
-                EventActivity.getInstance().updatedConditions.add(entry);
+            EventActivity.getInstance().updatedConditions.add(entry);
         }
         // adding NEW
         else {
             //entry.setSetting("uniqueID", new Random().nextInt());
-            if (entry.isAction())
-                EventActivity.getInstance().actions.add(entry);
-            else
-                EventActivity.getInstance().conditions.add(entry);
+            EventActivity.getInstance().conditions.add(entry);
         }
 
         // get options that we need for interface
@@ -1610,14 +1692,9 @@ public class Util extends Activity {
         // add new row to actions/conditions now
         final ViewGroup newRow;
 
-        if (entry.isAction()) {
-            newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                    R.layout.condition_single_item, EventActivity.getInstance().mContainerAction, false);
-        }
-        else {
-            newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                    R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
-        }
+        newRow = (ViewGroup) LayoutInflater.from(context).inflate(
+                R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
+
 
         ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
         ((TextView) newRow.findViewById(android.R.id.text2))
@@ -1655,11 +1732,7 @@ public class Util extends Activity {
 
 
         // add action to container
-        if (entry.isAction())
-            EventActivity.getInstance().mContainerAction.addView(newRow, index);
-        // add condition to container
-        else
-            EventActivity.getInstance().mContainerCondition.addView(newRow, index);
+        EventActivity.getInstance().mContainerCondition.addView(newRow, index);
 
     }
 

@@ -77,4 +77,12 @@ public class Profile {
     public void setVibrate(boolean isVibrate) {
         this.isVibrate = isVibrate;
     }
+
+    public int getUniqueID() {
+        return uniqueID;
+    }
+
+    public void setUniqueID(int uniqueID) {
+        this.uniqueID = uniqueID;
+    }
 }

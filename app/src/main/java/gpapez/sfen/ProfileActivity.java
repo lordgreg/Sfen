@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +21,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
@@ -43,6 +55,11 @@ public class ProfileActivity extends Activity {
     // arrays for conditions and actions
     protected ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
+    // request codes (creating shortcuts)
+    final int REQUEST_PICK_SHORTCUT = 0x100;
+    final int REQUEST_CREATE_SHORTCUT = 0x200;
+
+
 
     // list of possible Actions in Options
     //context.getResources().getDrawable(R.drawable.ic_launcher)
@@ -57,6 +74,7 @@ public class ProfileActivity extends Activity {
         add(new DialogOptions("Play Sfen", "Will make a sheep sound", R.drawable.ic_sound, DialogOptions.type.ACT_PLAYSFEN));
         add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
         add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
+        add(new DialogOptions("Open shortcut", "Will open specified shortcut", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
     }};
 
 
@@ -206,6 +224,28 @@ public class ProfileActivity extends Activity {
         }
 
 
+        /**
+         * there's one more thing we really REALLY have to do,
+         * edit profile at all events
+         */
+        if (isUpdating) {
+            for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
+                Event e = BackgroundService.getInstance().events.get(i);
+
+                if (e.getProfile().getUniqueID() == profile.getUniqueID()) {
+                    e.setProfile(profile);
+
+                    BackgroundService.getInstance().events.set(i, e);
+
+                    System.out.println("Updated event "+
+                            BackgroundService.getInstance().events.get(i).getName() +"" +
+                            "with new profile.");
+
+                }
+            }
+        }
+
+
         finish();
         return true;
     }
@@ -262,7 +302,7 @@ public class ProfileActivity extends Activity {
         final ViewGroup newRow;
 
         newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                R.layout.condition_single_item, EventActivity.getInstance().mContainerAction, false);
+                R.layout.condition_single_item, mContainerAction, false);
 
         ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
         ((TextView) newRow.findViewById(android.R.id.text2))
@@ -484,6 +524,73 @@ public class ProfileActivity extends Activity {
      *
      */
     public void onClickProfileNotificationSound(View v) {
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        /**
+         * we've got a OK result, continue
+         */
+        /**
+         * if requestCode is REQUEST_PICK_SHORTCUT, we're continuing on creating shortcut
+         */if (resultCode == RESULT_OK) switch (requestCode) {
+
+            case REQUEST_PICK_SHORTCUT:
+                startActivityForResult(data, REQUEST_CREATE_SHORTCUT);
+
+                break;
+
+            case REQUEST_CREATE_SHORTCUT:
+                String name = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME);
+                //Log.d("sfen", "shortcut name: " + name);
+
+                Intent intent = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
+
+                // start shortcut
+                //startActivity(intent);
+                // http://stackoverflow.com/questions/13147174/android-create-run-shortcuts
+
+                /**
+                 * shortcut created. save it.
+                 */
+                final DialogOptions cond = new DialogOptions("Shortcut", name,
+
+                        R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT);
+
+
+                class UriSerializer implements JsonSerializer<Uri> {
+                    public JsonElement serialize(Uri src, Type typeOfSrc, JsonSerializationContext context) {
+                        return new JsonPrimitive(src.toString());
+                    }
+                }
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(Uri.class, new UriSerializer())
+                        .create();
+
+
+                //System.out.println("*** Saving intent\n"+ gson.toJson(intent));
+
+                cond.setSetting("shortcut_intent", gson.toJson(intent));
+
+                cond.setSetting("text1", cond.getTitle());
+                cond.setSetting("text2", cond.getDescription());
+
+
+                /**
+                 * add new action
+                 */
+                addNewAction(sInstance, cond, 0);
+
+                break;
+
+        }
+
+
 
     }
 

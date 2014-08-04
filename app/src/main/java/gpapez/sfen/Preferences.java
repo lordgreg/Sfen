@@ -66,6 +66,7 @@ public class Preferences {
                 break;
             case PROFILES:
                 returnObj = mGson.fromJson(json, new TypeToken<List<Profile>>(){}.getType());
+                break;
 
             default:
                 Log.e("sfen", "Type of "+ reqType +" is invalid.");

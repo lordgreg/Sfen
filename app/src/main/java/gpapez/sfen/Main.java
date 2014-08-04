@@ -4,14 +4,24 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,17 +43,6 @@ public class Main extends Activity {
 
     // if main activity is visible or not (will change onResume and onPause)
     protected boolean isVisible = false;
-
-    // container of our events/profiles/whitelist
-    //protected View mCurrentFragmentView = null;
-    //private ViewGroup mContainerView;
-
-
-//    /**
-//     * Events array
-//     */
-//    protected ArrayList<Event> events = new ArrayList<Event>();
-
 
     // this variable will set itself to false on the last line of onCreate method
     private boolean isCreating = true;
@@ -80,11 +79,6 @@ public class Main extends Activity {
          */
         fragmentEvent = new FragmentEvent();
         fragmentProfile = new FragmentProfile();
-
-
-//        // events
-//        //events = getEventsFromPreferences();
-//        events = fragmentEvent.getEventsFromPreferences();
 
 
         // Set up the action bar to show tabs.
@@ -413,8 +407,6 @@ public class Main extends Activity {
         else if (mTabPosition == 1) {
             fragmentProfile.refreshProfilesView();
         }
-
-
 
     }
 

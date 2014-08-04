@@ -64,6 +64,7 @@ public class FragmentEvent extends Fragment {
          */
         if (Main.getInstance().bgService == null) {
             for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
+                // TODO: call DisableAllEvents() for first run.
                 BackgroundService.getInstance().events.get(i).setRunning(false);
                 BackgroundService.getInstance().events.get(i).setHasRun(false);
             }
