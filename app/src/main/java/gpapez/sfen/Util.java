@@ -7,20 +7,15 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.appwidget.AppWidgetHost;
-import android.appwidget.AppWidgetHostView;
-import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.util.Log;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1432,10 +1427,24 @@ public class Util extends Activity {
                 final int REQUEST_PICK_SHORTCUT = 0x100;
                 final int REQUEST_CREATE_SHORTCUT = 0x200;
 
-                Intent intent = new Intent(Intent.ACTION_PICK_ACTIVITY);
+                final Intent intent = new Intent(Intent.ACTION_PICK_ACTIVITY);
                 intent.putExtra(Intent.EXTRA_INTENT, new Intent(Intent.ACTION_CREATE_SHORTCUT));
                 intent.putExtra(Intent.EXTRA_TITLE, "Select shortcut");
-                ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+
+
+
+                AsyncTask<Void,Void,Void> mAsyncTask = new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... voids) {
+                            //startActivity(intent);
+                            ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+
+                            return null;
+                        }
+                    }.execute();
+
+
+                //ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
 
 /*
                 //com.google.android.gm/com.google.android.gm.widget.GmailWidgetProvider

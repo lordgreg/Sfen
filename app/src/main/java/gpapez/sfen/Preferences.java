@@ -30,7 +30,13 @@ public class Preferences {
     public Preferences(Activity context) {
         mGson = new Gson();
 
-        mPreferences = context.getPreferences(Context.MODE_PRIVATE);
+        if (context == null) {
+            System.out.println("Preferences aren't accessible! Context is null!");
+        }
+        else {
+            mContext = context;
+            mPreferences = context.getPreferences(Context.MODE_PRIVATE);
+        }
     }
 
     public void setPreferences(String prefName, Object obj) {

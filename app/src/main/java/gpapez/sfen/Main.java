@@ -4,24 +4,14 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -72,7 +62,7 @@ public class Main extends Activity {
         sInstance = this;
 
         // start preferences
-        mPreferences = new Preferences(Main.getInstance());
+        mPreferences = new Preferences(this);
 
         /**
          * create fragment objects
@@ -376,10 +366,10 @@ public class Main extends Activity {
      * @return instance of current class
      */
     public static Main getInstance() {
-        if (sInstance == null) {
-            return new Main();
-        }
-        else
+//        if (sInstance == null) {
+//            return new Main();
+//        }
+//        else
             return sInstance;
     }
 
@@ -409,5 +399,8 @@ public class Main extends Activity {
         }
 
     }
+
+
+
 
 }

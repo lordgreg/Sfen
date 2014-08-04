@@ -10,6 +10,7 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.telephony.PhoneStateListener;
@@ -28,10 +29,6 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -94,6 +91,11 @@ public class BackgroundService extends Service {
     protected Notification mNotification;
 
     /**
+     * async task variable
+     */
+    AsyncTask<Void,Void,Void> mAsyncTask;
+
+    /**
      * EVENTS, PROFILES
      */
     protected ArrayList<Event> events = new ArrayList<Event>();
@@ -142,21 +144,40 @@ public class BackgroundService extends Service {
         /**
          * GETTING EVENTS from PREFERENCES
          */
-        mPreferences = new Preferences(Main.getInstance());
-
-        events = (ArrayList<Event>) mPreferences.getPreferences("events", Preferences.REQUEST_TYPE.EVENTS);
-
-        if (events == null) {
-            events = new ArrayList<Event>();
+        //mPreferences = new Preferences(Main.getInstance());
+        if (Main.getInstance() == null) {
+            System.out.println("Main class not loaded yet!");
+            return 1;
         }
 
+        mPreferences = Main.getInstance().mPreferences;
 
-        profiles = (ArrayList<Profile>) mPreferences.getPreferences("profiles", Preferences.REQUEST_TYPE.PROFILES);
+        if (mPreferences != null) {
 
-        if (profiles == null) {
-            profiles = new ArrayList<Profile>();
+            events = (ArrayList<Event>) mPreferences.getPreferences("events", Preferences.REQUEST_TYPE.EVENTS);
+
+            if (events == null) {
+                events = new ArrayList<Event>();
+            }
+
+            // first time run, set events to not running
+            else {
+                for (int i = 0; i < events.size(); i++) {
+                    System.out.println("set event as not running.");
+                    events.get(i).setRunning(false);
+                    events.get(i).setHasRun(false);
+                }
+
+            }
+
+
+            profiles = (ArrayList<Profile>) mPreferences.getPreferences("profiles", Preferences.REQUEST_TYPE.PROFILES);
+
+            if (profiles == null) {
+                profiles = new ArrayList<Profile>();
+            }
+
         }
-
 
 
 
@@ -221,7 +242,6 @@ public class BackgroundService extends Service {
      */
     @Override
     public void onDestroy() {
-        super.onDestroy();
 
         // unregister our receiver
         unregisterReceiver(mReceiver);
@@ -265,6 +285,10 @@ public class BackgroundService extends Service {
 
         // clear notification
         mNotification.Destroy();
+
+
+        // destroy superclass
+        super.onDestroy();
     }
 
 
@@ -569,9 +593,20 @@ public class BackgroundService extends Service {
                     // open app
                     //Intent appIntent = new Intent(Intent.ACTION_MAIN);
                     //appIntent.setClassName("com.android.settings", "com.android.settings.Settings");
-                    Intent appIntent = pm.getLaunchIntentForPackage(packageName);
-                    if (appIntent != null)
-                        startActivity(appIntent);
+                    final Intent appIntent = pm.getLaunchIntentForPackage(packageName);
+                    if (appIntent != null) {
+
+                        mAsyncTask = new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Void... voids) {
+                                startActivity(appIntent);
+                                return null;
+                            }
+                        }.execute();
+
+
+                        //startActivity(appIntent);
+                    }
 
 
                     break;
@@ -595,15 +630,10 @@ public class BackgroundService extends Service {
                             .registerTypeAdapter(Uri.class, new UriDeserializer())
                             .create();
 
-                    //Intent intent = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
-                    //Intent intent = new Intent(Intent.EXTRA_SHORTCUT_INTENT);
                     Intent intent = gsonIntent.fromJson(act.getSetting("shortcut_intent"), Intent.class);
-                    //intent.
-                    intent.getParcelableArrayExtra(Intent.EXTRA_SHORTCUT_INTENT);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                    //System.out.println("*** Opening intent\n"+ act.getSetting("shortcut_intent"));
-
+                    System.out.println("*** Opening intent\n" + act.getSetting("shortcut_intent"));
 
                     startActivity(intent);
 
@@ -698,7 +728,7 @@ public class BackgroundService extends Service {
         /**
          * set profile as active, others are ready.
          * (if fragment Profile is not null
-         */
+     */
 //        if (Main.getInstance().fragmentProfile != null)
 //            Main.getInstance().fragmentProfile.activateProfile(e.getProfile());
 

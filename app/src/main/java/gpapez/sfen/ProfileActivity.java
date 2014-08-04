@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,10 +21,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -572,8 +568,10 @@ public class ProfileActivity extends Activity {
                         .registerTypeAdapter(Uri.class, new UriSerializer())
                         .create();
 
+                //Gson gson = new Gson();
 
-                //System.out.println("*** Saving intent\n"+ gson.toJson(intent));
+
+                System.out.println("*** Saving intent\n"+ gson.toJson(intent));
 
                 cond.setSetting("shortcut_intent", gson.toJson(intent));
 
