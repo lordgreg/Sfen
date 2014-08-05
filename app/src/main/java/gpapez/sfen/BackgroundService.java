@@ -13,6 +13,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -216,8 +217,6 @@ public class BackgroundService extends Service {
         if (events.size() > 0)
             updateEventConditionTimers(events);
 
-
-        // first time, check for root!
 
 
         /**
@@ -618,24 +617,40 @@ public class BackgroundService extends Service {
                      *
                      * http://stackoverflow.com/questions/22533432/create-object-from-gson-string-doesnt-work
                      */
-                    class UriDeserializer implements JsonDeserializer<Uri> {
-                        @Override
-                        public Uri deserialize(final JsonElement src, final Type srcType,
-                                               final JsonDeserializationContext context) throws JsonParseException {
-                            return Uri.parse(src.getAsString());
-                        }
+//                    class UriDeserializer implements JsonDeserializer<Uri> {
+//                        @Override
+//                        public Uri deserialize(final JsonElement src, final Type srcType,
+//                                               final JsonDeserializationContext context) throws JsonParseException {
+//                            return Uri.parse(src.getAsString());
+//                        }
+//                    }
+//
+//                    Gson gsonIntent = new GsonBuilder()
+//                            .registerTypeAdapter(Uri.class, new UriDeserializer())
+//                            .create();
+//
+//                    Intent intent = gsonIntent.fromJson(act.getSetting("shortcut_intent"), Intent.class);
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    System.out.println("*** Opening intent\n" + act.getSetting("shortcut_intent"));
+                    Log.d("sfen", "Intent URI\n" + act.getSetting("intent_uri"));
+
+                    Intent intent = new Intent();
+                    try {
+                        intent = Intent.parseUri(act.getSetting("intent_uri"), Intent.URI_INTENT_SCHEME);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    }
+                    catch (Exception e) {
+                        Log.e("sfen", "Parse URI exception!");
+                        e.printStackTrace();
                     }
 
-                    Gson gsonIntent = new GsonBuilder()
-                            .registerTypeAdapter(Uri.class, new UriDeserializer())
-                            .create();
-
-                    Intent intent = gsonIntent.fromJson(act.getSetting("shortcut_intent"), Intent.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    System.out.println("*** Opening intent\n" + act.getSetting("shortcut_intent"));
-
-                    startActivity(intent);
+                    try {
+                        startActivity(intent);
+                    }
+                    catch (Exception e) {
+                        Log.e("sfen", "Fatal error when trying to call new Shortcut!");
+                        e.printStackTrace();
+                    }
 
                     break;
 
@@ -692,7 +707,46 @@ public class BackgroundService extends Service {
      ***********************************************************************************************
      */
     protected void runProfileSettings(Profile p) {
-        System.out.println("editing sound options...");
+
+        /**
+         * DISPLAY BRIGHTNESS
+         * http://developer.android.com/reference/android/provider/Settings.System.html
+         */
+        Log.i("sfen", "Brightness value: "+ p.getBrightnessValue());
+        Log.i("sfen", "Brightness auto: "+ p.isBrightnessAuto());
+
+        /**
+         * DISPLAY BRIGHTNESS AUTO
+         */
+        if (p.isBrightnessAuto()) {
+            Log.i("sfen", "Brightness set to auto.");
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+            );
+        }
+        /**
+         * DISPLAY BRIGHTNESS MANUAL
+         */
+        else {
+            Log.i("sfen", "Brightness set to "+ p.getBrightnessValue() +".");
+
+            if (p.getBrightnessValue() == 0)
+                p.setBrightnessValue(10);
+
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+            );
+
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.SCREEN_BRIGHTNESS, (p.getBrightnessValue()));
+        }
+
+
+        /**
+         * VIBRATION
+         */
 
 
         // to vibrate

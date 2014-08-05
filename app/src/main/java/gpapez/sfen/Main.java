@@ -31,6 +31,9 @@ public class Main extends Activity {
     // background service object
     protected static Intent bgService = null;
 
+    // TAG
+    protected String TAG;
+
     // if main activity is visible or not (will change onResume and onPause)
     protected boolean isVisible = false;
 
@@ -63,6 +66,9 @@ public class Main extends Activity {
 
         // start preferences
         mPreferences = new Preferences(this);
+
+        // tag
+        TAG = sInstance.getClass().getPackage().getName();
 
         /**
          * create fragment objects
@@ -385,6 +391,7 @@ public class Main extends Activity {
             sendBroadcast(intent);
         }
     }
+
 
     /**
      * call proper view refresh based on current tab selected

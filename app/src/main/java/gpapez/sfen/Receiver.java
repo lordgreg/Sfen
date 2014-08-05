@@ -36,7 +36,8 @@ public class Receiver extends BroadcastReceiver {
         add(LocationManager.MODE_CHANGED_ACTION);
 
         // in-app broadcast calls
-        add(getClass().getPackage().getName() +".EVENT_ENABLED");
+        add(Main.getInstance().TAG +".BRIGHTNESS_SET");
+        add(Main.getInstance().TAG +".EVENT_ENABLED");
         add(getClass().getPackage().getName() +".EVENT_DISABLED");
         add(getClass().getPackage().getName() +".GEOFENCE_ENTER");
         add(getClass().getPackage().getName() +".GEOFENCE_EXIT");
@@ -183,10 +184,15 @@ public class Receiver extends BroadcastReceiver {
 
         }
 
+        /**
+         * BRIGHTNESS CHANGE,
+         */
+
 
         // RUN OUR FUNCTION
-        if (mCallBroadcast)
+        if (mCallBroadcast) {
             BackgroundService.getInstance().EventFinder(context, intent);
+        }
 
         // release wakelock if set
         if (mWakeLock != null)

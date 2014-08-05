@@ -65,7 +65,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Sound"
+        android:text="Sound &amp; Display"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView2" />
 
@@ -148,6 +148,18 @@
             android:onClick="onClickProfileNotificationSound"
             android:text="File selected" />
     </LinearLayout>
+
+
+    <TextView
+        style="@android:style/Widget.ListView"
+        android:text="Brightness"
+        android:id="@+id/profile_brightness"
+        android:onClick="onClickProfileBrightness"
+        android:clickable="true"
+        android:padding="6dip"
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 
     <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="10dp">

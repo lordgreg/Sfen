@@ -17,6 +17,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -28,6 +30,7 @@ import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Gregor on 3.8.2014.
@@ -35,7 +38,6 @@ import java.util.ArrayList;
 public class ProfileActivity extends Activity {
 
     private static ProfileActivity sInstance = null;
-    protected ViewGroup mContainerSoundAndDisplay;
     protected ViewGroup mContainerAction;
 
     // in case of updating profile
@@ -49,12 +51,14 @@ public class ProfileActivity extends Activity {
     protected Profile profile = null;
 
     // arrays for conditions and actions
+    final HashMap<String, String> options = new HashMap<String, String>();
     protected ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
     // request codes (creating shortcuts)
     final int REQUEST_PICK_SHORTCUT = 0x100;
     final int REQUEST_CREATE_SHORTCUT = 0x200;
 
+    // options hashmap
 
 
     // list of possible Actions in Options
@@ -72,7 +76,6 @@ public class ProfileActivity extends Activity {
         add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
         add(new DialogOptions("Open shortcut", "Will open specified shortcut", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
     }};
-
 
 
     @Override
@@ -202,6 +205,9 @@ public class ProfileActivity extends Activity {
          */
         profile.setName(((TextView) findViewById(R.id.profile_name)).getText().toString());
         profile.setVibrate(((CheckBox) findViewById(R.id.profile_vibrate)).isChecked());
+        profile.setBrightnessValue(Integer.valueOf(options.get("BRIGHTNESS_VALUE")));
+        profile.setBrightnessAuto(Boolean.valueOf(options.get("BRIGHTNESS_AUTO")));
+
 
         /**
          * save actions too
@@ -524,6 +530,104 @@ public class ProfileActivity extends Activity {
     }
 
 
+    /**
+     *
+     * OnClick: PROFILE BRIGHTNESS
+     *
+     * Will open dialog with progressbar and checkbox for
+     * brightness setting
+     *
+     * At the end, it will send broadcast to start the actions
+     *
+     */
+    public void onClickProfileBrightness(View v) {
+
+        /**
+         * (create &) open dialog
+         */
+        // Set an EditText view to get user input
+        final CheckBox checkBox = new CheckBox(sInstance);
+        final SeekBar seekBar = new SeekBar(sInstance);
+        seekBar.setMax(255); // MAX VALUE = SCREEN_BRIGHTNESS
+
+        checkBox.setText("Automagically adjust brightness");
+
+        /**
+         * checking automode disables seekbar
+         */
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seekBar.setEnabled(!checkBox.isChecked());
+            }
+        });
+
+        // Updating Profile, add values from config to dialog
+        if (isUpdating) {
+            checkBox.setChecked(profile.isBrightnessAuto());
+
+            // seekbar is enabled only if checkbox isn't checked
+            seekBar.setEnabled(!checkBox.isChecked());
+
+            if (profile.getBrightnessValue() >= 0)
+                seekBar.setProgress(profile.getBrightnessValue());
+        }
+
+        LinearLayout newView = new LinearLayout(sInstance);
+        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        newView.setLayoutParams(parms);
+        newView.setOrientation(LinearLayout.VERTICAL);
+        newView.setPadding(15, 15, 15, 15);
+        newView.addView(seekBar, 0);
+        newView.addView(checkBox, 1);
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
+
+
+        builder
+                .setView(newView)
+                .setTitle("Brightness")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+
+                        /**
+                         * save selections to options
+                         */
+                        options.put("BRIGHTNESS_VALUE", String.valueOf(seekBar.getProgress()));
+                        options.put("BRIGHTNESS_AUTO", String.valueOf(checkBox.isChecked()));
+
+                        /**
+                         * Create intent
+                         */
+                        //Main.getInstance().sendBroadcast("SET_BRIGHTNESS");
+//                        Intent i = new Intent(Main.getInstance().TAG +".BRIGHTNESS_SET");
+//
+//                        i.putExtra("BRIGHTNESS_VALUE", seekBar.getProgress());
+//                        i.putExtra("BRIGHTNESS_AUTOMODE", checkBox.isChecked());
+//
+//                        /**
+//                         * Broadcast what we want
+//                         */
+//                        sendBroadcast(i);
+
+
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+
+
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -572,8 +676,10 @@ public class ProfileActivity extends Activity {
 
 
                 System.out.println("*** Saving intent\n"+ gson.toJson(intent));
+                System.out.println("*** Uri looks like\n"+ intent.toUri(Intent.URI_INTENT_SCHEME));
 
                 cond.setSetting("shortcut_intent", gson.toJson(intent));
+                cond.setSetting("intent_uri", intent.toUri(Intent.URI_INTENT_SCHEME));
 
                 cond.setSetting("text1", cond.getTitle());
                 cond.setSetting("text2", cond.getDescription());

@@ -24,6 +24,8 @@ public class Profile {
      * SETTING VARIABLES
      */
     private boolean isVibrate;
+    private int brightnessValue;
+    private boolean brightnessAuto;
 
 
 
@@ -84,5 +86,21 @@ public class Profile {
 
     public void setUniqueID(int uniqueID) {
         this.uniqueID = uniqueID;
+    }
+
+    public int getBrightnessValue() {
+        return brightnessValue;
+    }
+
+    public void setBrightnessValue(int brightnessValue) {
+        this.brightnessValue = brightnessValue;
+    }
+
+    public boolean isBrightnessAuto() {
+        return brightnessAuto;
+    }
+
+    public void setBrightnessAuto(boolean brightnessAuto) {
+        this.brightnessAuto = brightnessAuto;
     }
 }

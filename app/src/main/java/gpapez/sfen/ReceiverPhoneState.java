@@ -10,6 +10,20 @@ import android.telephony.gsm.GsmCellLocation;
  */
 public class ReceiverPhoneState extends PhoneStateListener {
 
+    /**
+     * phone riniging phone state
+     * @param state
+     * @param incomingNumber
+     */
+    public void onCallStateChanged (int state, String incomingNumber) {
+
+//        CALL_STATE_IDLE
+//        CALL_STATE_RINGING
+//        CALL_STATE_OFFHOOK
+
+    }
+
+
     public void onCellLocationChanged(GsmCellLocation CellId){
         super.onCellLocationChanged(CellId);
 
