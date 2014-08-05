@@ -332,7 +332,7 @@ public class EventActivity extends Activity {
                 (event.getProfile().isActive() ? "Active" : "Ready")
         );
         ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
-                .setImageDrawable(getResources().getDrawable(R.drawable.ic_profile));
+                .setImageDrawable(getResources().getDrawable(event.getProfile().getIcon()));
 
 
         // LISTENER for NEW PROFILE
@@ -525,9 +525,8 @@ public class EventActivity extends Activity {
                     (single.isActive() ? "Active" : "Ready")
             );
 
-            // TODO: icon from profile
-//            ((ImageButton) newRow.findViewById(R.id.dialog_icon))
-//                    .setImageDrawable(context.getResources().getDrawable(opt.getIcon()));
+            ((ImageButton) newRow.findViewById(R.id.dialog_icon))
+                    .setImageDrawable(sInstance.getResources().getDrawable(single.getIcon()));
 
 
             /**
@@ -559,7 +558,7 @@ public class EventActivity extends Activity {
                             single.isActive() ? "Active" : "Ready"
                     );
                     ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
-                            .setImageDrawable(getResources().getDrawable(R.drawable.ic_profile));
+                            .setImageDrawable(getResources().getDrawable(single.getIcon()));
 
 
                     // LISTENER for NEW PROFILE

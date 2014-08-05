@@ -14,6 +14,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="5dp"
+    android:showDividers="middle"
     android:weightSum="1"
     android:divider="@android:color/black"
     android:dividerPadding="5dp">
@@ -27,40 +28,44 @@
         style="?android:attr/listSeparatorTextViewStyle" />
 
 
+    <!-- PROFILE NAME AND ICON -->
+    <LinearLayout
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:onClick="onClickProfileRingtone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <TextView
         style="@android:style/Widget.ListView"
         android:text="Profile name"
         android:id="@+id/profile_name"
         android:onClick="onClickProfileName"
         android:clickable="true"
+        android:singleLine="true"
         android:padding="6dip"
         android:layout_margin="5dp"
         android:textStyle="bold"
-        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <TextView
-        style="@android:style/Widget.ListView"
-        android:text="Icon"
-        android:id="@+id/profile_icon"
-        android:onClick="onClickProfileIcon"
-        android:clickable="true"
-        android:padding="6dip"
-        android:layout_margin="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/profile_icon"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:onClick="onClickProfileIcon"
+            android:src="@drawable/ic_notification"
+            android:background="?android:selectableItemBackground"
+            android:contentDescription="Edit Item"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false" />
 
+        </LinearLayout>
 
-    <!--
-    parent="@android:style/Widget.Button"
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
-        android:id="@+id/event_name"
-        android:singleLine="true" />
-        -->
 
     <TextView
         android:layout_width="fill_parent"

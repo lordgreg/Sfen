@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -95,6 +96,9 @@ public class FragmentProfile extends Fragment {
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(p.getName());
             ((TextView) newRow.findViewById(android.R.id.text2)).setText(
                     (p.isActive()) ? "Active" : "Ready");
+
+            ((ImageButton) newRow.findViewById(R.id.single_edit))
+                    .setImageDrawable(sInstance.getResources().getDrawable(p.getIcon()));
 
             // change color depending on profile color
             if (p.isActive())
@@ -295,7 +299,6 @@ public class FragmentProfile extends Fragment {
          * run profile actions
          */
         BackgroundService.getInstance().runProfileActions(p);
-
 
         /**
          * Profile set active

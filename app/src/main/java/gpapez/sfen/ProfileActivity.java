@@ -7,17 +7,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -155,7 +158,6 @@ public class ProfileActivity extends Activity {
 
         }
         if (id == R.id.action_save) {
-            //return saveEvent();
             // if event was successfully saved, check if we have to create alarms
             // geofaces if we have such conditions
             if (saveProfile()) {
@@ -205,8 +207,19 @@ public class ProfileActivity extends Activity {
          */
         profile.setName(((TextView) findViewById(R.id.profile_name)).getText().toString());
         profile.setVibrate(((CheckBox) findViewById(R.id.profile_vibrate)).isChecked());
-        profile.setBrightnessValue(Integer.valueOf(options.get("BRIGHTNESS_VALUE")));
-        profile.setBrightnessAuto(Boolean.valueOf(options.get("BRIGHTNESS_AUTO")));
+        if (options.get("BRIGHTNESS_VALUE") != null)
+            profile.setBrightnessValue(Integer.valueOf(options.get("BRIGHTNESS_VALUE")));
+
+        if (options.get("BRIGHTNESS_AUTO") != null)
+            profile.setBrightnessAuto(Boolean.valueOf(options.get("BRIGHTNESS_AUTO")));
+
+
+        // if tag of image button is null, save icon as ic_notification
+        if ((Integer)((ImageButton) findViewById(R.id.profile_icon)).getTag() == null) {
+            profile.setIcon(R.drawable.ic_notification);
+        }
+        else
+            profile.setIcon((Integer) ((ImageButton) findViewById(R.id.profile_icon)).getTag());
 
 
         /**
@@ -263,6 +276,11 @@ public class ProfileActivity extends Activity {
         ((TextView) findViewById(R.id.profile_name)).setText(profile.getName());
         ((CheckBox) findViewById(R.id.profile_vibrate)).setChecked(profile.isVibrate());
 
+        // if icon isn't empty, add icon too.
+        if (profile.getIcon() !=  0) {
+            ((ImageButton) findViewById(R.id.profile_icon)).setImageDrawable(getResources().getDrawable(profile.getIcon()));
+            ((ImageButton) findViewById(R.id.profile_icon)).setTag(profile.getIcon());
+        }
 
         // also, would be great if we add all actions to container, no?
         ArrayList<DialogOptions> allAct = profile.getActions();
@@ -480,8 +498,68 @@ public class ProfileActivity extends Activity {
      *
      * OnClick: PROFILE ICON
      *
+     * opens up a dialog with all possible icons
+     *
      */
     public void onClickProfileIcon(View v) {
+
+        // grid layout
+        GridView newView = new GridView(sInstance);
+        GridView.LayoutParams params = new GridView.LayoutParams(
+                GridView.LayoutParams.MATCH_PARENT,
+                GridView.LayoutParams.MATCH_PARENT
+        );
+
+
+        newView.setLayoutParams(params);
+        newView.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+        newView.setColumnWidth(
+                (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 68, getResources().getDisplayMetrics())
+        );
+        newView.setNumColumns(GridView.AUTO_FIT);
+        newView.setGravity(Gravity.CENTER);
+        newView.setPadding(15, 15, 15, 15);
+
+        newView.setAdapter(new ImageAdapter(this));
+
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
+
+        builder
+                .setView(newView)
+                .setTitle("Select Icon")
+//                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        dialogInterface.dismiss();
+//                    }
+//                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+        final AlertDialog dialog = builder.create();
+
+        newView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                dialog.dismiss();
+
+                /**
+                 * store icon ID to imageview of profileactivity
+                 */
+                ImageButton imageButton = (ImageButton) findViewById(R.id.profile_icon);
+                imageButton.setImageResource(ImageAdapter.mThumbIds[position]);
+                imageButton.setTag(ImageAdapter.mThumbIds[position]);
+                //Toast.makeText(sInstance, "" + position, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        dialog.show();
+
 
     }
 

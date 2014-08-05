@@ -55,26 +55,6 @@ public class Event {
         }
     }
 
-    /**
-     * check through all actions and return true if any of them is set to ACT_NOTIFICATION;
-     * @return boolean
-     */
-    public void updateNotification() {
-
-        for (DialogOptions single : actions) {
-            if (single.getOptionType() == DialogOptions.type.ACT_NOTIFICATION) {
-                //notification.saveData();
-                BackgroundService.getInstance().mNotification.saveData(
-                        this.name, this.name, R.drawable.ic_launcher
-                );
-                break;
-            }
-        }
-
-
-        //return false;
-
-    }
 
     /***********************************************************************************************
      * Checks Event for all conditions and returns boolean for every condition
@@ -618,9 +598,6 @@ public class Event {
             if (e.isRunning()) {
                 Log.d("sfen", "Turning off " + e.getName());
                 e.setRunning(false);
-
-                // remove event from notification list
-                BackgroundService.getInstance().mNotification.removeEventFromList(e.getName());
 
                 // we have updated even though we are returning false
                 BackgroundService.getInstance().isOneStopping = true;

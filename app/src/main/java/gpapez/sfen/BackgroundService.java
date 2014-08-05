@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
@@ -25,13 +24,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.location.Geofence;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -151,7 +144,7 @@ public class BackgroundService extends Service {
             return 1;
         }
 
-        mPreferences = Main.getInstance().mPreferences;
+        mPreferences = new Preferences(Main.getInstance());
 
         if (mPreferences != null) {
 
@@ -345,19 +338,11 @@ public class BackgroundService extends Service {
                     runEventActions(context, intent, e);
 
 
-                    // TODO: RUN EVENT PROFILE
-                    //runProfileSettings(e.getProfile());
-                    //runProfileActions(e.getProfile());
-
-
                     // TODO: store action to log.
                 }
                 // conditions aren't met; switch event to not running (if maybe they were)
                 else {
                     e.setRunning(false);
-
-                    // remove from notification list
-                    mNotification.removeEventFromList(e.getName());
 
                 }
             }
@@ -366,18 +351,12 @@ public class BackgroundService extends Service {
             // or something else o_O
             else {
                 e.setRunning(false);
-
-                // remove from notification list
-                mNotification.removeEventFromList(e.getName());
             }
         }
 
         // if there's no events running OR events stopping, clear notification
         if ((!isOneRunning && isOneStopping) || (!isOneRunning && !isOneStopping)) {
             Log.d("sfen", "no events running.");
-            mNotification.resetInformation();
-            //mUtil.showNotification(sInstance, getString(R.string.app_name), "", R.drawable.ic_launcher);
-            // what.
         }
 
 
@@ -420,8 +399,6 @@ public class BackgroundService extends Service {
 
 
         ArrayList<DialogOptions> actions = p.getActions();
-        // TODO: run event profile's actions
-        // ArrayList<DialogOptions> actions = e.getProfile().getActions();
 
         // loop through all actions and run them
         for (DialogOptions act : actions) {
@@ -432,7 +409,7 @@ public class BackgroundService extends Service {
                 // popup notification!
                 case ACT_NOTIFICATION:
                     //mUtil.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
-                    mNotification.saveData(p.getName(), p.getName(), R.drawable.ic_launcher);
+                    mNotification.saveData(p.getName(), p.getName(), p.getIcon());
 
                     break;
 
@@ -696,6 +673,11 @@ public class BackgroundService extends Service {
             }
         }
 
+        /**
+         * update notification
+         */
+        mNotification.showNotification();
+
 
     }
 
@@ -774,17 +756,48 @@ public class BackgroundService extends Service {
             /**
              * even if disabled, let's check if event has notifications and overwrite them
              */
-            e.updateNotification();
+            //e.updateNotification();
 
             return ;
         }
 
         /**
-         * set profile as active, others are ready.
-         * (if fragment Profile is not null
-     */
-//        if (Main.getInstance().fragmentProfile != null)
-//            Main.getInstance().fragmentProfile.activateProfile(e.getProfile());
+         * disable current active profile
+         */
+        for (Profile current : profiles) {
+
+            if (current.isActive()) {
+                current.setActive(false);
+
+                profiles.set(
+                        profiles.indexOf(current),
+                        current
+                );
+
+
+
+                Log.i("sfen", "Currently active profile "+ current.getName() +" disabled.");
+
+                //break;
+
+            }
+
+        }
+
+        /**
+         * set new as active
+         */
+        // if the profile key isn't -1
+//        TODO: Find a proper way to set one Profile active, and deactivate others.
+//        System.out.println("current index in array: "+ BackgroundService.getInstance().profiles.indexOf(e.getProfile()));
+//        e.getProfile().setActive(true);
+//
+//        System.out.println("current index in array: "+ BackgroundService.getInstance().profiles.indexOf(e.getProfile()));
+//
+//        BackgroundService.getInstance().profiles.set(
+//                BackgroundService.getInstance().profiles.indexOf(e.getProfile()),
+//                e.getProfile()
+//        );
 
 
 
@@ -796,14 +809,12 @@ public class BackgroundService extends Service {
         // first time actions are run. now set event to running.
         e.setRunning(true);
 
-        // add it to notifications
-        mNotification.addEventToList(e.getName());
-
         // set hasrun boolean to true also
         e.setHasRun(true);
 
         // disable force run
         e.setForceRun(false);
+
 
     }
 

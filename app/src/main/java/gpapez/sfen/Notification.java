@@ -125,8 +125,9 @@ public class Notification {
 
         if (mNotificationManager == null) {
             mNotificationManager =
-                    (NotificationManager) Main.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+                    (NotificationManager) BackgroundService.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
         }
+
 
         /**
          * android version dependent call!
@@ -135,28 +136,11 @@ public class Notification {
 
         // JELLY_BEAN+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-/*
-            note = new android.app.Notification.Builder(BackgroundService.getInstance())
-                    .setContentTitle(title)
-                    .setContentText(description)
-                    .setSmallIcon(icon).build();
-*/
 
             /**
              * if we have more than one running events, change description
              */
             //System.out.println(mRunningEvents.toString() +" running events "+ mRunningEvents.size());
-
-            if (mRunningEvents.size() == 0) {
-                description = "No running events.";
-            }
-            else if (mRunningEvents.size() == 1) {
-                description = description;
-            }
-            else if (mRunningEvents.size() > 1) {
-                description = mRunningEvents.size() +" running events.";
-            }
-
 
 
             //PendingIntent pi = getPendingIntent();
@@ -171,7 +155,7 @@ public class Notification {
                     ;
 
             note = new android.app.Notification.BigTextStyle(builder)
-                    .bigText(showStringFromArray())
+                    .bigText(showRunningEvents())
                     //.setSummaryText("Out of total "+ Main.getInstance().events.size() +" events.")
                     .build();
 
@@ -196,7 +180,8 @@ public class Notification {
     }
 
     protected void showNotification() {
-        prepareData();
+        createActiveProfile();
+
         showNotification(this.mTitle, this.mDescription, this.mIcon);
     }
 
@@ -205,9 +190,9 @@ public class Notification {
      * resets fields title, description and icon
      */
     protected void resetInformation() {
-        mTitle = null;
-        mDescription = null;
-        mIcon = -1;
+        mTitle = "Sfen";
+        mDescription = "";
+        mIcon = R.drawable.ic_launcher;
         mRunningEvents.clear();
     }
 
@@ -234,26 +219,6 @@ public class Notification {
     }
 
     /**
-     * add running event to list
-     */
-    protected void addEventToList(String event) {
-        if (!mRunningEvents.contains(event)) {
-            mRunningEvents.add(event);
-        }
-    }
-
-
-    /**
-     * remove running event from list
-     */
-    protected void removeEventFromList(String event) {
-        if (mRunningEvents.contains(event)) {
-            mRunningEvents.remove(event);
-        }
-
-    }
-
-    /**
      * sets data with one method
      */
     protected void saveData(String title, String description, int icon) {
@@ -265,26 +230,39 @@ public class Notification {
     /**
      * create string with newlines from array of enabled Events
      */
-    private String showStringFromArray() {
+    private String showRunningEvents() {
         String output = "";
-        for (String single : mRunningEvents) {
-            output += single +"\n";
+        for (Event single : BackgroundService.getInstance().events) {
+            if (single.isRunning())
+                output += single.getName() +"\n";
         }
 
-        if (mRunningEvents.size() == 0) {
-            /**
-             * we cannot return NO EVENTS running; maybe there are events running, but
-             * don't have notification!?
-             */
-            output = "";
-            //output = "There are currently no Events running.";
-//         if (mRunningEvents.size() <= 1)
-//            output = "";
-
-        }
 
         //System.out.println("*** OUTPUT: "+ output);
         return output;
+    }
+
+
+    /**
+     * create title, description and icon from currently running profile
+     */
+    private void createActiveProfile() {
+        boolean foundActive = false;
+        for (Profile single : BackgroundService.getInstance().profiles) {
+
+            if (single.isActive()) {
+                mTitle = single.getName();
+                mIcon = single.getIcon();
+                foundActive = true;
+                break;
+            }
+
+        }
+
+        if (!foundActive) {
+            resetInformation();
+        }
+
     }
 
 
