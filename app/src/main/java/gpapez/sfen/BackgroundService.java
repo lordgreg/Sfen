@@ -754,7 +754,8 @@ public class BackgroundService extends Service {
             Log.e("sfen", e.getName() +" is already running. Skipping actions.");
 
             /**
-             * even if disabled, let's check if event has notifications and overwrite them
+             * even if disabled, let's check if event has notifications and overwrite
+             * them
              */
             //e.updateNotification();
 
