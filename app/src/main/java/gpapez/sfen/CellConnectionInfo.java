@@ -40,7 +40,14 @@ public class CellConnectionInfo {
                 List<CellInfo> cellInfos = (List<CellInfo>) telephonyManager.getAllCellInfo();
 
 
-                if (cellInfos.size() > 0) {
+                if (cellInfos == null) {
+                    CellLocation cellLocation = telephonyManager.getCellLocation();
+                    Object o = cellLocation;
+                    setCellType(o);
+
+                    Log.d("CELL ID (tostring)", o.toString());
+                }
+                else if (cellInfos.size() > 0) {
                     Object o = cellInfos.get(0);
 
                     setCellType(o);
@@ -103,10 +110,18 @@ public class CellConnectionInfo {
                 CellInfoGsm mCell = (CellInfoGsm) o;
                 cellType = "GSM";
                 cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
+            } else if (cellType.compareTo("GsmCellLocation") == 0) {
+                GsmCellLocation mCell = (GsmCellLocation) o;
+                cellType = "GSM";
+                cellId = mCell.getLac() + ":" + mCell.getCid();
             } else if (cellType.compareTo("CellInfoCdma") == 0) {
                 CellInfoCdma mCell = (CellInfoCdma) o;
                 cellType = "CDMA";
                 cellId = "" + mCell.getCellIdentity().getBasestationId();
+            } else if (cellType.compareTo("CdmaCellLocation") == 0) {
+                CdmaCellLocation mCell = (CdmaCellLocation) o;
+                cellType = "CDMA";
+                cellId = "" + mCell.getBaseStationId();
             } else if (cellType.compareTo("CellInfoWcdma") == 0) {
                 CellInfoWcdma mCell = (CellInfoWcdma) o;
                 cellType = "WCDMA";
