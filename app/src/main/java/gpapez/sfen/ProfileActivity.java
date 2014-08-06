@@ -5,8 +5,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -595,6 +599,31 @@ public class ProfileActivity extends Activity {
      *
      */
     public void onClickProfileRingtone(View v) {
+
+        RingtoneManager ringtoneManager = new RingtoneManager(this);
+
+        ringtoneManager.setType(RingtoneManager.TYPE_RINGTONE);
+        Cursor cursor = ringtoneManager.getCursor();
+
+        if (cursor.getCount() == 0) {
+            Log.e("sfen", "No ringtones available!");
+            return ;
+        }
+
+        String[] mRingToneStrings = new String[cursor.getCount()];
+        ArrayList<Uri> mRingToneList = new ArrayList<Uri>();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            //Ringtone mRingtone = ringtoneManager.getRingtone(i);
+            //System.out.println(cursor.getColumnName(i));
+
+//            mRingToneStrings[i] = ringtoneManager.getRingtone(i).getTitle(this);
+            mRingToneList.add(i, ringtoneManager.getRingtoneUri(i));
+            //mRingtone.getTitle()
+        }
+        //cursor.close();
+
+        System.out.println("Array of all ringtones: "+ mRingToneList.toString());
 
     }
 

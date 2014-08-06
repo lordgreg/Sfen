@@ -499,6 +499,7 @@ public class BackgroundService extends Service {
 
                     // The '-1' here means to vibrate once
                     // '0' would make the pattern vibrate indefinitely
+                    // 3 would mean pattern run 3 times.
                     v.vibrate(vibPattern, -1);
 
 
@@ -724,11 +725,18 @@ public class BackgroundService extends Service {
 
         /**
          * VIBRATION
+         *
+         * set vibration mode when ringing
+         */
+        Settings.System.putInt(getContentResolver(), "vibrate_when_ringing",
+                p.isVibrate() ? 1 : 0
+        );
+
+
+        /**
+         *
          */
 
-
-        // to vibrate
-        // http://developer.android.com/reference/android/media/AudioManager.html#getRingerMode%28%29
     }
 
 

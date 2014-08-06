@@ -83,6 +83,25 @@ public class Profile {
     }
 
 
+    /**
+     * GetActiveProfile returns currently active profile.
+     *
+     * @return currently active profile
+     */
+    public static Profile getActiveProfile() {
+
+        for (Profile p : BackgroundService.getInstance().profiles) {
+            if (p.isActive())
+                return p;
+        }
+
+
+        return null;
+
+    }
+
+
+
     public String getName() {
         return name;
     }
