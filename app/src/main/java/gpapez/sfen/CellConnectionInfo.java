@@ -43,12 +43,12 @@ public class CellConnectionInfo {
 
                 if (cellInfos != null && cellInfos.size() > 0) {
                     gotCellInfo = true;
-                    Object o = cellInfos.get(0);
+                    CellInfo cell = cellInfos.get(0);
 
-                    setCellType(o, true);
+                    setCellType(cell);
 
                     //this.cellId = cellId;
-                    //Log.d("CELL ID (tostring)", o.toString());
+                    //Log.d("CELL ID (tostring)", cell.toString());
                     //Log.d("CELL ID", cellId);
                     //txtView.append("Celica: "+ cellId +"\n");
                 }
@@ -56,14 +56,16 @@ public class CellConnectionInfo {
             // if not JB, use other option
             if (!gotCellInfo) {
 
-                Object o = telephonyManager.getCellLocation();
-                //String cellId, cellType = "";
-                //cellType = cellLocation.getClass().getSimpleName();
-                setCellType(o, false);
-
+                CellLocation cell = telephonyManager.getCellLocation();
+                if (cell != null) {
+                    //String cellId, cellType = "";
+                    //cellType = cell.getClass().getSimpleName();
+                    setCellType(cell);
+                } else {
+                    errorString = "No mobile connection.";
+                    Log.e("sfen", errorString);
+                }
             }
-
-
 
         } catch (Exception e) {
             isError = true;
@@ -91,67 +93,56 @@ public class CellConnectionInfo {
     }
 
 
-    private void setCellType(Object o, Boolean cellInfo) {
-        cellType = o.getClass().getSimpleName();
+    private void setCellType(CellInfo cell) {
+        cellType = cell.getClass().getSimpleName();
 
         // cell code ID using getAllCellInfo can be used on >=4.1 of
         // Android JELLY_BEAN
-        if (cellInfo && Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            if (cellType.compareTo("CellInfoLte") == 0) {
-                CellInfoLte mCell = (CellInfoLte) o;
-                cellType = "LTE";
-                cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCi();
-            } else if (cellType.compareTo("CellInfoGsm") == 0) {
-                CellInfoGsm mCell = (CellInfoGsm) o;
-                cellType = "GSM";
-                cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
-            } else if (cellType.compareTo("GsmCellLocation") == 0) {
-                GsmCellLocation mCell = (GsmCellLocation) o;
-                cellType = "GSM";
-                cellId = mCell.getLac() + ":" + mCell.getCid();
-            } else if (cellType.compareTo("CellInfoCdma") == 0) {
-                CellInfoCdma mCell = (CellInfoCdma) o;
-                cellType = "CDMA";
-                cellId = "" + mCell.getCellIdentity().getBasestationId();
-            } else if (cellType.compareTo("CdmaCellLocation") == 0) {
-                CdmaCellLocation mCell = (CdmaCellLocation) o;
-                cellType = "CDMA";
-                cellId = "" + mCell.getBaseStationId();
-            } else if (cellType.compareTo("CellInfoWcdma") == 0) {
-                CellInfoWcdma mCell = (CellInfoWcdma) o;
-                cellType = "WCDMA";
-                cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
-            } else {
-                cellType = "";
-                cellId = "NULL";
-                isError = true;
-                errorString = "Unknown cell type (" + o.getClass().getSimpleName() + ")!";
-                Log.e("sfen", errorString);
+        //This is only called in JB
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+                if (cellType.compareTo("CellInfoLte") == 0) {
+                    CellInfoLte mCell = (CellInfoLte) cell;
+                    cellType = "LTE";
+                    cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCi();
+                } else if (cellType.compareTo("CellInfoGsm") == 0) {
+                    CellInfoGsm mCell = (CellInfoGsm) cell;
+                    cellType = "GSM";
+                    cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
+                } else if (cellType.compareTo("CellInfoCdma") == 0) {
+                    CellInfoCdma mCell = (CellInfoCdma) cell;
+                    cellType = "CDMA";
+                    cellId = "" + mCell.getCellIdentity().getBasestationId();
+                } else if (cellType.compareTo("CellInfoWcdma") == 0) {
+                    CellInfoWcdma mCell = (CellInfoWcdma) cell;
+                    cellType = "WCDMA";
+                    cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
+                } else {
+                    cellType = "";
+                    cellId = "NULL";
+                    isError = true;
+                    errorString = "Unknown cell type (" + cellType + ")!";
+                    Log.e("sfen", errorString);
+                }
             }
+    }
+
+    private void setCellType(CellLocation cell) {
+        cellType = cell.getClass().getSimpleName();
+
+        if (cellType.compareTo("GsmCellLocation") == 0) {
+            GsmCellLocation mCell = (GsmCellLocation) cell;
+            cellType = "GSM";
+            cellId = mCell.getCid() + ":" + mCell.getLac() + ":" + mCell.getPsc();
+        } else if (cellType.compareTo("CdmaCellLocation") == 0) {
+            CdmaCellLocation mCell = (CdmaCellLocation) cell;
+            cellType = "CDMA";
+            cellId = String.valueOf(mCell.getBaseStationId());
+        } else {
+            cellType = "";
+            cellId = "NULL";
+            isError = true;
+            errorString = "Unknown cell type (" + cellType + ")!";
+            Log.e("sfen", errorString);
         }
-        // if not JB, use other option
-        else {
-
-            if (cellType.compareTo("GsmCellLocation") == 0) {
-                GsmCellLocation mCell = (GsmCellLocation) o;
-                cellType = "GSM";
-                cellId = mCell.getCid() +":"+ mCell.getLac() +":"+ mCell.getPsc();
-            }
-            else if (cellType.compareTo("CdmaCellLocation") == 0) {
-                CdmaCellLocation mCell = (CdmaCellLocation) o;
-                cellType = "CDMA";
-                cellId = String.valueOf(mCell.getBaseStationId());
-            }
-            else {
-                cellType = "";
-                cellId = "NULL";
-                isError = true;
-                errorString = "Unknown cell type (" + o.getClass().getSimpleName() + ")!";
-                Log.e("sfen", errorString);
-            }
-        }
-
-
-
     }
 }
