@@ -1053,6 +1053,148 @@ public class Util extends Activity {
 
 
             /**
+             * CASE: Battery Level
+             */
+            case BATTERY_LEVEL:
+
+                final String[] mBatteryLevels = new String[] {
+                        "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"
+                };
+
+
+                /**
+                 * set which level is going to be checked by default
+                 *
+                 * (100% aka. last item in array)
+                 */
+                int mCheckedBattery = mBatteryLevels.length;
+
+                if (isEditing) {
+                    /**
+                     * since our battery setting is saved as 10, 20, 30,...
+                     * we have to get the key of it. divide by 10 and subtract 1
+                     */
+                    mCheckedBattery =
+                            (
+                                    Integer.parseInt(opt.getSetting("BATTERY_LEVEL")) / 10
+                            ) - 1;
+                }
+
+
+                builder
+                        //.setView(timerangeView)
+                        .setSingleChoiceItems(mBatteryLevels, mCheckedBattery, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                                // add new condition
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(),
+                                        opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("text1", "Battery level");
+                                cond.setSetting("text2", "Battery at "+ mBatteryLevels[which]);
+
+                                /**
+                                 * create setting with battery level without percentage
+                                 */
+                                cond.setSetting("BATTERY_LEVEL",
+                                        mBatteryLevels[which].replace("%", "")
+                                        );
+
+                                // editing.
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+                                addNewConditionOrAction(context, cond, index);
+
+                            }
+                        })
+                        .setIcon(R.drawable.ic_battery)
+
+                        .setTitle("Pick battery level")
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                builder.show();
+
+                break;
+
+            /**
+             * CASE: Battery Status
+             */
+            case BATTERY_STATUS:
+
+                final String[] mBatteryStatuses = new String[] {
+                        "Charging",
+                        "Discharging",
+                        "Not Charging",
+                        "Full"
+                };
+
+
+                /**
+                 * set which level is going to be checked by default
+                 *
+                 * (100% aka. last item in array)
+                 */
+                int mCheckedBatteryStatus = mBatteryStatuses.length;
+
+                if (isEditing) {
+                    mCheckedBatteryStatus =
+                                    Integer.parseInt(opt.getSetting("BATTERY_STATUS_KEY"));
+                }
+
+
+                builder
+                        //.setView(timerangeView)
+                        .setSingleChoiceItems(mBatteryStatuses, mCheckedBatteryStatus, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                                // add new condition
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(),
+                                        opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("text1", "Battery status");
+                                cond.setSetting("text2", "Battery is "+ mBatteryStatuses[which]);
+
+                                /**
+                                 * create setting with battery level without percentage
+                                 */
+                                cond.setSetting("BATTERY_STATUS", mBatteryStatuses[which]);
+                                cond.setSetting("BATTERY_STATUS_KEY", String.valueOf(which));
+
+
+                                // editing.
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+                                addNewConditionOrAction(context, cond, index);
+
+                            }
+                        })
+                        .setIcon(R.drawable.ic_battery)
+
+                        .setTitle("Pick battery level")
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                builder.show();
+
+                break;
+
+
+            /**
              * ACTION: SHOW NOTIFICATION
              */
             case ACT_NOTIFICATION:

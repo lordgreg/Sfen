@@ -2,12 +2,14 @@ package gpapez.sfen;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -562,6 +564,99 @@ public class Event {
 
                     break;
 
+
+                /**
+                 * battery status
+                 */
+                case BATTERY_STATUS:
+
+                    IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                    Intent batteryStatus = context.registerReceiver(null, ifilter);
+
+                    // Are we charging / charged?
+                    int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+                    //BatteryManager.EX
+                    /*boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                            status == BatteryManager.BATTERY_STATUS_FULL;
+
+                    // How are we charging?
+                    int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+                    boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+                    boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+                    */
+                    /*
+
+                        public static final int BATTERY_STATUS_CHARGING
+                        Constant Value: 2 (0x00000002)
+
+                        public static final int BATTERY_STATUS_DISCHARGING
+                        Constant Value: 3 (0x00000003)
+
+                        public static final int BATTERY_STATUS_FULL
+                        Constant Value: 5 (0x00000005)
+
+                        public static final int BATTERY_STATUS_NOT_CHARGING
+                        Constant Value: 4 (0x00000004)
+
+                        "Charging",
+                        "Discharging",
+                        "Not Charging",
+                        "Full"
+
+                     */
+                    if (cond.getSetting("BATTERY_STATUS").equals("Charging") &&
+                            status == 2)
+                        conditionResults.add(true);
+
+                    else if (cond.getSetting("BATTERY_STATUS").equals("Discharging") &&
+                            status == 3)
+                        conditionResults.add(true);
+
+                    else if (cond.getSetting("BATTERY_STATUS").equals("Not Charging") &&
+                            status == 4)
+                        conditionResults.add(true);
+
+                    else if (cond.getSetting("BATTERY_STATUS").equals("Full") &&
+                        status == 5)
+                        conditionResults.add(true);
+
+                    else
+                        conditionResults.add(false);
+
+
+                    System.out.println("-----------------current battery status: "+ status);
+
+                    break;
+
+                /**
+                 * BATTERY PERCENTAGE
+                 */
+                case BATTERY_LEVEL:
+
+                    ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                    batteryStatus = context.registerReceiver(null, ifilter);
+
+                    int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+                    int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+                    float batteryPct = level / (float)scale;
+//                    System.out.println("current battery level: "+ batteryPct);
+//                    System.out.println("level: "+ level +", scale: "+ scale);
+
+                    int saveLevel = Integer.parseInt(cond.getSetting("BATTERY_LEVEL"));
+
+                    /**
+                     * return true only in case of same battery level
+                     */
+                    if (level == saveLevel)
+                        conditionResults.add(true);
+
+                    else
+                        conditionResults.add(false);
+
+
+                    break;
+
                 default:
                     Log.e("sfen", "No case match ("+ cond.getOptionType() +" in areEventConditionsMet). Returning false.");
 
@@ -611,7 +706,6 @@ public class Event {
         return ret;
 
     }
-
 
     public boolean isMatchAllConditions() {
         return matchAllConditions;

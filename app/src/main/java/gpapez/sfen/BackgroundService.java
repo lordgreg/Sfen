@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
@@ -196,13 +197,7 @@ public class BackgroundService extends Service {
          * mReceiver init
          */
         mReceiver = new Receiver();
-        IntentFilter intentFilter = new IntentFilter();
-
-        // add allowable broadcasts
-        for (int i = 0; i < Receiver.sBroadcasts.size(); i++) {
-            intentFilter.addAction(Receiver.sBroadcasts.get(i));
-        }
-        registerReceiver(mReceiver, intentFilter);
+        //registerReceiver(mReceiver, mReceiver.createIntentFilter());
 
 
         // also check for the first time and never again, for the condition triggers
@@ -237,6 +232,7 @@ public class BackgroundService extends Service {
 
         // unregister our receiver
         unregisterReceiver(mReceiver);
+        mReceiver = null;
 
         // cancel phone state listener
         if (mPhoneManager != null)
@@ -788,18 +784,7 @@ public class BackgroundService extends Service {
         /**
          * set new as active
          */
-        // if the profile key isn't -1
-//        TODO: Find a proper way to set one Profile active, and deactivate others.
-//        System.out.println("current index in array: "+ BackgroundService.getInstance().profiles.indexOf(e.getProfile()));
-//        e.getProfile().setActive(true);
-//
-//        System.out.println("current index in array: "+ BackgroundService.getInstance().profiles.indexOf(e.getProfile()));
-//
-//        BackgroundService.getInstance().profiles.set(
-//                BackgroundService.getInstance().profiles.indexOf(e.getProfile()),
-//                e.getProfile()
-//        );
-
+        Profile.updateActiveProfile(e.getProfile().getUniqueID());
 
 
         /**
@@ -837,12 +822,15 @@ public class BackgroundService extends Service {
         ArrayList<Alarm> mAlarmsCreate = new ArrayList<Alarm>();
         ArrayList<Alarm> mAlarmsDelete = new ArrayList<Alarm>();
 
+        // BroadcastReceiver Filters
+        ArrayList<String> mReceiverFilters = new ArrayList<String>();
+
         for (Event e : events) {
 
             for (DialogOptions single : e.getConditions()) {
 
                 /**
-                 * start specific libraries if condition uses them
+                 * START LIBRARIES & ADD INTENT FILTERS if condition uses them
                  */
                 // GEOFENCES library
                 if ((single.getOptionType() == DialogOptions.type.LOCATION_ENTER ||
@@ -867,6 +855,7 @@ public class BackgroundService extends Service {
                             //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
                             PhoneStateListener.LISTEN_CELL_LOCATION
                     );
+
                     Log.i("sfen", "Enabling TelephonyManager lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
                 }
 
@@ -885,6 +874,7 @@ public class BackgroundService extends Service {
                 String hashCode = e.getUniqueID() +""+ single.getUniqueID();
 
                 switch (single.getOptionType()) {
+
                     case LOCATION_ENTER:
                     case LOCATION_LEAVE:
 
@@ -1102,8 +1092,38 @@ public class BackgroundService extends Service {
 
                         }
 
+                        break;
+
+
+                    case WIFI_CONNECT:
+                    case WIFI_DISCONNECT:
+
+                        if (e.isEnabled())
+                            mReceiverFilters.add(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 
                         break;
+
+                    case BATTERY_LEVEL:
+                    case BATTERY_STATUS:
+
+                        if (e.isEnabled())
+                            mReceiverFilters.add(Intent.ACTION_BATTERY_CHANGED);
+
+                        break;
+
+                    case GPS_ENABLED:
+                    case GPS_DISABLED:
+
+                        if (e.isEnabled())
+                            mReceiverFilters.add(LocationManager.MODE_CHANGED_ACTION);
+
+                        break;
+
+//                    case SCREEN_ON:
+//                    case SCREEN_OFF:
+//
+//                        mReceiverFilters.add(LocationManager.MODE_CHANGED_ACTION);
+//                        break;
 
                     default:
                         Log.d("sfen", "No case match ("+ single.getOptionType() +" in updateEventConditionTimers).");
@@ -1176,7 +1196,27 @@ public class BackgroundService extends Service {
         }
 
 
+        /**
+         * (Re)start BroadCast receiver with new filters.
+         */
+        try {
+            unregisterReceiver(mReceiver);
+        }
+        catch (IllegalArgumentException e) {
+            Log.d("sfen", "Receiver doesn't exist yet. No need to unregister.");
+        }
+
+
+        mReceiver.mSystemFilters = mReceiverFilters;
+        registerReceiver(mReceiver, mReceiver.createIntentFilter());
+
+        mReceiverFilters.clear();
+
+
+
     }
+
+
 
 
     /**

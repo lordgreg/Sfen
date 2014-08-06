@@ -627,6 +627,7 @@ public class ProfileActivity extends Activity {
         final CheckBox checkBox = new CheckBox(sInstance);
         final SeekBar seekBar = new SeekBar(sInstance);
         seekBar.setMax(255); // MAX VALUE = SCREEN_BRIGHTNESS
+        seekBar.setProgress(255/2);
 
         checkBox.setText("Automagically adjust brightness");
 

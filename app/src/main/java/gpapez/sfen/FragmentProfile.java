@@ -98,7 +98,7 @@ public class FragmentProfile extends Fragment {
                     (p.isActive()) ? "Active" : "Ready");
 
             ((ImageButton) newRow.findViewById(R.id.single_edit))
-                    .setImageDrawable(sInstance.getResources().getDrawable(p.getIcon()));
+                    .setImageDrawable(getResources().getDrawable(p.getIcon()));
 
             // change color depending on profile color
             if (p.isActive())
@@ -208,7 +208,6 @@ public class FragmentProfile extends Fragment {
 
                             activateProfile(p);
 
-
                         }
                         if (which == 1) {
 
@@ -256,37 +255,9 @@ public class FragmentProfile extends Fragment {
     protected void activateProfile(Profile p) {
 
         /**
-         * disable current active profile
+         * update list of profiles with active flags
          */
-        for (Profile current : BackgroundService.getInstance().profiles) {
-
-            if (current.isActive()) {
-                current.setActive(false);
-
-                BackgroundService.getInstance().profiles.set(
-                        BackgroundService.getInstance().profiles.indexOf(current),
-                        current
-                );
-
-
-
-                Log.i("sfen", "Currently active profile "+ current.getName() +" disabled.");
-
-                //break;
-
-            }
-
-        }
-
-        /**
-         * set new as active
-         */
-        p.setActive(true);
-
-        BackgroundService.getInstance().profiles.set(
-                BackgroundService.getInstance().profiles.indexOf(p),
-                p
-        );
+        Profile.updateActiveProfile(p.getUniqueID());
 
 
         /**

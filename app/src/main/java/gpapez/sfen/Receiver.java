@@ -4,9 +4,11 @@ import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -25,19 +27,35 @@ public class Receiver extends BroadcastReceiver {
 
 
     /**
+     * intentfilter object
+     */
+    private IntentFilter mIntentFilter;
+
+
+    /**
      * LIST OF AVAILABLE BROADCASTS
      */
     protected static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
-        // system-based broadcast calls
-        add(WifiManager.NETWORK_STATE_CHANGED_ACTION);  // wifi disable/enable/connect/disconnect
+        /**
+         * System based broadcast filters are added dinamically
+         * in BackgroundService::updateEventConditionTimers() after
+         * all conditions are checked;
+         */
+        //add(WifiManager.NETWORK_STATE_CHANGED_ACTION);  // wifi disable/enable/connect/disconnect
+        //add(LocationManager.MODE_CHANGED_ACTION);
+        //add(Intent.ACTION_BATTERY_CHANGED);
+
+
+        /**
+         * system filter for SCREEN ON/OFF must stay to trigger our wakelock alarm!
+         */
         add(Intent.ACTION_SCREEN_ON);                   // screen on
         add(Intent.ACTION_SCREEN_OFF);                  // screen off
-        //add(Intent.ACTION_AIRPLANE_MODE_CHANGED);     // toggle airplane
-        add(LocationManager.MODE_CHANGED_ACTION);
+
 
         // in-app broadcast calls
-        add(Main.getInstance().TAG +".BRIGHTNESS_SET");
-        add(Main.getInstance().TAG +".EVENT_ENABLED");
+        add(getClass().getPackage().getName() +".BRIGHTNESS_SET");
+        add(getClass().getPackage().getName() +".EVENT_ENABLED");
         add(getClass().getPackage().getName() +".EVENT_DISABLED");
         add(getClass().getPackage().getName() +".GEOFENCE_ENTER");
         add(getClass().getPackage().getName() +".GEOFENCE_EXIT");
@@ -46,6 +64,11 @@ public class Receiver extends BroadcastReceiver {
         add(getClass().getPackage().getName() +".ROOT_GRANTED");
 
     }};
+
+    /**
+     * list of added system intent filters
+     */
+    protected ArrayList<String> mSystemFilters = new ArrayList<String>();
 
 
 
@@ -91,6 +114,14 @@ public class Receiver extends BroadcastReceiver {
 //            boolean gpsEnabled = false;
 //            try{gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);}catch(Exception ex){}
 //            System.out.println("gps enabled: "+ gpsEnabled);
+
+
+        }
+
+        /**
+         * battery changed
+         */
+        if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
 
 
         }
@@ -200,6 +231,39 @@ public class Receiver extends BroadcastReceiver {
 
         // set mCallBroadcast back to true
         mCallBroadcast = true;
+    }
+
+
+    /**
+     *
+     * constructor
+     *
+     */
+    public Receiver() {
+    }
+
+
+    /**
+     *
+     * Create Intent Filter
+     *
+     */
+    public IntentFilter createIntentFilter() {
+
+        mIntentFilter = new IntentFilter();
+
+        // add allowable broadcasts
+        for (int i = 0; i < sBroadcasts.size(); i++) {
+            mIntentFilter.addAction(sBroadcasts.get(i));
+        }
+
+        // add system intents
+        for (int  i = 0; i < mSystemFilters.size(); i++) {
+            mIntentFilter.addAction(mSystemFilters.get(i));
+        }
+
+        return mIntentFilter;
+
     }
 
 }

@@ -48,6 +48,41 @@ public class Profile {
 
     }
 
+    /**
+     * function updates flags for active/non-active profiles
+     * where id should be set to active.
+     *
+     * @param id
+     */
+    public static void updateActiveProfile(int id) {
+        Profile p;
+
+        for (int i = 0; i < BackgroundService.getInstance().profiles.size(); i++) {
+            p = BackgroundService.getInstance().profiles.get(i);
+
+            /**
+             * found our match
+             */
+            if (p.getUniqueID() == id) {
+
+                BackgroundService.getInstance().profiles.get(i).setActive(true);
+
+            }
+
+            /**
+             * deactivate all others profiles
+             */
+            else {
+
+                BackgroundService.getInstance().profiles.get(i).setActive(false);
+
+            }
+
+        }
+
+    }
+
+
     public String getName() {
         return name;
     }
