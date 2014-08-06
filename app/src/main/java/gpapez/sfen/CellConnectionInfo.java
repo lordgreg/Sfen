@@ -34,16 +34,18 @@ public class CellConnectionInfo {
             telephonyManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
 
             // cell code ID using getAllCellInfo can be used on >=4.1 of
-            // Android JELLY_BEAN
+            // Android JELLY_BEAN, but may be required in other situations too
+            Boolean gotCellInfo = false;
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
 
                 List<CellInfo> cellInfos = (List<CellInfo>) telephonyManager.getAllCellInfo();
 
 
-                if (cellInfos.size() > 0) {
+                if (cellInfos != null && cellInfos.size() > 0) {
+                    gotCellInfo = true;
                     Object o = cellInfos.get(0);
 
-                    setCellType(o);
+                    setCellType(o, true);
 
                     //this.cellId = cellId;
                     //Log.d("CELL ID (tostring)", o.toString());
@@ -52,12 +54,12 @@ public class CellConnectionInfo {
                 }
             }
             // if not JB, use other option
-            else {
+            if (!gotCellInfo) {
 
                 Object o = telephonyManager.getCellLocation();
                 //String cellId, cellType = "";
                 //cellType = cellLocation.getClass().getSimpleName();
-                setCellType(o);
+                setCellType(o, false);
 
             }
 
@@ -89,12 +91,12 @@ public class CellConnectionInfo {
     }
 
 
-    private void setCellType(Object o) {
+    private void setCellType(Object o, Boolean cellInfo) {
         cellType = o.getClass().getSimpleName();
 
         // cell code ID using getAllCellInfo can be used on >=4.1 of
         // Android JELLY_BEAN
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+        if (cellInfo && Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
             if (cellType.compareTo("CellInfoLte") == 0) {
                 CellInfoLte mCell = (CellInfoLte) o;
                 cellType = "LTE";
@@ -103,10 +105,18 @@ public class CellConnectionInfo {
                 CellInfoGsm mCell = (CellInfoGsm) o;
                 cellType = "GSM";
                 cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
+            } else if (cellType.compareTo("GsmCellLocation") == 0) {
+                GsmCellLocation mCell = (GsmCellLocation) o;
+                cellType = "GSM";
+                cellId = mCell.getLac() + ":" + mCell.getCid();
             } else if (cellType.compareTo("CellInfoCdma") == 0) {
                 CellInfoCdma mCell = (CellInfoCdma) o;
                 cellType = "CDMA";
                 cellId = "" + mCell.getCellIdentity().getBasestationId();
+            } else if (cellType.compareTo("CdmaCellLocation") == 0) {
+                CdmaCellLocation mCell = (CdmaCellLocation) o;
+                cellType = "CDMA";
+                cellId = "" + mCell.getBaseStationId();
             } else if (cellType.compareTo("CellInfoWcdma") == 0) {
                 CellInfoWcdma mCell = (CellInfoWcdma) o;
                 cellType = "WCDMA";
