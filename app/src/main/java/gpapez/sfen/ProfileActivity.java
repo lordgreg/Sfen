@@ -5,13 +5,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,7 +37,6 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by Gregor on 3.8.2014.
@@ -592,6 +589,70 @@ public class ProfileActivity extends Activity {
      */
     public void onClickVolumes(View v) {
 
+        /**
+         * build up dialog interface with items
+         */
+        final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
+
+        final View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_profile_volumes, null);
+
+        /**
+         * set max progress depending on AudioManager settings
+         */
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_ringtone)).setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_RING));
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_notification)).setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION));
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_music)).setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_alarm)).setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM));
+        //audioManager.getStreamMaxVolume(AudioManager.STREAM_RING
+
+                /**
+                 * if we are updating, update seekbars with our values
+                 */
+//        if (isUpdating) {
+                ((SeekBar) dialogView.findViewById(R.id.seekbar_ringtone)).setProgress(profile.getVolumeRingtone());
+            ((SeekBar) dialogView.findViewById(R.id.seekbar_notification)).setProgress(profile.getVolumeNotification());
+            ((SeekBar) dialogView.findViewById(R.id.seekbar_music)).setProgress(profile.getVolumeMusic());
+            ((SeekBar) dialogView.findViewById(R.id.seekbar_alarm)).setProgress(profile.getVolumeAlarm());
+//        }
+
+
+        builder
+                .setView(dialogView)
+                .setTitle("Volumes")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        /**
+                         * close the dialog
+                         */
+                        dialogInterface.dismiss();
+
+                        /**
+                         * save volumes to profile
+                         */
+                        profile.setVolumeRingtone(
+                                ((SeekBar) dialogView.findViewById(R.id.seekbar_ringtone)).getProgress()
+                        );
+
+                        profile.setVolumeNotification(
+                                ((SeekBar) dialogView.findViewById(R.id.seekbar_notification)).getProgress()
+                        );
+
+                        profile.setVolumeMusic(
+                                ((SeekBar) dialogView.findViewById(R.id.seekbar_music)).getProgress()
+                        );
+
+                        profile.setVolumeAlarm(
+                                ((SeekBar) dialogView.findViewById(R.id.seekbar_alarm)).getProgress()
+                        );
+
+                    }
+                })
+        .show();
+
     }
 
     /**
@@ -663,7 +724,7 @@ public class ProfileActivity extends Activity {
         final CheckBox checkBox = new CheckBox(sInstance);
         final SeekBar seekBar = new SeekBar(sInstance);
         seekBar.setMax(255); // MAX VALUE = SCREEN_BRIGHTNESS
-        seekBar.setProgress(255/2);
+        seekBar.setProgress(255 / 2);
 
         checkBox.setText("Automagically adjust brightness");
 

@@ -1,6 +1,5 @@
 package gpapez.sfen;
 
-import android.media.Ringtone;
 import android.net.Uri;
 
 import java.util.ArrayList;
@@ -31,6 +30,11 @@ public class Profile {
     private boolean brightnessAuto;
     private String ringtone;
     private String notification;
+    private int volumeRingtone;
+    private int volumeNotification;
+    private int volumeMusic;
+    private int volumeAlarm;
+
 
 
 
@@ -55,6 +59,14 @@ public class Profile {
          * set brightness to automode
          */
         brightnessAuto = true;
+
+        /**
+         * set default volumes
+         */
+        volumeRingtone = 80;
+        volumeNotification = 80;
+        volumeMusic = 80;
+        volumeAlarm = 80;
 
     }
 
@@ -190,5 +202,37 @@ public class Profile {
 
     public void setNotification(Uri notification) {
         this.notification = notification.toString();
+    }
+
+    public int getVolumeAlarm() {
+        return volumeAlarm;
+    }
+
+    public void setVolumeAlarm(int volumeAlarm) {
+        this.volumeAlarm = volumeAlarm;
+    }
+
+    public int getVolumeMusic() {
+        return volumeMusic;
+    }
+
+    public void setVolumeMusic(int volumeMusic) {
+        this.volumeMusic = volumeMusic;
+    }
+
+    public int getVolumeNotification() {
+        return volumeNotification;
+    }
+
+    public void setVolumeNotification(int volumeNotification) {
+        this.volumeNotification = volumeNotification;
+    }
+
+    public int getVolumeRingtone() {
+        return volumeRingtone;
+    }
+
+    public void setVolumeRingtone(int volumeRingtone) {
+        this.volumeRingtone = volumeRingtone;
     }
 }

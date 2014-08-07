@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="10dp">
+
+
+    <!-- RINGTONE -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ringtone"
+        android:textColor="?android:textColorHint"
+        android:id="@+id/textView" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="?android:listPreferredItemHeight"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="fill_parent"
+            android:src="@drawable/ic_phone"
+            android:background="?android:selectableItemBackground"
+            android:layout_marginRight="10dp"
+            />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekbar_ringtone"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="80" />
+    </LinearLayout>
+
+    <!-- NOTIFICATION -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notification"
+        android:textColor="?android:textColorHint"
+        android:id="@+id/textView2" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="?android:listPreferredItemHeight"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="fill_parent"
+            android:src="@drawable/ic_notification"
+            android:background="?android:selectableItemBackground"
+            android:layout_marginRight="10dp"
+            />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekbar_notification"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="80"/>
+    </LinearLayout>
+
+
+    <!-- MUSIC -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Music, video, games &amp; other media"
+        android:textColor="?android:textColorHint"
+        android:id="@+id/textView3" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="?android:listPreferredItemHeight"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="fill_parent"
+            android:src="@drawable/ic_sound"
+            android:background="?android:selectableItemBackground"
+            android:layout_marginRight="10dp"
+            />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekbar_music"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="80"/>
+    </LinearLayout>
+
+    <!-- ALARM -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alarm"
+        android:textColor="?android:textColorHint"
+        android:id="@+id/textView4" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="?android:listPreferredItemHeight"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="fill_parent"
+            android:src="@drawable/ic_alarm"
+            android:background="?android:selectableItemBackground"
+            android:layout_marginRight="10dp"
+            />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekbar_alarm"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="80"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>

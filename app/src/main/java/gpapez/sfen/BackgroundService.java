@@ -4,9 +4,9 @@ import android.app.AlarmManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
@@ -206,6 +206,13 @@ public class BackgroundService extends Service {
         if (events.size() > 0)
             updateEventConditionTimers(events);
 
+        /**
+         * there are no events,
+         * update notification here then
+         */
+        else
+            mNotification.showNotification();
+
 
 
         /**
@@ -380,7 +387,6 @@ public class BackgroundService extends Service {
          * going to win this. o_O
          */
         mNotification.showNotification();
-
 
     }
 
@@ -726,7 +732,6 @@ public class BackgroundService extends Service {
                     Settings.System.SCREEN_BRIGHTNESS, (p.getBrightnessValue()));
         }
 
-
         /**
          * VIBRATION
          *
@@ -759,6 +764,46 @@ public class BackgroundService extends Service {
 
         }
 
+
+        /**
+         * split notification and ringtone volume
+         */
+//        Settings.System.putInt(getContentResolver(), "NOTIFICATIONS_USE_RING_VOLUME", 1);
+
+
+
+        /**
+         * LOUDNESS
+         */
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+
+
+        /**
+         * we have to set default volume for ringing to max stream volume
+         *
+         * even though we set it like that, when we receive new phone call, volume will be set
+         * then. after phone call is dismissed or canceled, we set it back to the volume of
+         * notification sound.
+         */
+        audioManager.setStreamVolume(AudioManager.STREAM_RING, audioManager.getStreamMaxVolume(AudioManager.STREAM_RING), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+        //audioManager.setStreamVolume(AudioManager.STREAM_RING, p.getVolumeRingtone()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
+        /**
+         * keep in mind ringtone & notification loudness is merged since 4.2.
+         * bypassing this with checking receiver
+         */
+        //audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, p.getVolumeNotification()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, p.getVolumeMusic()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, p.getVolumeAlarm()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
+        //System.out.println("max volume for ringing: "+ audioManager.getStreamMaxVolume(AudioManager.STREAM_RING) + );
+
+        /**
+         * change sound mode
+         */
+//        if (p.getVolumeRingtone() == 0) {
+//            audioManager.setMode(AudioManager.RINGER_MODE_NORMAL);
+//        }
 
     }
 

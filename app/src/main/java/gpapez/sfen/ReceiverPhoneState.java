@@ -4,13 +4,9 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.PowerManager;
 import android.os.Vibrator;
-import android.provider.ContactsContract;
-import android.provider.Settings;
-import android.provider.Telephony;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
-import android.webkit.WebBackForwardList;
 
 /**
  * Created by Gregor on 30.7.2014.
@@ -23,11 +19,22 @@ public class ReceiverPhoneState extends PhoneStateListener {
      * @param incomingNumber
      */
     public void onCallStateChanged (int state, String incomingNumber) {
-
         /**
          * callstatechanged VARIABLES
          */
         Vibrator v;
+
+        /**
+         * retrieve current profile
+         */
+        Profile profile = Profile.getActiveProfile();
+
+        /**
+         * get audiomanager object
+         */
+        AudioManager audioManager = (AudioManager)BackgroundService
+                .getInstance().getSystemService(Context.AUDIO_SERVICE);
+
 
         switch (state) {
 
@@ -53,6 +60,8 @@ public class ReceiverPhoneState extends PhoneStateListener {
                 break;
 
             /**
+             * FINISHED TALKING!
+             *
              * Its idle time, we don't have any calls active. Set CALL_STATE_HOOK
              * in preferences to FALSE
              */
@@ -62,10 +71,22 @@ public class ReceiverPhoneState extends PhoneStateListener {
                         "CALL_STATE_OFFHOOK",
                         false).apply();
 
+                /**
+                 * since we're not on the phone anymore, change default sound volume to the one
+                 * set at notification.
+                 */
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+
+                audioManager.setStreamVolume(AudioManager.STREAM_RING,
+                        profile.getVolumeNotification()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)),
+                        AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
 
                 break;
 
             /**
+             * RRRRRRRRRRRRIIIIIIIIIIIIIINNNNNNNNNNNNGGGGGGGGGGGGG
+             *
              * when phone is ringing, check our currently active profile and quickly set
              * desired options!
              */
@@ -79,45 +100,27 @@ public class ReceiverPhoneState extends PhoneStateListener {
                 }
 
                 /**
-                 * retrieve current profile
+                 * set ringer mode first, depending on our profile decisions
                  */
-                Profile profile = Profile.getActiveProfile();
+                if (profile.getVolumeRingtone() == 0 && !profile.isVibrate())
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 
-                // the hell am i doing? just call profile settings before!
-                BackgroundService.getInstance().runProfileSettings(profile);
+                else if (profile.getVolumeRingtone() == 0 && profile.isVibrate())
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
 
-//                /**
-//                 * if vibrate is set, start vibrating
-//                 */
-//
-//
-//
-//                if (profile.isVibrate()) {
-//                    v = (Vibrator)
-//                            BackgroundService.getInstance().getSystemService(Context.VIBRATOR_SERVICE);
-//
-//                    /**
-//                     * do we even have vibrator?
-//                     */
-//                    if (v.hasVibrator()) {
-//
-//                        /**
-//                         * update vibration setting
-//                         */
-//
-//
-//                    }
-//                }
+                else
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
 
-//
-//                /**
-//                 * Audio adjustment
-//                 */
-//                AudioManager myAudioManager;
-//                myAudioManager = (AudioManager)BackgroundService.getInstance().
-//                        getSystemService(Context.AUDIO_SERVICE);
-//
-//
+
+                /**
+                 * set loudness-
+                 */
+                audioManager.setStreamVolume(AudioManager.STREAM_RING,
+                        profile.getVolumeRingtone()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)),
+                        AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
+
+
                 break;
         }
 

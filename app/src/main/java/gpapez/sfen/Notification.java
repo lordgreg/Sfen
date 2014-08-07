@@ -143,7 +143,6 @@ public class Notification {
             //System.out.println(mRunningEvents.toString() +" running events "+ mRunningEvents.size());
 
 
-            //PendingIntent pi = getPendingIntent();
             android.app.Notification.Builder builder = new android.app.Notification.Builder(BackgroundService.getInstance())
                     .setContentTitle(title)
                     .setContentText(description)
@@ -194,28 +193,6 @@ public class Notification {
         mDescription = "";
         mIcon = R.drawable.ic_launcher;
         mRunningEvents.clear();
-    }
-
-    /**
-     * check if notification variables are full or empty.
-     */
-    protected boolean hasStoredData() {
-        if (mTitle == null && mIcon == -1)
-            return false;
-        else
-            return true;
-    }
-
-    /**
-     * prepares data if it is empty
-     */
-    private void prepareData() {
-        if (!hasStoredData()) {
-            mTitle = "Sfen";
-            mDescription = "";
-            mIcon = R.drawable.ic_launcher;
-        }
-
     }
 
     /**
