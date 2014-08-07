@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -230,8 +231,13 @@ public class BackgroundService extends Service {
     @Override
     public void onDestroy() {
 
-        // unregister our receiver
-        unregisterReceiver(mReceiver);
+        // unregister our receiver-- i we don't have receiver registered
+        try {
+            unregisterReceiver(mReceiver);
+        }
+        catch (IllegalArgumentException e) {
+            Log.d("sfen", "Receiver didn't exist. No need to unregister.");
+        }
         mReceiver = null;
 
         // cancel phone state listener
@@ -691,14 +697,12 @@ public class BackgroundService extends Service {
          * DISPLAY BRIGHTNESS
          * http://developer.android.com/reference/android/provider/Settings.System.html
          */
-        Log.i("sfen", "Brightness value: "+ p.getBrightnessValue());
-        Log.i("sfen", "Brightness auto: "+ p.isBrightnessAuto());
 
         /**
          * DISPLAY BRIGHTNESS AUTO
          */
         if (p.isBrightnessAuto()) {
-            Log.i("sfen", "Brightness set to auto.");
+//            Log.i("sfen", "Brightness set to auto.");
             Settings.System.putInt(getContentResolver(),
                     Settings.System.SCREEN_BRIGHTNESS_MODE,
                     Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
@@ -708,7 +712,7 @@ public class BackgroundService extends Service {
          * DISPLAY BRIGHTNESS MANUAL
          */
         else {
-            Log.i("sfen", "Brightness set to "+ p.getBrightnessValue() +".");
+//            Log.i("sfen", "Brightness set to "+ p.getBrightnessValue() +".");
 
             if (p.getBrightnessValue() == 0)
                 p.setBrightnessValue(10);
@@ -734,8 +738,27 @@ public class BackgroundService extends Service {
 
 
         /**
-         *
+         * RINGTONE SOUNDS
          */
+        if (p.getRingtone() != null && p.getRingtone().toString().length() > 0) {
+
+            RingtoneManager.setActualDefaultRingtoneUri(this,
+                    RingtoneManager.TYPE_RINGTONE,
+                    p.getRingtone());
+
+        }
+
+        /**
+         * NOTIFICATION SOUNDS
+         */
+        if (p.getNotification() != null && p.getNotification().toString().length() > 0) {
+
+            RingtoneManager.setActualDefaultRingtoneUri(this,
+                    RingtoneManager.TYPE_NOTIFICATION,
+                    p.getNotification());
+
+        }
+
 
     }
 

@@ -116,7 +116,7 @@
             android:textAppearance="?android:attr/textAppearance"
             android:text="Ringtone" />
 
-        <TextView android:id="@android:id/text2"
+        <TextView android:id="@+id/ringtone_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -145,7 +145,7 @@
             android:textAppearance="?android:attr/textAppearance"
             android:text="Notification sound" />
 
-        <TextView android:id="@android:id/text2"
+        <TextView android:id="@+id/notification_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"

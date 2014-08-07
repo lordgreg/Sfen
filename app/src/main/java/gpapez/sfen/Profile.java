@@ -1,5 +1,8 @@
 package gpapez.sfen;
 
+import android.media.Ringtone;
+import android.net.Uri;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -26,6 +29,8 @@ public class Profile {
     private boolean isVibrate;
     private int brightnessValue;
     private boolean brightnessAuto;
+    private String ringtone;
+    private String notification;
 
 
 
@@ -45,6 +50,11 @@ public class Profile {
          * set profile to not running
          */
         isActive = false;
+
+        /**
+         * set brightness to automode
+         */
+        brightnessAuto = true;
 
     }
 
@@ -164,5 +174,21 @@ public class Profile {
 
     public void setBrightnessAuto(boolean brightnessAuto) {
         this.brightnessAuto = brightnessAuto;
+    }
+
+    public Uri getRingtone() {
+        return Uri.parse(ringtone);
+    }
+
+    public void setRingtone(Uri ringtone) {
+        this.ringtone = ringtone.toString();
+    }
+
+    public Uri getNotification() {
+        return Uri.parse(notification);
+    }
+
+    public void setNotification(Uri notification) {
+        this.notification = notification.toString();
     }
 }
