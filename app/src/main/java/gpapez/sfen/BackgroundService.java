@@ -909,6 +909,13 @@ public class BackgroundService extends Service {
          */
         runProfileActions(e.getProfile());
 
+
+        /**
+         * run profile settings
+         */
+        runProfileSettings(e.getProfile());
+
+
         // first time actions are run. now set event to running.
         e.setRunning(true);
 
