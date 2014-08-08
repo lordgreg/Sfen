@@ -2,6 +2,7 @@ package gpapez.sfen;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.media.Ringtone;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.telephony.PhoneStateListener;
@@ -23,11 +24,18 @@ public class ReceiverPhoneState extends PhoneStateListener {
          * callstatechanged VARIABLES
          */
         Vibrator v;
+        Ringtone ringtone;
 
         /**
          * retrieve current profile
+         *
+         * if there is none, skip whole process
          */
         Profile profile = Profile.getActiveProfile();
+
+        if (profile == null)
+            return ;
+
 
         /**
          * get audiomanager object
@@ -74,11 +82,12 @@ public class ReceiverPhoneState extends PhoneStateListener {
                 /**
                  * since we're not on the phone anymore, change default sound volume to the one
                  * set at notification.
-                 */
+                */
                 audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
 
-                audioManager.setStreamVolume(AudioManager.STREAM_RING,
-                        profile.getVolumeNotification()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)),
+                audioManager.setStreamVolume(
+                        AudioManager.STREAM_RING,
+                        profile.getVolumeNotification(),
                         AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
 
 
@@ -115,10 +124,10 @@ public class ReceiverPhoneState extends PhoneStateListener {
                 /**
                  * set loudness-
                  */
-                audioManager.setStreamVolume(AudioManager.STREAM_RING,
-                        profile.getVolumeRingtone()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)),
+                audioManager.setStreamVolume(
+                        AudioManager.STREAM_RING,
+                        profile.getVolumeRingtone(),
                         AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-
 
 
                 break;
@@ -138,7 +147,10 @@ public class ReceiverPhoneState extends PhoneStateListener {
         mWakeLock.acquire();
 
 
-        Main.getInstance().sendBroadcast("CELL_LOCATION_CHANGED");
+        /**
+         * send broadcast when CELL LOCATION CHANGES
+         */
+        BackgroundService.getInstance().sendBroadcast("CELL_LOCATION_CHANGED");
 
         // close down the wakelock
         mWakeLock.release();

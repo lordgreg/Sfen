@@ -193,6 +193,13 @@ public class BackgroundService extends Service {
             mSudo.isRootEnabled();
         }
 
+        /**
+         * GeoLocation library
+         */
+        mGeoLocation = new GeoLocation(sInstance);
+
+
+
 
         /**
          * mReceiver init
@@ -201,17 +208,37 @@ public class BackgroundService extends Service {
         //registerReceiver(mReceiver, mReceiver.createIntentFilter());
 
 
+        /**
+         * phone state receiver
+         */
+        // start phone listener
+        mPhoneManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mPhoneReceiver = new ReceiverPhoneState();
+
+        mPhoneManager.listen(mPhoneReceiver,
+                PhoneStateListener.LISTEN_CALL_STATE |
+                PhoneStateListener.LISTEN_CELL_LOCATION
+        );
+
+
+
         // also check for the first time and never again, for the condition triggers
         // refresh condition timers
         if (events.size() > 0)
             updateEventConditionTimers(events);
 
         /**
-         * there are no events,
-         * update notification here then
+         *
+         * if there are events or not, we have to update notification.
+         *
          */
-        else
-            mNotification.showNotification();
+        mNotification.showNotification();
+
+        /**
+         * if event fragment is set, refresh view
+         */
+        if (Main.getInstance().fragmentEvent != null)
+            Main.getInstance().fragmentEvent.refreshEventsView();
 
 
 
@@ -785,16 +812,31 @@ public class BackgroundService extends Service {
          * then. after phone call is dismissed or canceled, we set it back to the volume of
          * notification sound.
          */
-        audioManager.setStreamVolume(AudioManager.STREAM_RING, audioManager.getStreamMaxVolume(AudioManager.STREAM_RING), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-        //audioManager.setStreamVolume(AudioManager.STREAM_RING, p.getVolumeRingtone()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+        audioManager.setStreamVolume(
+                AudioManager.STREAM_RING,
+                //p.getVolumeRingtone(),
+                p.getVolumeNotification(),
+                AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
 
         /**
          * keep in mind ringtone & notification loudness is merged since 4.2.
          * bypassing this with checking receiver
          */
-        //audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, p.getVolumeNotification()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_RING)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, p.getVolumeMusic()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, p.getVolumeAlarm()/(100/audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+        audioManager.setStreamVolume(
+                AudioManager.STREAM_NOTIFICATION,
+                p.getVolumeNotification(),
+                AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
+
+        audioManager.setStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                p.getVolumeMusic(),
+                AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
+        audioManager.setStreamVolume(
+                AudioManager.STREAM_ALARM,
+                p.getVolumeAlarm(),
+                AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
 
         //System.out.println("max volume for ringing: "+ audioManager.getStreamMaxVolume(AudioManager.STREAM_RING) + );
 
@@ -908,6 +950,7 @@ public class BackgroundService extends Service {
                 /**
                  * START LIBRARIES & ADD INTENT FILTERS if condition uses them
                  */
+            /*
                 // GEOFENCES library
                 if ((single.getOptionType() == DialogOptions.type.LOCATION_ENTER ||
                         single.getOptionType() == DialogOptions.type.LOCATION_LEAVE) &&
@@ -917,8 +960,9 @@ public class BackgroundService extends Service {
                     mGeoLocation = new GeoLocation(sInstance);
                     Log.i("sfen", "Enabling GeoLocation lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
                 }
-
+*/
                 // TELEPHONYMANAGER library
+                /*
                 if ((single.getOptionType() == DialogOptions.type.CELL_IN ||
                         single.getOptionType() == DialogOptions.type.CELL_OUT) &&
                         mPhoneManager == null && mPhoneReceiver == null
@@ -933,8 +977,9 @@ public class BackgroundService extends Service {
                     );
 
                     Log.i("sfen", "Enabling TelephonyManager lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
-                }
+                }*/
 
+                /*
                 // SUDO ACCESS
                 if ((single.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE ||
                         single.getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE) &&
@@ -944,7 +989,7 @@ public class BackgroundService extends Service {
 
                     //mSudo.isRootEnabled();
                 }
-
+*/
 
                 // generate hashcode
                 String hashCode = e.getUniqueID() +""+ single.getUniqueID();

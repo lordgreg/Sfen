@@ -10,6 +10,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.PowerManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -30,6 +31,11 @@ public class Receiver extends BroadcastReceiver {
      * intentfilter object
      */
     private IntentFilter mIntentFilter;
+
+    /**
+     * telephony state receiver object
+     */
+    private TelephonyManager telephonyManager;
 
 
     /**
@@ -103,18 +109,6 @@ public class Receiver extends BroadcastReceiver {
          */
         if (action.equals("android.location.MODE_CHANGED")) {
 
-            // we wont call broadcast in any other case than in GPS enabled or disabled!
-            //mCallBroadcast = false;
-
-//            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-//
-////            List<String> providers = locationManager.getProviders(true);
-////            System.out.println("enabled providers: "+ providers.toString());
-//
-//            boolean gpsEnabled = false;
-//            try{gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);}catch(Exception ex){}
-//            System.out.println("gps enabled: "+ gpsEnabled);
-
 
         }
 
@@ -130,41 +124,42 @@ public class Receiver extends BroadcastReceiver {
          * screen off will create alarm that will wake up the phone every now and then to
          * eventfinders
          */
-        if (action.equals(Intent.ACTION_SCREEN_OFF)) {
-
-            /**
-             * create inexact repeating alarm here.
-             */
-            //if (mAlarmWakeLock != null)
-            //    mAlarmWakeLock.RemoveAlarm();
-            if (mAlarmWakeLock == null) {
-                Log.i("sfen", "Adding inexact alarm.");
-                mAlarmWakeLock = new Alarm(context);
-                mAlarmWakeLock.mIntentExtra = "wake-a-lambada!";
-
-                Calendar calendar = Calendar.getInstance();
-                calendar.add(Calendar.MILLISECOND, (int)WAKELOCK_TIMER);
-
-                mAlarmWakeLock.CreateInexactAlarmRepeating(calendar,
-                        WAKELOCK_TIMER
-                );
-            }
-
-
-        }
+//        if (action.equals(Intent.ACTION_SCREEN_OFF)) {
+//
+//            /**
+//             * create inexact repeating alarm here.
+//             */
+//            //if (mAlarmWakeLock != null)
+//            //    mAlarmWakeLock.RemoveAlarm();
+////            if (mAlarmWakeLock == null) {
+////                Log.i("sfen", "Adding inexact alarm.");
+////                mAlarmWakeLock = new Alarm(context);
+////                mAlarmWakeLock.mIntentExtra = "wake-a-lambada!";
+////
+////                Calendar calendar = Calendar.getInstance();
+////                calendar.add(Calendar.MILLISECOND, (int)WAKELOCK_TIMER);
+//
+//// TODO: TRY EVERYTHING WITHOUT WAKELOCK ON SLEEP!
+////                mAlarmWakeLock.CreateInexactAlarmRepeating(calendar,
+////                        WAKELOCK_TIMER
+////                );
+////            }
+//
+//
+//        }
 
         /**
          * cancel sleepalarm when we turn on screen
          * aka. we wake up the phone
          */
-        if (action.equals(Intent.ACTION_SCREEN_ON)) {
-            //System.out.println("screen on!");
-            if (mAlarmWakeLock != null) {
-                Log.i("sfen", "Removing inexact alarm.");
-                mAlarmWakeLock.RemoveAlarm();
-                mAlarmWakeLock = null;
-            }
-        }
+//        if (action.equals(Intent.ACTION_SCREEN_ON)) {
+//            //System.out.println("screen on!");
+////            if (mAlarmWakeLock != null) {
+////                Log.i("sfen", "Removing inexact alarm.");
+////                mAlarmWakeLock.RemoveAlarm();
+////                mAlarmWakeLock = null;
+////            }
+//        }
 
 
 
@@ -214,10 +209,6 @@ public class Receiver extends BroadcastReceiver {
             }
 
         }
-
-        /**
-         * BRIGHTNESS CHANGE,
-         */
 
 
         // RUN OUR FUNCTION

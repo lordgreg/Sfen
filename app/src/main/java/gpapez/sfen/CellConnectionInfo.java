@@ -62,6 +62,7 @@ public class CellConnectionInfo {
                     //cellType = cell.getClass().getSimpleName();
                     setCellType(cell);
                 } else {
+                    isError = true;
                     errorString = "No mobile connection.";
                     Log.e("sfen", errorString);
                 }

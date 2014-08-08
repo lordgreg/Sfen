@@ -41,11 +41,13 @@ public class Event {
     private boolean runOnce = false;
     private boolean hasRun = false;
     private int uniqueID = -1;
-    private Profile profile;
+
+    //private Profile profile;
+    private int profile;
 
 
     private ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
-    private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
+    //private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
     private HashMap<String, String> settings;
 
@@ -475,9 +477,6 @@ public class Event {
                     if (cellInfo.isError()) {
                         Log.d("sfen", cellInfo.getError());
 
-                        // TODO: think what you want to do in later development stage
-                        // if cellinfo gets error, are we returning false?
-                        // or false_positive?
                         conditionResults.add(false);
                     }
                     else {
@@ -774,13 +773,13 @@ public class Event {
         this.conditions = conditions;
     }
 
-    public ArrayList<DialogOptions> getActions() {
-        return actions;
-    }
+//    public ArrayList<DialogOptions> getActions() {
+//        return actions;
+//    }
 
-    public void setActions(ArrayList<DialogOptions> actions) {
-        this.actions = actions;
-    }
+//    public void setActions(ArrayList<DialogOptions> actions) {
+//        this.actions = actions;
+//    }
 
     public void setSetting(String key, String value) {
         settings.put(key, value);
@@ -799,10 +798,59 @@ public class Event {
     }
 
     public Profile getProfile() {
-        return profile;
+        //return profile;
+        return Profile.getProfileByUniqueID(profile);
+
     }
 
     public void setProfile(Profile profile) {
-        this.profile = profile;
+        //this.profile = profile;
+        this.profile = profile.getUniqueID();
+
     }
+
+    /**
+     * returns Event by Unique ID
+     */
+    public static Event returnEventByUniqueID(int uniqueID) {
+
+        for (Event single : BackgroundService.getInstance().events) {
+
+            if (single.getUniqueID() == uniqueID)
+                return single;
+
+        }
+
+        return null;
+    }
+
+    /**
+     * returns key of events array at which, event with unique id is found
+     */
+    public static int returnKeyByEventUniqueID(int uniqueID) {
+
+        Event single;
+
+        for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
+
+            single = BackgroundService.getInstance().events.get(i);
+
+            if (single.getUniqueID() == uniqueID)
+                return i;
+
+        }
+
+        return -1;
+    }
+
+    /**
+     * resets unique id
+     * (used when importing events and profiles)
+     */
+    public void resetUniqueId() {
+
+        uniqueID = Math.abs(new Random().nextInt());
+
+    }
+
 }

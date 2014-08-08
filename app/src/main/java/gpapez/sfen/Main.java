@@ -9,6 +9,7 @@ import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -48,10 +49,6 @@ public class Main extends Activity {
     protected FragmentEvent fragmentEvent;
     protected FragmentProfile fragmentProfile;
 
-
-    // preferences object
-    protected Preferences mPreferences;
-
     // HashMap with options. Instead of creating more variables to use around
     // activities, I've created HashMap; putting settings here if needed.
     HashMap<String, String> options = new HashMap<String, String>();
@@ -63,9 +60,6 @@ public class Main extends Activity {
 
         // set singleton instance
         sInstance = this;
-
-        // start preferences
-        mPreferences = new Preferences(this);
 
         // tag
         TAG = sInstance.getClass().getPackage().getName();
@@ -252,23 +246,49 @@ public class Main extends Activity {
 
             HashMap<String, String> exportedValues = new HashMap<String, String>();
 
-            exportedValues.put("events", gson.toJson(BackgroundService.getInstance().events));
+            String exportString = "";
 
+            /**
+             * we have to export events and profiles separately
+             */
+            exportString +=
+                    "<<EVENTS>>"+
+                    gson.toJson(BackgroundService.getInstance().events)
+
+                    // delimiter
+                    +"<<>>"+
+
+                    "<<PROFILES>>"+
+                    gson.toJson(BackgroundService.getInstance().profiles)
+            ;
+
+
+
+
+            //exportedValues.put("events", gson.toJson(BackgroundService.getInstance().events));
             //System.out.println("EVENTS\n==========================\n"+ exportedValues.get("events"));
 
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Sfen", exportedValues.get("events"));
+            //ClipData clip = ClipData.newPlainText("Sfen", exportedValues.get("events"));
+            ClipData clip = ClipData.newPlainText("Sfen", exportString);
             clipboard.setPrimaryClip(clip);
 
-            Util.showMessageBox("Events exported to clipboard!", true);
+            Util.showMessageBox("Events and Profiles copied to clipboard!", true);
 
         }
 
         // import settings
         if (id == R.id.action_import) {
-            final TextView info = new TextView(sInstance);
-            info.setText("Paste import string:");
+            //final TextView info = new TextView(sInstance);
+            //info.setText("Paste import string:");
             final EditText input = new EditText(sInstance);
+
+            input.setSingleLine(true);
+            input.setLines(5);
+            input.setGravity(Gravity.TOP);
+            input.setHorizontallyScrolling(false);
+
+            //input.setHeight();
             LinearLayout newView = new LinearLayout(sInstance);
             LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -276,15 +296,14 @@ public class Main extends Activity {
             newView.setLayoutParams(parms);
             newView.setOrientation(LinearLayout.VERTICAL);
             newView.setPadding(15, 15, 15, 15);
-            newView.addView(info, 0);
-            newView.addView(input, 1);
+            newView.addView(input, 0);
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(Main.getInstance());
 
             builder
                     .setView(newView)
                     .setIcon(R.drawable.ic_launcher)
-                    .setTitle("Sfen!")
+                    .setTitle("Import string")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -297,16 +316,80 @@ public class Main extends Activity {
 
                             Gson gson = new Gson();
 
-                            String json = input.getText().toString();
+                            /**
+                             * split string into events and profiles.
+                             */
+                            String sInput = input.getText().toString().trim();
 
-                            //protected ArrayList<Event> events = new ArrayList<Event>();
-                            ArrayList<Event> mPastedEvents = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
+                            String[] parts = sInput.split("<<>>");
 
-                            // add to current EVENTS array
-                            BackgroundService.getInstance().events.addAll(0, mPastedEvents);
+                            /**
+                             * 0 = events,
+                             * 1 = profiles
+                             */
+                            String events = "";
+                            if (parts[0].contains("<<EVENTS>>"))
+                                events = parts[0].replace("<<EVENTS>>", "");
 
-                            // refresh view
-                            //refreshEventsView();
+                            String profiles = "";
+                            if (parts[1].contains("<<PROFILES>>"))
+                                profiles = parts[1].replace("<<PROFILES>>", "");
+
+
+                            /**
+                             * start importing
+                             */
+
+                            // events
+                            if (!events.equals("")) {
+
+                                ArrayList<Event> mPastedEvents =
+                                        gson.fromJson(events, new TypeToken<List<Event>>(){}.getType());
+
+                                // set these imports as disabled & reset unique id!
+                                for (int i = 0; i < mPastedEvents.size(); i++) {
+
+                                    mPastedEvents.get(i).setEnabled(false);
+                                    mPastedEvents.get(i).resetUniqueId();
+
+                                }
+
+                                BackgroundService.getInstance().events.addAll(0, mPastedEvents);
+
+                            }
+
+                            // profiles
+                            if (!profiles.equals("")) {
+
+                                ArrayList<Profile> mPastedProfiles =
+                                        gson.fromJson(profiles, new TypeToken<List<Profile>>(){}.getType());
+
+                                // set these imports as disabled & reset unique id!
+                                for (int i = 0; i < mPastedProfiles.size(); i++) {
+
+                                    mPastedProfiles.get(i).setActive(false);
+                                    mPastedProfiles.get(i).resetUniqueId();
+
+                                }
+
+                                BackgroundService.getInstance().profiles.addAll(0, mPastedProfiles);
+
+                            }
+
+
+                            //String json = input.getText().toString();
+
+//
+//                            //protected ArrayList<Event> events = new ArrayList<Event>();
+//                            ArrayList<Event> mPastedEvents = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
+//
+//                            // add to current EVENTS array
+//                            BackgroundService.getInstance().events.addAll(0, mPastedEvents);
+
+
+                            /**
+                             * done, refresh view at the end
+                             */
                             refreshCurrentView();
 
 

@@ -33,6 +33,17 @@ public class FragmentEvent extends Fragment {
     // our fragment view
     private View mView;
 
+    /**
+     * preferences var
+     */
+    Preferences mPreferences;
+
+    /**
+     * events arr
+     */
+    ArrayList<Event> events = new ArrayList<Event>();
+
+
 
     /**
      * CONSTRUCTOR
@@ -73,6 +84,14 @@ public class FragmentEvent extends Fragment {
 //            //Main.getInstance().refreshEventsView();
             refreshEventsView();
 //        }
+
+
+        /**
+         * retrieve events info
+         */
+        mPreferences = new Preferences(Main.getInstance());
+        events = (ArrayList<Event>) mPreferences.getPreferences("events", Preferences.REQUEST_TYPE.EVENTS);
+
 
 
 
@@ -259,18 +278,18 @@ public class FragmentEvent extends Fragment {
                                 //e.setRunOnce(false);
                                 //Util.showNotification(BackgroundService.getInstance(),
                                 //        getString(R.string.app_name), "", R.drawable.ic_launcher);
-                                Main.getInstance().sendBroadcast("EVENT_DISABLED");
+                                BackgroundService.getInstance().sendBroadcast("EVENT_DISABLED");
                             }
                             else {
                                 e.setEnabled(true);
                                 // sending broadcast that we've enabled event
-                                Main.getInstance().sendBroadcast("EVENT_ENABLED");
+                                BackgroundService.getInstance().sendBroadcast("EVENT_ENABLED");
 
                                 // mark green if we started the event
                                 //((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.GREEN);
                             }
 
-                            // update events array
+                            // update events array with new event
                             BackgroundService.getInstance().events.set(BackgroundService.getInstance().events.indexOf(e), e);
                             //updateEventsFromPreferences();
 

@@ -27,13 +27,13 @@ public class Profile {
      */
     private boolean isVibrate;
     private int brightnessValue;
-    private boolean brightnessAuto;
-    private String ringtone;
-    private String notification;
-    private int volumeRingtone;
-    private int volumeNotification;
-    private int volumeMusic;
-    private int volumeAlarm;
+    private boolean brightnessAuto = true;
+    private String ringtone = "";
+    private String notification = "";
+    private int volumeRingtone = 80;
+    private int volumeNotification = 80;
+    private int volumeMusic = 80;
+    private int volumeAlarm = 80;
 
 
 
@@ -55,18 +55,18 @@ public class Profile {
          */
         isActive = false;
 
-        /**
-         * set brightness to automode
-         */
-        brightnessAuto = true;
-
-        /**
-         * set default volumes
-         */
-        volumeRingtone = 80;
-        volumeNotification = 80;
-        volumeMusic = 80;
-        volumeAlarm = 80;
+//        /**
+//         * set brightness to automode
+//         */
+//        brightnessAuto = true;
+//
+//        /**
+//         * set default volumes
+//         */
+//        volumeRingtone = 80;
+//        volumeNotification = 80;
+//        volumeMusic = 80;
+//        volumeAlarm = 80;
 
     }
 
@@ -120,6 +120,22 @@ public class Profile {
 
         return null;
 
+    }
+
+
+    /**
+     * returns Profile by Unique ID
+     */
+    public static Profile getProfileByUniqueID(int uniqueID) {
+
+        for (Profile single : BackgroundService.getInstance().profiles) {
+
+            if (single.getUniqueID() == uniqueID)
+                return single;
+
+        }
+
+        return null;
     }
 
 
@@ -189,6 +205,9 @@ public class Profile {
     }
 
     public Uri getRingtone() {
+        if (ringtone.equals(""))
+            return null;
+
         return Uri.parse(ringtone);
     }
 
@@ -197,6 +216,9 @@ public class Profile {
     }
 
     public Uri getNotification() {
+        if (notification.equals(""))
+            return null;
+
         return Uri.parse(notification);
     }
 
@@ -234,5 +256,16 @@ public class Profile {
 
     public void setVolumeRingtone(int volumeRingtone) {
         this.volumeRingtone = volumeRingtone;
+    }
+
+
+    /**
+     * resets unique id
+     * (used when importing events and profiles)
+     */
+    public void resetUniqueId() {
+
+        uniqueID = Math.abs(new Random().nextInt());
+
     }
 }

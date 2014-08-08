@@ -219,11 +219,21 @@ public class ProfileActivity extends Activity {
          */
         profile.setName(((TextView) findViewById(R.id.profile_name)).getText().toString());
         profile.setVibrate(((CheckBox) findViewById(R.id.profile_vibrate)).isChecked());
-//        if (options.get("BRIGHTNESS_VALUE") != null)
-//            profile.setBrightnessValue(Integer.valueOf(options.get("BRIGHTNESS_VALUE")));
-//
-//        if (options.get("BRIGHTNESS_AUTO") != null)
-//            profile.setBrightnessAuto(Boolean.valueOf(options.get("BRIGHTNESS_AUTO")));
+
+
+        /**
+         * if we didn't set ringtone and notification tones, set them to defaults
+         */
+        if (profile.getRingtone() == null) {
+            profile.setRingtone(
+                    RingtoneManager.getActualDefaultRingtoneUri(sInstance, RingtoneManager.TYPE_RINGTONE)
+            );
+
+            profile.setNotification(
+                    RingtoneManager.getActualDefaultRingtoneUri(sInstance, RingtoneManager.TYPE_NOTIFICATION)
+            );
+
+        }
 
 
         // if tag of image button is null, save icon as ic_notification
@@ -287,6 +297,9 @@ public class ProfileActivity extends Activity {
     public void refreshView() {
         ((TextView) findViewById(R.id.profile_name)).setText(profile.getName());
         ((CheckBox) findViewById(R.id.profile_vibrate)).setChecked(profile.isVibrate());
+
+        //Uri uri = profile.getRingtone();
+        //Ringtone ring = RingtoneManager.getRingtone(sInstance, profile.get);
 
         if (isUpdating && profile.getRingtone() != null) {
             Ringtone ringtone = RingtoneManager.getRingtone(sInstance, profile.getRingtone());
@@ -607,15 +620,13 @@ public class ProfileActivity extends Activity {
         ((SeekBar) dialogView.findViewById(R.id.seekbar_alarm)).setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM));
         //audioManager.getStreamMaxVolume(AudioManager.STREAM_RING
 
-                /**
-                 * if we are updating, update seekbars with our values
-                 */
-//        if (isUpdating) {
-                ((SeekBar) dialogView.findViewById(R.id.seekbar_ringtone)).setProgress(profile.getVolumeRingtone());
-            ((SeekBar) dialogView.findViewById(R.id.seekbar_notification)).setProgress(profile.getVolumeNotification());
-            ((SeekBar) dialogView.findViewById(R.id.seekbar_music)).setProgress(profile.getVolumeMusic());
-            ((SeekBar) dialogView.findViewById(R.id.seekbar_alarm)).setProgress(profile.getVolumeAlarm());
-//        }
+        /**
+         * set current progress
+         */
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_ringtone)).setProgress(profile.getVolumeRingtone());
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_notification)).setProgress(profile.getVolumeNotification());
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_music)).setProgress(profile.getVolumeMusic());
+        ((SeekBar) dialogView.findViewById(R.id.seekbar_alarm)).setProgress(profile.getVolumeAlarm());
 
 
         builder
@@ -680,9 +691,12 @@ public class ProfileActivity extends Activity {
 
         final Intent ringtone = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE);
-        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
+
+        // TODO: add selected ringtone when opening!) RingtoneManager.EXTRA_RINGTONE_PICKED_URI
+
         startActivityForResult(ringtone, REQUEST_RINGTONE_RESULT);
 
 
@@ -697,7 +711,7 @@ public class ProfileActivity extends Activity {
 
         final Intent ringtone = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         startActivityForResult(ringtone, REQUEST_NOTIFICATION_RESULT);
@@ -839,23 +853,24 @@ public class ProfileActivity extends Activity {
 
                         R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT);
 
+//
+//                class UriSerializer implements JsonSerializer<Uri> {
+//                    public JsonElement serialize(Uri src, Type typeOfSrc, JsonSerializationContext context) {
+//                        return new JsonPrimitive(src.toString());
+//                    }
+//                }
+//                Gson gson = new GsonBuilder()
+//                        .registerTypeAdapter(Uri.class, new UriSerializer())
+//                        .create();
+//
+//                //Gson gson = new Gson();
+//
+//
+////                System.out.println("*** Saving intent\n"+ gson.toJson(intent));
+////                System.out.println("*** Uri looks like\n"+ intent.toUri(Intent.URI_INTENT_SCHEME));
+//
+//                cond.setSetting("shortcut_intent", gson.toJson(intent));
 
-                class UriSerializer implements JsonSerializer<Uri> {
-                    public JsonElement serialize(Uri src, Type typeOfSrc, JsonSerializationContext context) {
-                        return new JsonPrimitive(src.toString());
-                    }
-                }
-                Gson gson = new GsonBuilder()
-                        .registerTypeAdapter(Uri.class, new UriSerializer())
-                        .create();
-
-                //Gson gson = new Gson();
-
-
-//                System.out.println("*** Saving intent\n"+ gson.toJson(intent));
-//                System.out.println("*** Uri looks like\n"+ intent.toUri(Intent.URI_INTENT_SCHEME));
-
-                cond.setSetting("shortcut_intent", gson.toJson(intent));
                 cond.setSetting("intent_uri", intent.toUri(Intent.URI_INTENT_SCHEME));
 
                 cond.setSetting("text1", cond.getTitle());
