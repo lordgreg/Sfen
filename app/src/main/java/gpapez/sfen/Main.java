@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.gson.Gson;
@@ -341,9 +340,10 @@ public class Main extends Activity {
                              */
 
                             // events
+                            ArrayList<Event> mPastedEvents = new ArrayList<Event>();
                             if (!events.equals("")) {
 
-                                ArrayList<Event> mPastedEvents =
+                                mPastedEvents =
                                         gson.fromJson(events, new TypeToken<List<Event>>(){}.getType());
 
                                 // set these imports as disabled & reset unique id!
@@ -354,27 +354,48 @@ public class Main extends Activity {
 
                                 }
 
-                                BackgroundService.getInstance().events.addAll(0, mPastedEvents);
-
                             }
 
                             // profiles
+                            ArrayList<Profile> mPastedProfiles = new ArrayList<Profile>();
                             if (!profiles.equals("")) {
 
-                                ArrayList<Profile> mPastedProfiles =
+                                mPastedProfiles =
                                         gson.fromJson(profiles, new TypeToken<List<Profile>>(){}.getType());
 
                                 // set these imports as disabled & reset unique id!
                                 for (int i = 0; i < mPastedProfiles.size(); i++) {
 
                                     mPastedProfiles.get(i).setActive(false);
+                                    int oldProfileUniqueId = mPastedProfiles.get(i).getUniqueID();
+
                                     mPastedProfiles.get(i).resetUniqueId();
+
+                                    // before resetting profile ID, check if events had same profile
+                                    // ID's bind. if so, update their profile ID's too
+                                    for (int j = 0; j < mPastedEvents.size(); j++) {
+                                        if (mPastedEvents.get(j).getProfileID() ==
+                                                oldProfileUniqueId)
+                                            mPastedEvents.get(j).setProfileID(
+                                                    mPastedProfiles.get(i).getUniqueID()
+                                            );
+                                    }
+
 
                                 }
 
-                                BackgroundService.getInstance().profiles.addAll(0, mPastedProfiles);
 
                             }
+
+
+                            /**
+                             * add if new events & profiles > 0
+                             */
+                            if (mPastedEvents.size() > 0)
+                                BackgroundService.getInstance().events.addAll(0, mPastedEvents);
+
+                            if (mPastedProfiles.size() > 0)
+                                BackgroundService.getInstance().profiles.addAll(0, mPastedProfiles);
 
 
                             //String json = input.getText().toString();

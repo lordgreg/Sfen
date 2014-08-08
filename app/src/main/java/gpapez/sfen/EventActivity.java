@@ -326,6 +326,7 @@ public class EventActivity extends Activity {
         /**
          * insert saved profile to container
          */
+
         final ViewGroup newProfile = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.dialog_pick_single, mContainerProfile, false);
 

@@ -803,6 +803,14 @@ public class Event {
 
     }
 
+    public int getProfileID() {
+        return profile;
+    }
+
+    public void setProfileID(int profileID) {
+        profile = profileID;
+    }
+
     public void setProfile(Profile profile) {
         //this.profile = profile;
         this.profile = profile.getUniqueID();

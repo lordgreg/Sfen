@@ -8,13 +8,11 @@ import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
-import android.os.BatteryManager;
 import android.os.PowerManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 /**
  * Created by Gregor on 14.7.2014.
@@ -30,7 +28,7 @@ public class Receiver extends BroadcastReceiver {
     /**
      * intentfilter object
      */
-    private IntentFilter mIntentFilter;
+    //private IntentFilter mIntentFilter;
 
     /**
      * telephony state receiver object
@@ -42,22 +40,6 @@ public class Receiver extends BroadcastReceiver {
      * LIST OF AVAILABLE BROADCASTS
      */
     protected static ArrayList<String> sBroadcasts = new ArrayList<String>() {{
-        /**
-         * System based broadcast filters are added dinamically
-         * in BackgroundService::updateEventConditionTimers() after
-         * all conditions are checked;
-         */
-        //add(WifiManager.NETWORK_STATE_CHANGED_ACTION);  // wifi disable/enable/connect/disconnect
-        //add(LocationManager.MODE_CHANGED_ACTION);
-        //add(Intent.ACTION_BATTERY_CHANGED);
-
-
-        /**
-         * system filter for SCREEN ON/OFF must stay to trigger our wakelock alarm!
-         */
-        add(Intent.ACTION_SCREEN_ON);                   // screen on
-        add(Intent.ACTION_SCREEN_OFF);                  // screen off
-
 
         // in-app broadcast calls
         add(getClass().getPackage().getName() +".BRIGHTNESS_SET");
@@ -69,12 +51,28 @@ public class Receiver extends BroadcastReceiver {
         add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
         add(getClass().getPackage().getName() +".ROOT_GRANTED");
 
+
+
     }};
+
+    /**
+     * LIST OF AVAILABLE SYSTEM BROADCASTS
+     */
+    protected static ArrayList<String> sBroadcastsSystem = new ArrayList<String>() {{
+
+        add(Intent.ACTION_SCREEN_ON);                   // screen on
+        add(Intent.ACTION_SCREEN_OFF);                  // screen off
+        add(LocationManager.MODE_CHANGED_ACTION);       // gps on/off
+        add(Intent.ACTION_BATTERY_CHANGED);             // battery status
+        add(WifiManager.NETWORK_STATE_CHANGED_ACTION);   // wifi toggle
+
+    }};
+
 
     /**
      * list of added system intent filters
      */
-    protected ArrayList<String> mSystemFilters = new ArrayList<String>();
+    private ArrayList<String> mAllowableFilters = new ArrayList<String>();
 
 
 
@@ -98,10 +96,22 @@ public class Receiver extends BroadcastReceiver {
         String action = intent.getAction();
         BackgroundService.getInstance().receiverAction = action;
 
+        /**
+         * if current action is in our allow list, lets run it
+         * otherwise return the process.
+         */
+        if (!isActionAllowedToRun(action)) {
+            Log.i("sfen", "Broadcast recieved "+ action +" but not needed.");
+            return ;
+        }
+        else
+            Log.i("sfen", "Received: " + action);
+
+
         // wakelock object that will eventually trigger on specific broadcasts.
         PowerManager.WakeLock mWakeLock = null;
 
-        Log.i("sfen", "received: " + action);
+
 
 
         /**
@@ -164,16 +174,16 @@ public class Receiver extends BroadcastReceiver {
 
 
         if (action.equals(getClass().getPackage().getName() +".ALARM_TRIGGER")) {
-
-            // SLEEPY ALARM HERE
-            if (intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
-                    !intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("")) {
-
-                Log.i("sfen", "Wakelock alarm trigger: "+
-                                intent.getStringExtra("ALARM_TRIGGER_EXTRA")
-                );
-
-            }
+//
+//            // SLEEPY ALARM HERE
+//            if (intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
+//                    !intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("")) {
+//
+//                Log.i("sfen", "Wakelock alarm trigger: "+
+//                                intent.getStringExtra("ALARM_TRIGGER_EXTRA")
+//                );
+//
+//            }
 
 
             // when triggering for alarm, we have to use wakelock so it wakes
@@ -230,8 +240,8 @@ public class Receiver extends BroadcastReceiver {
      * constructor
      *
      */
-    public Receiver() {
-    }
+//    public Receiver() {
+//    }
 
 
     /**
@@ -241,7 +251,7 @@ public class Receiver extends BroadcastReceiver {
      */
     public IntentFilter createIntentFilter() {
 
-        mIntentFilter = new IntentFilter();
+        IntentFilter mIntentFilter = new IntentFilter();
 
         // add allowable broadcasts
         for (int i = 0; i < sBroadcasts.size(); i++) {
@@ -249,11 +259,56 @@ public class Receiver extends BroadcastReceiver {
         }
 
         // add system intents
-        for (int  i = 0; i < mSystemFilters.size(); i++) {
-            mIntentFilter.addAction(mSystemFilters.get(i));
+        for (int  i = 0; i < sBroadcastsSystem.size(); i++) {
+            mIntentFilter.addAction(sBroadcastsSystem.get(i));
         }
 
+
         return mIntentFilter;
+
+    }
+
+
+    /**
+     * return allowed filters array
+     */
+    private ArrayList<String> returnAllowedFilters() {
+        ArrayList<String> result = new ArrayList<String>();
+
+        result.addAll(sBroadcasts);
+        result.addAll(mAllowableFilters);
+
+        return result;
+    }
+
+
+    /**
+     * is action allowed?
+     *
+     * just check all filters and return bool
+     */
+    private boolean isActionAllowedToRun(String action) {
+
+        return returnAllowedFilters().contains(action);
+
+    }
+
+
+    /**
+     * Add filters to allowable list
+     */
+    protected void addFiltersToAllowable(ArrayList<String> newFilters) {
+
+        /**
+         * add only if key still doesn't exist
+         */
+        for (int i = 0; i < newFilters.size(); i++) {
+
+            if (!mAllowableFilters.contains(newFilters.get(i)))
+                mAllowableFilters.add(newFilters.get(i));
+
+        }
+
 
     }
 

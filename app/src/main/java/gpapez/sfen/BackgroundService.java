@@ -5,7 +5,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
@@ -205,7 +204,7 @@ public class BackgroundService extends Service {
          * mReceiver init
          */
         mReceiver = new Receiver();
-        //registerReceiver(mReceiver, mReceiver.createIntentFilter());
+        sInstance.registerReceiver(mReceiver, mReceiver.createIntentFilter());
 
 
         /**
@@ -947,49 +946,6 @@ public class BackgroundService extends Service {
 
             for (DialogOptions single : e.getConditions()) {
 
-                /**
-                 * START LIBRARIES & ADD INTENT FILTERS if condition uses them
-                 */
-            /*
-                // GEOFENCES library
-                if ((single.getOptionType() == DialogOptions.type.LOCATION_ENTER ||
-                        single.getOptionType() == DialogOptions.type.LOCATION_LEAVE) &&
-                        mGeoLocation == null
-                        ) {
-                    // start GeoLocation class
-                    mGeoLocation = new GeoLocation(sInstance);
-                    Log.i("sfen", "Enabling GeoLocation lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
-                }
-*/
-                // TELEPHONYMANAGER library
-                /*
-                if ((single.getOptionType() == DialogOptions.type.CELL_IN ||
-                        single.getOptionType() == DialogOptions.type.CELL_OUT) &&
-                        mPhoneManager == null && mPhoneReceiver == null
-                        ) {
-                    // start phone listener
-                    mPhoneManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-                    mPhoneReceiver = new ReceiverPhoneState();
-
-                    mPhoneManager.listen(mPhoneReceiver,
-                            //PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
-                            PhoneStateListener.LISTEN_CELL_LOCATION
-                    );
-
-                    Log.i("sfen", "Enabling TelephonyManager lib. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
-                }*/
-
-                /*
-                // SUDO ACCESS
-                if ((single.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE ||
-                        single.getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE) &&
-                        mSudo == null)
-                {
-                    mSudo = new Sudo();
-
-                    //mSudo.isRootEnabled();
-                }
-*/
 
                 // generate hashcode
                 String hashCode = e.getUniqueID() +""+ single.getUniqueID();
@@ -1220,7 +1176,7 @@ public class BackgroundService extends Service {
                     case WIFI_DISCONNECT:
 
                         if (e.isEnabled())
-                            mReceiverFilters.add(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+                            mReceiverFilters.add("android.net.wifi.STATE_CHANGE");
 
                         break;
 
@@ -1228,7 +1184,7 @@ public class BackgroundService extends Service {
                     case BATTERY_STATUS:
 
                         if (e.isEnabled())
-                            mReceiverFilters.add(Intent.ACTION_BATTERY_CHANGED);
+                            mReceiverFilters.add("android.intent.action.BATTERY_CHANGED");
 
                         break;
 
@@ -1236,7 +1192,7 @@ public class BackgroundService extends Service {
                     case GPS_DISABLED:
 
                         if (e.isEnabled())
-                            mReceiverFilters.add(LocationManager.MODE_CHANGED_ACTION);
+                            mReceiverFilters.add("android.location.MODE_CHANGED");
 
                         break;
 
@@ -1318,21 +1274,11 @@ public class BackgroundService extends Service {
 
 
         /**
-         * (Re)start BroadCast receiver with new filters.
+         * add filters to array of allowables
+         * then clear array
          */
-        try {
-            unregisterReceiver(mReceiver);
-        }
-        catch (IllegalArgumentException e) {
-            Log.d("sfen", "Receiver doesn't exist yet. No need to unregister.");
-        }
-
-
-        mReceiver.mSystemFilters = mReceiverFilters;
-        registerReceiver(mReceiver, mReceiver.createIntentFilter());
-
+        mReceiver.addFiltersToAllowable(mReceiverFilters);
         mReceiverFilters.clear();
-
 
 
     }
@@ -1349,7 +1295,8 @@ public class BackgroundService extends Service {
     protected void sendBroadcast(String broadcast) {
         if (broadcast.length() > 0) {
             Intent intent = new Intent();
-            //android.util.Log.e("send broadcast", sInstance.getClass().getPackage().getName() +"."+ broadcast);
+            //android.util.Log.e("send broadcast", getClass().getPackage().getName() +"."+ broadcast);
+
             intent.setAction(getClass().getPackage().getName() +"."+ broadcast);
             sendBroadcast(intent);
         }

@@ -279,11 +279,13 @@ public class FragmentEvent extends Fragment {
                                 //Util.showNotification(BackgroundService.getInstance(),
                                 //        getString(R.string.app_name), "", R.drawable.ic_launcher);
                                 BackgroundService.getInstance().sendBroadcast("EVENT_DISABLED");
+                                //Main.getInstance().sendBroadcast("EVENT_DISABLED");
                             }
                             else {
                                 e.setEnabled(true);
                                 // sending broadcast that we've enabled event
                                 BackgroundService.getInstance().sendBroadcast("EVENT_ENABLED");
+                                //Main.getInstance().sendBroadcast("EVENT_ENABLED");
 
                                 // mark green if we started the event
                                 //((TextView) newRow.findViewById(android.R.id.text1)).setTextColor(Color.GREEN);
