@@ -350,6 +350,7 @@ public class Main extends Activity {
                                 for (int i = 0; i < mPastedEvents.size(); i++) {
 
                                     mPastedEvents.get(i).setEnabled(false);
+                                    mPastedEvents.get(i).setRunning(false);
                                     mPastedEvents.get(i).resetUniqueId();
 
                                 }
