@@ -1,5 +1,6 @@
 package gpapez.sfen;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -13,6 +14,48 @@ public class DialogOptions {
     private String title;
     private String description;
     private int icon;
+
+    // list of possible Conditions in Options
+    static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
+        add(new DialogOptions("Inside Location", "Inside location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
+        add(new DialogOptions("Outside Location", "Outside location", R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
+        add(new DialogOptions("Time Range", "Time range", R.drawable.ic_time, DialogOptions.type.TIMERANGE));
+        add(new DialogOptions("Specific Time", "Specific Time", R.drawable.ic_time, DialogOptions.type.TIME));
+        add(new DialogOptions("Days", "Day(s) of week", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
+        add(new DialogOptions("Connected to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
+        add(new DialogOptions("Disconnected from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
+        add(new DialogOptions("Screen On", "If screen is on", R.drawable.ic_screen, DialogOptions.type.SCREEN_ON));
+        add(new DialogOptions("Screen Off", "If screen is off", R.drawable.ic_screen, DialogOptions.type.SCREEN_OFF));
+        add(new DialogOptions("Connected to Cells", "When connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_IN));
+        add(new DialogOptions("Not connected to Cells", "When not connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_OUT));
+        add(new DialogOptions("Event running", "Another Event currently running", R.drawable.ic_launcher, DialogOptions.type.EVENT_RUNNING));
+        add(new DialogOptions("Event not running", "Another Event currently not running", R.drawable.ic_launcher, DialogOptions.type.EVENT_NOTRUNNING));
+        add(new DialogOptions("GPS enabled", "If GPS is enabled", R.drawable.ic_map, DialogOptions.type.GPS_ENABLED));
+        add(new DialogOptions("GPS disabled", "If GPS is disabled", R.drawable.ic_map, DialogOptions.type.GPS_DISABLED));
+        add(new DialogOptions("Battery level", "Selected battery level", R.drawable.ic_battery, DialogOptions.type.BATTERY_LEVEL));
+        add(new DialogOptions("Battery status", "Status of battery", R.drawable.ic_battery, DialogOptions.type.BATTERY_STATUS));
+
+    }};
+
+
+
+    // list of possible Actions in Options
+    //context.getResources().getDrawable(R.drawable.ic_launcher)
+    static final ArrayList<DialogOptions> optActions = new ArrayList<DialogOptions>() {{
+        //add(new DialogOptions("Show notification", "Will show notification in notification area", android.R.drawable.ic_dialog_info, DialogOptions.type.ACT_NOTIFICATION));
+        add(new DialogOptions("Show notification", "Will show notification in notification area", R.drawable.ic_notification, DialogOptions.type.ACT_NOTIFICATION));
+        add(new DialogOptions("Enable Wifi", "Enable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
+        add(new DialogOptions("Disable Wifi", "Disable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
+        add(new DialogOptions("Enable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
+        add(new DialogOptions("Disable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
+        add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
+        add(new DialogOptions("Play Sfen", "Will make a sheep sound", R.drawable.ic_sound, DialogOptions.type.ACT_PLAYSFEN));
+        add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
+        add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
+        add(new DialogOptions("Open shortcut", "Will open specified shortcut", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
+    }};
+
+
     public enum type {
         // conditions
         LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, TIME, DAYSOFWEEK,

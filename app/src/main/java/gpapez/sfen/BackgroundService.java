@@ -370,7 +370,7 @@ public class BackgroundService extends Service {
 
                     // wow. conditions are met! you know what that means?
                     // we trigger actions!
-                    runEventActions(context, intent, e);
+                    runEvent(context, intent, e);
 
 
                     // TODO: store action to log.
@@ -417,22 +417,15 @@ public class BackgroundService extends Service {
     }
 
 
-
-
-    /***********************************************************************************************
-     * RUN PROFILE ACTIONS
-     *
-     * Runs all actions in specified Profile
-     ***********************************************************************************************
+    /**
+     * RUN ACTIONS
      */
-    protected void runProfileActions(Profile p) {
+    protected void runActions(ArrayList<DialogOptions> actions) {
+
 
         Gson gson = new Gson();
         WifiManager wifiManager;
         ConnectivityManager conMan;
-
-
-        ArrayList<DialogOptions> actions = p.getActions();
 
         // loop through all actions and run them
         for (DialogOptions act : actions) {
@@ -443,7 +436,7 @@ public class BackgroundService extends Service {
                 // popup notification!
                 case ACT_NOTIFICATION:
                     //mUtil.showNotification(sInstance, "Sfen - "+ e.getName(), e.getName(), R.drawable.ic_launcher);
-                    mNotification.saveData(p.getName(), p.getName(), p.getIcon());
+                    //mNotification.saveData(p.getName(), p.getName(), p.getIcon());
 
                     break;
 
@@ -708,6 +701,42 @@ public class BackgroundService extends Service {
             }
         }
 
+
+    }
+
+    /***********************************************************************************************
+     * RUN EVENT ACTIONS
+     *
+     * Runs all actions in specified Event
+     ***********************************************************************************************
+     */
+    protected void runEventActions(ArrayList<DialogOptions> actions) {
+
+
+        runActions(actions);
+
+        /**
+         * update notification
+         */
+        mNotification.showNotification();
+
+
+    }
+
+    /***********************************************************************************************
+     * RUN PROFILE ACTIONS
+     *
+     * Runs all actions in specified Profile
+     ***********************************************************************************************
+     */
+    protected void runProfileActions(Profile p) {
+
+
+        ArrayList<DialogOptions> actions = p.getActions();
+
+
+        runActions(actions);
+
         /**
          * update notification
          */
@@ -856,7 +885,7 @@ public class BackgroundService extends Service {
      * @param e
      ***********************************************************************************************
      */
-    private void runEventActions(Context context, Intent intent, Event e) {
+    private void runEvent(Context context, Intent intent, Event e) {
         // if event is already running
         // don't re-run actions
         if (
@@ -875,46 +904,73 @@ public class BackgroundService extends Service {
             return ;
         }
 
+
         /**
-         * disable current active profile
+         *
+         * IF WE HAVE EVEN ACTIONS
+         *
          */
-        for (Profile current : profiles) {
+        if (e.getActions().size() > 0) {
 
-            if (current.isActive()) {
-                current.setActive(false);
+            // RUN EVENT ACTIONS
+            runEventActions(e.getActions());
 
-                profiles.set(
-                        profiles.indexOf(current),
-                        current
-                );
-
-
-
-                Log.i("sfen", "Currently active profile "+ current.getName() +" disabled.");
-
-                //break;
-
-            }
 
         }
 
-        /**
-         * set new as active
-         */
-        Profile.updateActiveProfile(e.getProfile().getUniqueID());
-
-
 
         /**
-         * run profile actions
+         *
+         * IF WE HAVE PROFILE SELECTED
+         *
          */
-        runProfileActions(e.getProfile());
+        if (e.getProfile() != null) {
+
+            /**
+             * disable current active profile
+             */
+            for (Profile current : profiles) {
+
+                if (current.isActive()) {
+                    current.setActive(false);
+
+                    profiles.set(
+                            profiles.indexOf(current),
+                            current
+                    );
 
 
-        /**
-         * run profile settings
-         */
-        runProfileSettings(e.getProfile());
+                    Log.i("sfen", "Currently active profile " + current.getName() + " disabled.");
+
+                    //break;
+
+                }
+
+            }
+
+            /**
+             * set new as active
+             */
+            Profile.updateActiveProfile(e.getProfile().getUniqueID());
+
+            /**
+             * run event actions
+             */
+            //runEvent();
+
+
+            /**
+             * run profile actions
+             */
+            runProfileActions(e.getProfile());
+
+
+            /**
+             * run profile settings
+             */
+            runProfileSettings(e.getProfile());
+
+        }
 
 
         // first time actions are run. now set event to running.

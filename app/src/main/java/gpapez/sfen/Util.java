@@ -59,9 +59,11 @@ public class Util extends Activity {
     private static GoogleMap map;
     private static boolean sBoolean;
     private static ViewGroup newRow;
+    protected static enum ACTION_FROM {EVENT, PROFILE, NULL};
+    protected static ACTION_FROM actionFrom;
 
     // days
-    final String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    final static String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
 
     // empty constructor
@@ -78,10 +80,10 @@ public class Util extends Activity {
      * @param options array of conditions defined in EventActivity
      * @param title shows title of dialog
      */
-    protected void openDialog(final Activity context,
+    protected static void openDialog(final Activity context,
                                      final ArrayList<DialogOptions> options,
                                      final String title) {
-
+        System.out.println("****** ACTION FROM: "+ actionFrom);
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -137,7 +139,7 @@ public class Util extends Activity {
     /**
      * SUBDIALOG with all options and onclick triggers
      */
-    protected void openSubDialog(final Activity context, final DialogOptions opt, final int index) {
+    protected static void openSubDialog(final Activity context, final DialogOptions opt, final int index) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         final LayoutInflater inflater = LayoutInflater.from(context);
         final FragmentManager fm = context.getFragmentManager();
@@ -1747,29 +1749,41 @@ public class Util extends Activity {
      *
      * @param
      */
-    private void removeConditionOrAction(final int index, final DialogOptions entry) {
+    private static void removeConditionOrAction(final int index, final DialogOptions entry) {
 
         /**
          * if removing action, call ProfileActivity function
          */
-        if (entry.isAction()) {
+        if (entry.isAction() && actionFrom != ACTION_FROM.EVENT) {
             ProfileActivity.getInstance().removeAction(index, entry);
             return ;
         }
 
-
         // when clicking recycle bin at condition/action, remove it from view and
         // from array of all conditions/actions
 
+        // remove ACTION from container first
+        if (entry.isAction()) {
+            EventActivity.getInstance().mContainerAction.removeViewAt(index);
+        }
         // remove CONDITION from container first
-        EventActivity.getInstance().mContainerCondition.removeViewAt(index);
+        else {
+            EventActivity.getInstance().mContainerCondition.removeViewAt(index);
+        }
         //container.removeView(newRow);
 
         // UPDATING SINGLE EVENT!!!
         // remove from conditions, depending on if we're adding to new event
         // or existing event
         if (EventActivity.getInstance().isUpdating) {
-
+            // updating ACTION
+            if (entry.isAction()) {
+                EventActivity.getInstance().updatedActions.remove(
+                        EventActivity.getInstance().updatedActions.indexOf(entry)
+                );
+            }
+            // otherwise, updating CONDITION
+            else {
                 // since we're deleting condition, we have to call
                 // updateChecker: updateEventConditionTimers
                 // we are forcing event of current entry to disable, then enable
@@ -1789,7 +1803,7 @@ public class Util extends Activity {
                 EventActivity.getInstance().updatedConditions.remove(
                         EventActivity.getInstance().updatedConditions.indexOf(entry)
                 );
-
+            }
 
             // we changed something, so set the changed boolean
             EventActivity.getInstance().isChanged = true;
@@ -1799,23 +1813,39 @@ public class Util extends Activity {
 
         // CREATING SINGLE EVENT!!!
         else {
+            // adding ACTION
+            if (entry.isAction()) {
+                EventActivity.getInstance().actions.remove(
+                        EventActivity.getInstance().actions.indexOf(entry)
+                );
+            }
             // adding CONDITION
-            EventActivity.getInstance().conditions.remove(
-                    EventActivity.getInstance().conditions.indexOf(entry)
-            );
+            else {
+                EventActivity.getInstance().conditions.remove(
+                        EventActivity.getInstance().conditions.indexOf(entry)
+                );
+            }
         }
+
+
+        // clear actionFrom
+        actionFrom = ACTION_FROM.NULL;
+
+
     }
 
 
     /**
      * add new condition OR action
      */
-    protected void addNewConditionOrAction(final Activity context, final DialogOptions entry, final int index) {
+    protected static void addNewConditionOrAction(final Activity context, final DialogOptions entry, final int index) {
+
+        //System.out.println("*** ACTION FROM "+ actionFrom);
 
         /**
          * if adding action, call ProfileActivity function
          */
-        if (entry.isAction()) {
+        if (entry.isAction() && actionFrom != ACTION_FROM.EVENT) {
             ProfileActivity.getInstance().addNewAction(context, entry, index);
             return ;
         }
@@ -1827,12 +1857,19 @@ public class Util extends Activity {
 
         // add condition to list of conditions of Event
         if (EventActivity.getInstance().isUpdating) {
-            EventActivity.getInstance().updatedConditions.add(entry);
+            // updating action/cond
+            if (entry.isAction())
+                EventActivity.getInstance().updatedActions.add(entry);
+            else
+                EventActivity.getInstance().updatedConditions.add(entry);
         }
         // adding NEW
         else {
             //entry.setSetting("uniqueID", new Random().nextInt());
-            EventActivity.getInstance().conditions.add(entry);
+            if (entry.isAction())
+                EventActivity.getInstance().actions.add(entry);
+            else
+                EventActivity.getInstance().conditions.add(entry);
         }
 
         // get options that we need for interface
@@ -1843,9 +1880,14 @@ public class Util extends Activity {
         // add new row to actions/conditions now
         final ViewGroup newRow;
 
-        newRow = (ViewGroup) LayoutInflater.from(context).inflate(
-                R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
-
+        if (entry.isAction()) {
+            newRow = (ViewGroup) LayoutInflater.from(context).inflate(
+                    R.layout.condition_single_item, EventActivity.getInstance().mContainerAction, false);
+        }
+        else {
+            newRow = (ViewGroup) LayoutInflater.from(context).inflate(
+                    R.layout.condition_single_item, EventActivity.getInstance().mContainerCondition, false);
+        }
 
         ((TextView) newRow.findViewById(android.R.id.text1)).setText(title);
         ((TextView) newRow.findViewById(android.R.id.text2))
@@ -1866,9 +1908,6 @@ public class Util extends Activity {
             }
         });
 
-        /**
-         * delete button for single item
-         */
         newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1883,7 +1922,15 @@ public class Util extends Activity {
 
 
         // add action to container
-        EventActivity.getInstance().mContainerCondition.addView(newRow, index);
+        if (entry.isAction())
+            EventActivity.getInstance().mContainerAction.addView(newRow, index);
+            // add condition to container
+        else
+            EventActivity.getInstance().mContainerCondition.addView(newRow, index);
+
+
+        // clear actionFrom
+        actionFrom = ACTION_FROM.NULL;
 
     }
 

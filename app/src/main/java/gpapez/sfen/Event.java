@@ -47,7 +47,7 @@ public class Event {
 
 
     private ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
-    //private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
+    private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
     private HashMap<String, String> settings;
 
@@ -290,7 +290,7 @@ public class Event {
                     cEnd.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cond.getSetting("toHour")));
                     cEnd.set(Calendar.MINUTE, Integer.parseInt(cond.getSetting("toMinute")));
 
-                    // if end time is small than start time, usually means end date is after midnight
+                    // if end time is smaller than start time, usually means end date is after midnight
                     if (cEnd.before(cStart)) {
                         cEnd.add(Calendar.DATE, 1);
                         //cal.add(Calendar.DATE, 1);
@@ -298,16 +298,17 @@ public class Event {
 
                     // also, check if current date is lower than start date
                     // AND start & end times aren't in the same day
-//                    if (cal.before(cStart) &&
-//                            cStart.get(Calendar.DAY_OF_YEAR) != cEnd.get(Calendar.DAY_OF_YEAR)
-//                            ) {
-//                        //cal.add(Calendar.DATE, 1);
-//                        cStart.add(Calendar.DATE, -1);
-//                    }
-//
-//                    Log.e("test", "current date: "+ cal.getTime().toString());
-//                    Log.e("test", "start date: "+ cStart.getTime().toString());
-//                    Log.e("test", "end date: "+ cEnd.getTime().toString());
+                    if (cal.before(cStart) &&
+                            //cStart.get(Calendar.DAY_OF_YEAR) != cEnd.get(Calendar.DAY_OF_YEAR) &&
+                            cEnd.after(current)
+                            ) {
+                        cal.add(Calendar.DATE, 1);
+                        //cStart.add(Calendar.DATE, -1);
+                    }
+
+                    Log.e("test", "current date: "+ cal.getTime().toString());
+                    Log.e("test", "start date: "+ cStart.getTime().toString());
+                    Log.e("test", "end date: "+ cEnd.getTime().toString());
 
 
                     //Date current = cal.getTime();
@@ -773,13 +774,13 @@ public class Event {
         this.conditions = conditions;
     }
 
-//    public ArrayList<DialogOptions> getActions() {
-//        return actions;
-//    }
+    public ArrayList<DialogOptions> getActions() {
+        return actions;
+    }
 
-//    public void setActions(ArrayList<DialogOptions> actions) {
-//        this.actions = actions;
-//    }
+    public void setActions(ArrayList<DialogOptions> actions) {
+        this.actions = actions;
+    }
 
     public void setSetting(String key, String value) {
         settings.put(key, value);
@@ -799,6 +800,9 @@ public class Event {
 
     public Profile getProfile() {
         //return profile;
+        if (profile == -1)
+            return null;
+
         return Profile.getProfileByUniqueID(profile);
 
     }

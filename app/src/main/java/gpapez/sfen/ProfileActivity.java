@@ -28,13 +28,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -69,21 +63,6 @@ public class ProfileActivity extends Activity {
     // options hashmap
 
 
-    // list of possible Actions in Options
-    //context.getResources().getDrawable(R.drawable.ic_launcher)
-    static final ArrayList<DialogOptions> optActions = new ArrayList<DialogOptions>() {{
-        //add(new DialogOptions("Show notification", "Will show notification in notification area", android.R.drawable.ic_dialog_info, DialogOptions.type.ACT_NOTIFICATION));
-        add(new DialogOptions("Show notification", "Will show notification in notification area", R.drawable.ic_notification, DialogOptions.type.ACT_NOTIFICATION));
-        add(new DialogOptions("Enable Wifi", "Enable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
-        add(new DialogOptions("Disable Wifi", "Disable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
-        add(new DialogOptions("Enable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
-        add(new DialogOptions("Disable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
-        add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
-        add(new DialogOptions("Play Sfen", "Will make a sheep sound", R.drawable.ic_sound, DialogOptions.type.ACT_PLAYSFEN));
-        add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
-        add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
-        add(new DialogOptions("Open shortcut", "Will open specified shortcut", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
-    }};
 
 
     @Override
@@ -114,7 +93,7 @@ public class ProfileActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
-                BackgroundService.getInstance().mUtil.openDialog(sInstance, optActions, "Pick action");
+                BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optActions, "Pick action");
             }
         });
 

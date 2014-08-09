@@ -5,9 +5,9 @@ import android.media.AudioManager;
 import android.media.Ringtone;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.telephony.gsm.GsmCellLocation;
 
 /**
  * Created by Gregor on 30.7.2014.
@@ -136,8 +136,8 @@ public class ReceiverPhoneState extends PhoneStateListener {
     }
 
 
-    public void onCellLocationChanged(GsmCellLocation CellId){
-        super.onCellLocationChanged(CellId);
+    public void onCellLocationChanged(CellLocation cellLocation){
+        super.onCellLocationChanged(cellLocation);
 
 
         // when we change cells, we have to wake up to send broadcast

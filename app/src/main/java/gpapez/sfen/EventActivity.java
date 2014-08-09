@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class EventActivity extends Activity {
     private static EventActivity sInstance = null;
     protected ViewGroup mContainerCondition;
+    protected ViewGroup mContainerAction;
     protected ViewGroup mContainerProfile;
 
     // containers if we're editing activity
@@ -31,6 +32,7 @@ public class EventActivity extends Activity {
     protected boolean isChanged = false;
     protected int updateKey = -1;
     protected ArrayList<DialogOptions> updatedConditions;
+    protected ArrayList<DialogOptions> updatedActions;
 
 
     // placeholder for current Event
@@ -41,29 +43,10 @@ public class EventActivity extends Activity {
 
     // arrays for conditions and actions
     protected ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
+    protected ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
 
-    // list of possible Conditions in Options
-    static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
-        add(new DialogOptions("Inside Location", "Inside location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
-        add(new DialogOptions("Outside Location", "Outside location", R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
-        add(new DialogOptions("Time Range", "Time range", R.drawable.ic_time, DialogOptions.type.TIMERANGE));
-        add(new DialogOptions("Specific Time", "Specific Time", R.drawable.ic_time, DialogOptions.type.TIME));
-        add(new DialogOptions("Days", "Day(s) of week", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
-        add(new DialogOptions("Connected to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
-        add(new DialogOptions("Disconnected from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
-        add(new DialogOptions("Screen On", "If screen is on", R.drawable.ic_screen, DialogOptions.type.SCREEN_ON));
-        add(new DialogOptions("Screen Off", "If screen is off", R.drawable.ic_screen, DialogOptions.type.SCREEN_OFF));
-        add(new DialogOptions("Connected to Cells", "When connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_IN));
-        add(new DialogOptions("Not connected to Cells", "When not connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_OUT));
-        add(new DialogOptions("Event running", "Another Event currently running", R.drawable.ic_launcher, DialogOptions.type.EVENT_RUNNING));
-        add(new DialogOptions("Event not running", "Another Event currently not running", R.drawable.ic_launcher, DialogOptions.type.EVENT_NOTRUNNING));
-        add(new DialogOptions("GPS enabled", "If GPS is enabled", R.drawable.ic_map, DialogOptions.type.GPS_ENABLED));
-        add(new DialogOptions("GPS disabled", "If GPS is disabled", R.drawable.ic_map, DialogOptions.type.GPS_DISABLED));
-        add(new DialogOptions("Battery level", "Selected battery level", R.drawable.ic_battery, DialogOptions.type.BATTERY_LEVEL));
-        add(new DialogOptions("Battery status", "Status of battery", R.drawable.ic_battery, DialogOptions.type.BATTERY_STATUS));
 
-    }};
 
 
     @Override
@@ -75,6 +58,7 @@ public class EventActivity extends Activity {
         sInstance = this;
 
         mContainerCondition = (ViewGroup) findViewById(R.id.condition_container);
+        mContainerAction = (ViewGroup) findViewById(R.id.action_container);
         mContainerProfile = (ViewGroup) findViewById(R.id.profile_container);
 
         // CONDITION
@@ -88,11 +72,31 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    BackgroundService.getInstance().mUtil.openDialog(sInstance, optConditions, "Pick condition");
+                    BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optConditions, "Pick condition");
             }
         });
 
         mContainerCondition.addView(newView, 0);
+
+
+        // ACTION
+        final ViewGroup newAction = (ViewGroup) LayoutInflater.from(this).inflate(
+                R.layout.condition_action_header, mContainerAction, false);
+
+        ((TextView) newAction.findViewById(android.R.id.text1)).setText(getString(R.string.action_new));
+        ((TextView) newAction.findViewById(android.R.id.text2)).setText(getString(R.string.action_new_sub));
+
+        // LISTENER for NEW ACTION
+        newAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
+                Util.actionFrom = Util.ACTION_FROM.EVENT;
+                Util.openDialog(sInstance, DialogOptions.optActions, "Pick action");
+            }
+        });
+
+        mContainerAction.addView(newAction, 0);
 
 
         // stop! hammertime!
@@ -103,6 +107,7 @@ public class EventActivity extends Activity {
             event = (new Gson()).fromJson(getIntent().getExtras().getString("sEvent"), Event.class);
             updateKey = getIntent().getIntExtra("sEventIndexKey", -1);
             updatedConditions = new ArrayList<DialogOptions>();
+            updatedActions = new ArrayList<DialogOptions>();
             profile = event.getProfile();
 
             getActionBar().setTitle("Editing "+ event.getName());
@@ -116,7 +121,7 @@ public class EventActivity extends Activity {
         /**
          * CREATE NEW PROFILE view if we're not updating Event
          */
-        if (!isUpdating) {
+        if (!isUpdating || event.getProfile() == null) {
 
             // PROFILE
             final ViewGroup newProfile = (ViewGroup) LayoutInflater.from(this).inflate(
@@ -226,10 +231,10 @@ public class EventActivity extends Activity {
 //        }
 
         /**
-         * did we select profile?
+         * did we select profile OR action?
          */
-        if (profile == null) {
-            Util.showMessageBox("You must select Event profile!", true);
+        if (profile == null && actions.size() == 0) {
+            Util.showMessageBox("You must select Event profile OR at least one action!", true);
 
             return false;
         }
@@ -243,10 +248,15 @@ public class EventActivity extends Activity {
 
         event.setName(((TextView) findViewById(R.id.event_name)).getText().toString());
         event.setConditions(conditions);
+        event.setActions(actions);
         event.setEnabled(((Switch) findViewById(R.id.event_enabled)).isChecked());
         event.setMatchAllConditions(((CheckBox) findViewById(R.id.event_allconditions)).isChecked());
         event.setRunOnce(((CheckBox) findViewById(R.id.event_runonce)).isChecked());
-        event.setProfile(profile);
+
+        if (profile == null)
+            event.setProfileID(-1);
+        else
+            event.setProfile(profile);
 
         // TODO: add one or all settings for current event if needed
         // event.setSetting("this", "test");
@@ -260,9 +270,6 @@ public class EventActivity extends Activity {
             BackgroundService.getInstance().events.add(event);
         }
 
-        // lets create option from main activity that we're actually saving event
-        //Main.getInstance().options.put("eventSave", "1");
-        //Main.getInstance().options.put("eventName", eventName.getText().toString());
 
 
         // at the end, send broadcast, if the event is enabled
@@ -314,41 +321,44 @@ public class EventActivity extends Activity {
 
         conditions = updatedConditions;
 
-//        // also, would be great if we add all actions to container, no?
-//        ArrayList<DialogOptions> allAct = event.getActions();
-//        for (DialogOptions act : event.getActions()) {
-//            BackgroundService.getInstance().mUtil.addNewConditionOrAction(sInstance, act, 0);
-//        }
-//
-//        actions = updatedActions;
+        // also, would be great if we add all actions to container, no?
+        ArrayList<DialogOptions> allAct = event.getActions();
+        for (DialogOptions act : event.getActions()) {
+            Util.actionFrom = Util.ACTION_FROM.EVENT;
+            Util.addNewConditionOrAction(sInstance, act, 0);
+        }
+
+        actions = updatedActions;
 
 
         /**
          * insert saved profile to container
          */
+        if (event.getProfile() != null) {
 
-        final ViewGroup newProfile = (ViewGroup) LayoutInflater.from(this).inflate(
-                R.layout.dialog_pick_single, mContainerProfile, false);
+            final ViewGroup newProfile = (ViewGroup) LayoutInflater.from(this).inflate(
+                    R.layout.dialog_pick_single, mContainerProfile, false);
 
-        ((TextView) newProfile.findViewById(android.R.id.text1)).setText(event.getProfile().getName());
-        ((TextView) newProfile.findViewById(android.R.id.text2)).setText(
-                (event.getProfile().isActive() ? "Active" : "Ready")
-        );
-        ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
-                .setImageDrawable(getResources().getDrawable(event.getProfile().getIcon()));
+            ((TextView) newProfile.findViewById(android.R.id.text1)).setText(event.getProfile().getName());
+            ((TextView) newProfile.findViewById(android.R.id.text2)).setText(
+                    (event.getProfile().isActive() ? "Active" : "Ready")
+            );
+            ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
+                    .setImageDrawable(getResources().getDrawable(event.getProfile().getIcon()));
 
 
-        // LISTENER for NEW PROFILE
-        newProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
-                //BackgroundService.getInstance().mUtil.openDialog(sInstance, optActions, "Pick action");
-                openDialogProfiles();
-            }
-        });
+            // LISTENER for NEW PROFILE
+            newProfile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
+                    //BackgroundService.getInstance().mUtil.openDialog(sInstance, optActions, "Pick action");
+                    openDialogProfiles();
+                }
+            });
 
-        mContainerProfile.addView(newProfile, 0);
+            mContainerProfile.addView(newProfile, 0);
+        }
 
 
     }
@@ -516,8 +526,18 @@ public class EventActivity extends Activity {
 
 
 
+        Profile pTemp = new Profile();
+        pTemp.setUniqueID(-1);
+        pTemp.setName("None");
+        pTemp.setIcon(R.drawable.ic_profile);
+        pTemp.setActive(false);
 
-        for (final Profile single : BackgroundService.getInstance().profiles) {
+
+        ArrayList<Profile> showProfilesInDialog = new ArrayList<Profile>();
+        showProfilesInDialog.add(pTemp);
+        showProfilesInDialog.addAll(BackgroundService.getInstance().profiles);
+
+        for (final Profile single : showProfilesInDialog) {
         //for (int i = 0; i < BackgroundService.getInstance().profiles.size(); i++) {
             //final DialogOptions opt = BackgroundService.getInstance().profiles.get(i);
 
@@ -550,6 +570,7 @@ public class EventActivity extends Activity {
                      */
                     mContainerProfile.removeViewAt(0);
 
+
                     /**
                      * create new viewgroup
                      */
@@ -564,12 +585,20 @@ public class EventActivity extends Activity {
                             .setImageDrawable(getResources().getDrawable(single.getIcon()));
 
 
+
+                    /**
+                     * if we picked NONE, we have to update settings
+                     */
+                    if (single.getUniqueID() == -1) {
+                        ((TextView) newProfile.findViewById(android.R.id.text1)).setText("Profile");
+                        ((TextView) newProfile.findViewById(android.R.id.text2)).setText("Click here to select profile");
+                    }
+
+
                     // LISTENER for NEW PROFILE
                     newProfile.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
-                            //BackgroundService.getInstance().mUtil.openDialog(sInstance, optActions, "Pick action");
                             openDialogProfiles();
                         }
                     });

@@ -101,7 +101,7 @@ public class Receiver extends BroadcastReceiver {
          * otherwise return the process.
          */
         if (!isActionAllowedToRun(action)) {
-            Log.d("sfen", "Broadcast recieved "+ action +" but not needed.");
+            //Log.d("sfen", "Broadcast recieved "+ action +" but not needed.");
             return ;
         }
         else
