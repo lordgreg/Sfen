@@ -16,7 +16,7 @@ public class Profile {
      *
      */
     private String name;
-    private int icon;
+    private String icon;
     private int uniqueID;
     private boolean isActive;
 
@@ -172,12 +172,27 @@ public class Profile {
         this.isVibrate = isVibrate;
     }
 
+    /*
+
+        System.out.println("id of android.R.drawable.ic_menu_call is "+
+            getResources()
+                    .getIdentifier("ic_menu_call", "drawable", "android")
+        );
+        System.out.println("Resource entry name for android.R.drawable.ic_menu_call is "+
+                getResources().getResourceEntryName(android.R.drawable.ic_menu_call));
+
+
+     */
     public int getIcon() {
-        return icon;
+        return BackgroundService.getInstance().getResources()
+                .getIdentifier(
+                        icon,
+                        "drawable",
+                        BackgroundService.getInstance().getPackageName());
     }
 
     public void setIcon(int icon) {
-        this.icon = icon;
+        this.icon = BackgroundService.getInstance().getResources().getResourceEntryName(icon);
     }
 
     public int getUniqueID() {
@@ -267,5 +282,22 @@ public class Profile {
 
         uniqueID = Math.abs(new Random().nextInt());
 
+    }
+
+
+    /**
+     * returns boolean if profile ID is found in any event
+     */
+    public static boolean isProfileFoundInAnyEvent(int uniqueID) {
+
+        for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
+
+            if (BackgroundService.getInstance().events.get(i).getProfile() != null &&
+                    BackgroundService.getInstance().events.get(i).getProfile().getUniqueID() == uniqueID)
+                return true;
+
+        }
+
+        return false;
     }
 }

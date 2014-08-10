@@ -53,6 +53,7 @@ public class DialogOptions {
         add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
         add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
         add(new DialogOptions("Open shortcut", "Will open specified shortcut", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
+        add(new DialogOptions("Run Event", "Will run specified event", R.drawable.ic_event, DialogOptions.type.ACT_RUNEVENT));
     }};
 
 
@@ -65,7 +66,8 @@ public class DialogOptions {
         // actions
         ACT_NOTIFICATION, ACT_PLAYSFEN, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT,
         ACT_WIFIENABLE, ACT_WIFIDISABLE, ACT_MOBILEENABLE, ACT_MOBILEDISABLE,
-        ACT_VIBRATE, ACT_LOCKSCREENDISABLE, ACT_LOCKSCREENENABLE, ACT_OPENSHORTCUT
+        ACT_VIBRATE, ACT_LOCKSCREENDISABLE, ACT_LOCKSCREENENABLE, ACT_OPENSHORTCUT,
+        ACT_RUNEVENT
     };
     private type optionType;
     private int maxNumber;

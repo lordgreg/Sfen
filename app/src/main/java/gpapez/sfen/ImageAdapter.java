@@ -60,6 +60,17 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.ic_profile,
             R.drawable.ic_add,
             R.drawable.ic_notification,
+            R.drawable.ic_time,
+            R.drawable.ic_alarm,
+            R.drawable.ic_battery,
+            R.drawable.ic_phone,
+            R.drawable.ic_sound,
+            R.drawable.ic_screen,
+            R.drawable.ic_date,
+            R.drawable.ic_whitelist,
+            R.drawable.ic_home,
+            R.drawable.ic_work,
+            /*
             android.R.drawable.ic_menu_call,
             android.R.drawable.ic_menu_camera,
             android.R.drawable.ic_menu_compass,
@@ -72,6 +83,6 @@ public class ImageAdapter extends BaseAdapter {
             android.R.drawable.presence_away,
             android.R.drawable.presence_busy,
             android.R.drawable.presence_invisible
-
+*/
     };
 }

@@ -83,7 +83,7 @@ public class Util extends Activity {
     protected static void openDialog(final Activity context,
                                      final ArrayList<DialogOptions> options,
                                      final String title) {
-        System.out.println("****** ACTION FROM: "+ actionFrom);
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         final LayoutInflater inflater = LayoutInflater.from(context);
@@ -1552,22 +1552,7 @@ public class Util extends Activity {
                     showMessageBox("You cannot edit Shortcut action. You can only delete it.", true);
                     return ;
                 }
-                /**
-                 * widgets
-                 */
-/*
-                AppWidgetManager wmanager=AppWidgetManager.getInstance(Main.getInstance());
-                List<AppWidgetProviderInfo>infoList=wmanager.getInstalledProviders();
-                for(AppWidgetProviderInfo shinfo:infoList)
-                {
 
-                    Log.d("sfen", "Name-" + shinfo.label);
-                    Log.d("sfen", "Configure Name-"+shinfo.configure);
-                    Log.d("sfen", "Provider Name-"+shinfo.provider);
-
-
-                }
-                */
                 final int REQUEST_PICK_SHORTCUT = 0x100;
                 final int REQUEST_CREATE_SHORTCUT = 0x200;
 
@@ -1588,75 +1573,6 @@ public class Util extends Activity {
                     }.execute();
 
 
-                //ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
-
-/*
-                //com.google.android.gm/com.google.android.gm.widget.GmailWidgetProvider
-
-                String packageName = "com.google.android.gm/com.google.android.gm.widget.GmailWidgetProvider";
-
-                PackageManager pmOpen = Main.getInstance().getPackageManager();
-                // open app
-                //Intent appIntent = new Intent(Intent.ACTION_MAIN);
-                //appIntent.setClassName("com.android.settings", "com.android.settings.Settings");
-                Intent appIntent = pmOpen.getLaunchIntentForPackage(packageName);
-                appIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                if (appIntent != null)
-                    startActivity(appIntent);
-*/
-/*
-                List<ResolveInfo> appList = new ArrayList<ResolveInfo>();
-
-                final PackageManager mPackageManager = Main.getInstance().getPackageManager();
-                List<PackageInfo> packages = mPackageManager.getInstalledPackages(0);
-                Intent mainIntent = new Intent(Intent.ACTION_MAIN);
-                mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                for(PackageInfo pi : packages) {
-                    mainIntent.setPackage(pi.packageName);
-                    List<ResolveInfo> activityList = mPackageManager.queryIntentActivities(mainIntent, 0);
-                    for(ResolveInfo ri : activityList) {
-                        appList.add(ri);
-                        System.out.println("resolve info: "+ ri.resolvePackageName);
-                        System.out.println("parent activity: "+ ri.activityInfo.parentActivityName);
-                        System.out.println("resolve package name: "+ ri.resolvePackageName);
-
-                    }
-                }
-
-                Collections.sort(appList, new ResolveInfo.DisplayNameComparator(mPackageManager));
-
-                System.out.println("resolve info list");
-                System.out.println(appList.toString());
-*/
-
-
-
-/*
-
-                final PackageManager pm1 = context.getPackageManager();
-                mPackageManager.queryIntentActivities(mainIntent, 0);
-
-
-                for (final PackageInfo packageInfo : pm1.getInstalledPackages(PackageManager.GET_META_DATA)) {
-                    //if ((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
-                    //    break;
-                    // don't show apps that don't have launch activity
-                    if (pm1.getLaunchIntentForPackage(packageInfo.packageName) != null ||
-                            (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0
-                            ) {
-                    }
-
-
-                    System.out.println("*** "+ packageInfo.applicationInfo.loadLabel(pm1).toString());
-
-                    //String test
-
-                }*/
-
-
-
-
-
                 break;
 
             /**
@@ -1673,8 +1589,6 @@ public class Util extends Activity {
                 // save action & create new row
                 final DialogOptions lockcond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
-                //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
-                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                 lockcond.setSetting("text1", opt.getTitle());
                 lockcond.setSetting("text2", "Lock screen will be "+
                                 ((opt.getOptionType() == DialogOptions.type.ACT_LOCKSCREENENABLE) ? "enabled" : "disabled")
@@ -1682,6 +1596,71 @@ public class Util extends Activity {
 
                 //addNewAction(context, cond);
                 addNewConditionOrAction(context, lockcond, 0);
+
+
+                break;
+
+
+            /**
+             * ACT: RUN EVENT
+             */
+            case ACT_RUNEVENT:
+
+                if (isEditing) {
+                    showMessageBox("You cannot edit Run Event Action. You can only remove it.", true);
+                    return ;
+                }
+
+                if (BackgroundService.getInstance().events.size() == 0) {
+                    showMessageBox("There are no Events created. Create one first to use " +
+                            "this option.", true);
+                    return ;
+                }
+
+                /**
+                 * create array of all possible events
+                 */
+                String[] events = new String[BackgroundService.getInstance().events.size()];
+
+                for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
+                    events[i] = BackgroundService.getInstance().events.get(i).getName();
+                }
+
+                builder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Pick event")
+                        .setItems(events, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                // save action & create new row
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("text1", opt.getTitle());
+                                cond.setSetting("text2", "Event "+
+                                        BackgroundService.getInstance().events.get(i).getName() +" will run");
+
+                                cond.setSetting("EVENT_UNIQUEID",
+                                        String.valueOf(BackgroundService.getInstance().events.get(i).getUniqueID())
+                                        );
+
+                                //addNewAction(context, cond);
+                                addNewConditionOrAction(context, cond, 0);
+
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .show();
+
+
+
+
 
 
                 break;
@@ -1754,7 +1733,7 @@ public class Util extends Activity {
         /**
          * if removing action, call ProfileActivity function
          */
-        if (entry.isAction() && actionFrom != ACTION_FROM.EVENT) {
+        if (entry.isAction() && actionFrom == ACTION_FROM.PROFILE) {
             ProfileActivity.getInstance().removeAction(index, entry);
             return ;
         }
@@ -1845,7 +1824,7 @@ public class Util extends Activity {
         /**
          * if adding action, call ProfileActivity function
          */
-        if (entry.isAction() && actionFrom != ACTION_FROM.EVENT) {
+        if (entry.isAction() && actionFrom == ACTION_FROM.PROFILE) {
             ProfileActivity.getInstance().addNewAction(context, entry, index);
             return ;
         }

@@ -60,6 +60,12 @@ public class BackgroundService extends Service {
     // variable will get updated from Receiver after disconnecting from Wifi
     protected String mLatestSSID = "";
 
+    /**
+     * event loop variable for when we want to run event as action. if we get into an eventloop,
+     * we're screwed.
+     */
+    private boolean mEventLoopInProgress = false;
+
     // mReceiver object which runs on start
     private Receiver mReceiver;
     protected String receiverAction = "";
@@ -417,8 +423,11 @@ public class BackgroundService extends Service {
     }
 
 
-    /**
+    /***********************************************************************************************
+     *
      * RUN ACTIONS
+     *
+     ***********************************************************************************************
      */
     protected void runActions(ArrayList<DialogOptions> actions) {
 
@@ -694,7 +703,35 @@ public class BackgroundService extends Service {
 
                     break;
 
+                case ACT_RUNEVENT:
+
+                    /**
+                     * running event as action will allow us to rerun specified event. There is one
+                     * trick, we can go into huge loop here, so avoid it at all costs.
+                     */
+
+                    int eventUniqueID = Integer.parseInt(act.getSetting("EVENT_UNIQUEID"));
+
+                    Event e = Event.returnEventByUniqueID(eventUniqueID);
+
+                    if (e != null) {
+
+                        if (!mEventLoopInProgress) {
+                            mEventLoopInProgress = true;
+
+                            e.setForceRun(true);
+                            runEvent(BackgroundService.getInstance(), sIntent, e);
+
+                            mEventLoopInProgress = false;
+                        }
+
+                    }
+
+
+                    break;
+
                 default:
+                    Log.d("sfen", "No case match ("+ act.getOptionType() +" in runActions).");
 
                     break;
 

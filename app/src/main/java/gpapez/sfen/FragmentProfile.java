@@ -216,7 +216,31 @@ public class FragmentProfile extends Fragment {
 
                         }
 
+                        /**
+                         * delete
+                         */
                         if (which == 2) {
+
+                            /**
+                             * is profile active in any event?
+                             */
+                            // we're creating continueDeleting variable as array so we can change its 1st
+                            // value, even if boolean set to static.
+                            //final boolean[] continueDeleting = new boolean[]{true};
+
+
+                            /**
+                             * reset events profileID where specified Profile
+                             * unique ID is given to -1
+                             */
+                            for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
+
+                                if (BackgroundService.getInstance().events.get(i).getProfileID()
+                                        == p.getUniqueID())
+                                    BackgroundService.getInstance().events.get(i).setProfileID(-1);
+
+                            }
+
 
                             // delete row AND spot in events
                             mContainerView.removeView(newRow);
@@ -228,6 +252,7 @@ public class FragmentProfile extends Fragment {
 
                             // refresh view
                             refreshProfilesView();
+
 
                         }
 

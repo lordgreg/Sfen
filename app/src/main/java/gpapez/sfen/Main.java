@@ -127,15 +127,13 @@ public class Main extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        //System.out.println("resuming");
         // set to visible
         isVisible = true;
 
-        //if (options.get("eventSave") == "1") {
-        //addNewEvent();
-        //if (mTabPosition == 0) {
-            refreshCurrentView();
-        //}
+        refreshCurrentView();
+
+
     }
 
     @Override

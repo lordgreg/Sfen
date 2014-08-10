@@ -306,9 +306,9 @@ public class Event {
                         //cStart.add(Calendar.DATE, -1);
                     }
 
-                    Log.e("test", "current date: "+ cal.getTime().toString());
-                    Log.e("test", "start date: "+ cStart.getTime().toString());
-                    Log.e("test", "end date: "+ cEnd.getTime().toString());
+//                    Log.e("test", "current date: "+ cal.getTime().toString());
+//                    Log.e("test", "start date: "+ cStart.getTime().toString());
+//                    Log.e("test", "end date: "+ cEnd.getTime().toString());
 
 
                     //Date current = cal.getTime();
@@ -864,5 +864,10 @@ public class Event {
         uniqueID = Math.abs(new Random().nextInt());
 
     }
+
+
+    /**
+     *
+     */
 
 }

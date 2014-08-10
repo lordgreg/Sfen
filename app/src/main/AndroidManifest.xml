@@ -93,6 +93,16 @@
         </receiver>
 
 
+        <activity
+            android:name=".ShortcutActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="Sfen Profiles">
+            <intent-filter >
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+            </intent-filter>
+        </activity>
+
+
     </application>
 
 </manifest>

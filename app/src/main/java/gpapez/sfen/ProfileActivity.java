@@ -93,7 +93,8 @@ public class ProfileActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
-                BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optActions, "Pick action");
+                Util.actionFrom = Util.ACTION_FROM.PROFILE;
+                Util.openDialog(sInstance, DialogOptions.optActions, "Pick action");
             }
         });
 
@@ -248,7 +249,7 @@ public class ProfileActivity extends Activity {
             for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
                 Event e = BackgroundService.getInstance().events.get(i);
 
-                if (e.getProfile().getUniqueID() == profile.getUniqueID()) {
+                if (e.getProfile() != null && e.getProfile().getUniqueID() == profile.getUniqueID()) {
                     e.setProfile(profile);
 
                     BackgroundService.getInstance().events.set(i, e);

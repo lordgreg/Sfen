@@ -123,6 +123,9 @@ public class EventActivity extends Activity {
          */
         if (!isUpdating || event.getProfile() == null) {
 
+            profile = new Profile();
+            profile.setUniqueID(-1);
+
             // PROFILE
             final ViewGroup newProfile = (ViewGroup) LayoutInflater.from(this).inflate(
                     R.layout.dialog_pick_single, mContainerProfile, false);
@@ -233,7 +236,7 @@ public class EventActivity extends Activity {
         /**
          * did we select profile OR action?
          */
-        if (profile == null && actions.size() == 0) {
+        if (profile.getUniqueID() == -1 && actions.size() == 0) {
             Util.showMessageBox("You must select Event profile OR at least one action!", true);
 
             return false;
@@ -351,8 +354,6 @@ public class EventActivity extends Activity {
             newProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
-                    //BackgroundService.getInstance().mUtil.openDialog(sInstance, optActions, "Pick action");
                     openDialogProfiles();
                 }
             });
@@ -512,7 +513,7 @@ public class EventActivity extends Activity {
         builder
                 .setView(dialogView)
                 .setIcon(this.getResources().getDrawable(R.drawable.ic_launcher))
-                .setTitle("Pick Profile")
+                //.setTitle("Pick Profile")
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -528,7 +529,7 @@ public class EventActivity extends Activity {
 
         Profile pTemp = new Profile();
         pTemp.setUniqueID(-1);
-        pTemp.setName("None");
+        pTemp.setName("No profile selected");
         pTemp.setIcon(R.drawable.ic_profile);
         pTemp.setActive(false);
 
@@ -544,9 +545,19 @@ public class EventActivity extends Activity {
             newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getName());
-            ((TextView) newRow.findViewById(android.R.id.text2)).setText(
-                    (single.isActive() ? "Active" : "Ready")
-            );
+
+            // if we're adding real profile show its state.
+            if (single.getUniqueID() != -1) {
+                ((TextView) newRow.findViewById(android.R.id.text2)).setText(
+                        (single.isActive() ? "Active" : "Ready")
+                );
+            }
+            // show subtext if dummy profile
+            else {
+                ((TextView) newRow.findViewById(android.R.id.text2)).setText(
+                        ""
+                );
+            }
 
             ((ImageButton) newRow.findViewById(R.id.dialog_icon))
                     .setImageDrawable(sInstance.getResources().getDrawable(single.getIcon()));
