@@ -39,8 +39,23 @@ public class ShortcutActivity extends Activity {
 
             if (p != null) {
 
+                /**
+                 * update active profile
+                 */
+                Profile.updateActiveProfile(profileID);
+
+                /**
+                 * run settings & actions
+                 */
                 BackgroundService.getInstance().runProfileSettings(p);
                 BackgroundService.getInstance().runProfileActions(p);
+
+            }
+
+            else {
+
+                Util.showMessageBox("Profile does not exist. Delete shortcut and create new one!",
+                        false);
 
             }
 

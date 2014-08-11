@@ -966,24 +966,24 @@ public class BackgroundService extends Service {
             /**
              * disable current active profile
              */
-            for (Profile current : profiles) {
-
-                if (current.isActive()) {
-                    current.setActive(false);
-
-                    profiles.set(
-                            profiles.indexOf(current),
-                            current
-                    );
-
-
-                    Log.i("sfen", "Currently active profile " + current.getName() + " disabled.");
-
-                    //break;
-
-                }
-
-            }
+//            for (Profile current : profiles) {
+//
+//                if (current.isActive()) {
+//                    current.setActive(false);
+//
+//                    profiles.set(
+//                            profiles.indexOf(current),
+//                            current
+//                    );
+//
+//
+//                    Log.i("sfen", "Currently active profile " + current.getName() + " disabled.");
+//
+//                    //break;
+//
+//                }
+//
+//            }
 
             /**
              * set new as active

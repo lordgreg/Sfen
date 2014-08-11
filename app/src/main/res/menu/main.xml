@@ -30,6 +30,14 @@
         android:title="Import settings"
         />
 
+    <!--<item android:id="@+id/action_advanced"-->
+        <!--android:title="Advanced">-->
+        <!--&lt;!&ndash; Sub menu &ndash;&gt;-->
+        <!--<menu>-->
+            <!--<item android:id="@+id/action_celltowers" android:title="Cell Tower History" />-->
+        <!--</menu>-->
+    <!--</item>-->
+
     <item android:id="@+id/action_preferences"
         android:title="Preferences" />
 

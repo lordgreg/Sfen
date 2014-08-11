@@ -9,6 +9,10 @@ import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
+import com.google.gson.Gson;
+
+import java.util.Calendar;
+
 /**
  * Created by Gregor on 30.7.2014.
  */
@@ -145,6 +149,32 @@ public class ReceiverPhoneState extends PhoneStateListener {
                 .getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sfen");
         mWakeLock.acquire();
+
+        /**
+         * saving new cell id to preferences?
+         */
+//        SharedPreferences preferences = PreferenceManager
+//                .getDefaultSharedPreferences(Main.getInstance());
+//
+//
+
+        String calUntilString = BackgroundService.getInstance().mPreferences
+                .getSharedPreferencesObject().getString("CellRecordUntil", "");
+        /**
+         * is saved date there?
+         */
+        if (!calUntilString.equals("")) {
+
+            Gson gson = new Gson();
+            Calendar calendar = Calendar.getInstance();
+            Calendar calUntil = gson.fromJson(calUntilString, Calendar.class);
+
+            System.out.println("saving until "+ calUntil.getTime().toString());
+
+
+            // TODO: call static object Cell and save new cellID into array into preferences
+
+        }
 
 
         /**

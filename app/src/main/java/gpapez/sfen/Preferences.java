@@ -21,7 +21,7 @@ public class Preferences {
     private SharedPreferences mPreferences;
     private Activity mContext;
 
-    public enum REQUEST_TYPE {EVENTS, ALARMS, PROFILES, SETTINGS};
+    public enum REQUEST_TYPE {EVENTS, ALARMS, PROFILES, CELLS, SETTINGS};
     private REQUEST_TYPE mRequestType;
 
 
@@ -73,6 +73,9 @@ public class Preferences {
             case PROFILES:
                 returnObj = mGson.fromJson(json, new TypeToken<List<Profile>>(){}.getType());
                 break;
+            case CELLS:
+                returnObj = mGson.fromJson(json, new TypeToken<List<Cell>>(){}.getType());
+                break;
 
             default:
                 Log.e("sfen", "Type of "+ reqType +" is invalid.");
@@ -94,6 +97,15 @@ public class Preferences {
 
 
         return returnObj;
+    }
+
+    /**
+     * retrieve shared preferences from created object
+     */
+    protected SharedPreferences getSharedPreferencesObject() {
+
+        return mPreferences;
+
     }
 
 

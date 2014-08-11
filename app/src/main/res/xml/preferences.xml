@@ -13,12 +13,26 @@
             android:defaultValue="false"
             android:summary="Sfen will launch itself when device boots up"
             android:key="launchAtBoot" />
+
         <!--android:numeric="integer"-->
-        <EditTextPreference
-            android:title="Deep Sleep Wakelock"
-            android:defaultValue="15"
-            android:numeric="integer"
-            android:summary="Sfen will wake up every %s minutes to check for Event conditions"
-            android:key="wakelockTimer" />
+        <!--<EditTextPreference-->
+            <!--android:title="Deep Sleep Wakelock"-->
+            <!--android:defaultValue="15"-->
+            <!--android:numeric="integer"-->
+            <!--android:summary="Sfen will wake up every %s minutes to check for Event conditions"-->
+            <!--android:key="wakelockTimer" />-->
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Advanced">
+        <Preference
+            android:title="Record Cell Tower ID's"
+            android:summary="Record and store cell tower ID's for specific time"
+            android:key="openCellTowerRecordDialog" />
+
+        <Preference android:title="Cell Towers History"
+            android:summary="View history of saved cell tower ID's"
+            android:key="openCellTowersHistoryDialog" />
+
+
     </PreferenceCategory>
 </PreferenceScreen>
