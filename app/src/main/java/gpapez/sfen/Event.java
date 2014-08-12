@@ -484,13 +484,15 @@ public class Event {
                         // we received cellinfo, find a match now
 
                         // parse to ArrayList first
-                        ArrayList<String> mCells = gson.fromJson(cond.getSetting("selectedcell"),
-                                new TypeToken<List<String>>(){}.getType());
+                        ArrayList<Cell> mCells = gson.fromJson(cond.getSetting("selectedcell"),
+                                new TypeToken<List<Cell>>(){}.getType());
 
                         // current cell is in saved cells, we have a match.
                         // depending if we need CELL_IN or CELL_OUT
                         // current cell is stored
-                        if (mCells.contains(cellInfo.getCellId())) {
+                        Cell tempCell = new Cell(cellInfo.getCellId(), Calendar.getInstance());
+
+                        if (mCells.contains(tempCell)) {
                             // CELL IN returns true
                             if (cond.getOptionType() == DialogOptions.type.CELL_IN)
                                 conditionResults.add(true);

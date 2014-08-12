@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -43,7 +44,7 @@ import com.google.gson.reflect.TypeToken;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -780,115 +781,105 @@ public class Util extends Activity {
             case CELL_IN:
             case CELL_OUT:
 
-                // array of selected items in dialog
-                final ArrayList<String> mSelectedCells = new ArrayList<String>();
+                // array of ALL items
+                final ArrayList<Cell> mCellsToShow = new ArrayList<Cell>();
 
-                // array of cell towers we are showing in dialog
-                final ArrayList<String> mCellTowers = new ArrayList<String>();
+                // array of SELECTED items
+                final ArrayList<Cell> mCellsSelected = new ArrayList<Cell>();
 
-                // if editing, retrieve saved cells
-                ArrayList<String> mCellsFromSettings = null;
+                /**
+                 * get cells from settings
+                 */
+                ArrayList<Cell> mCellsFromSettings = null;
                 if (isEditing) {
                     mCellsFromSettings = gson.fromJson(opt.getSetting("selectedcell"),
-                                new TypeToken<List<String>>(){}.getType());
+                            new TypeToken<List<Cell>>(){}.getType());
 
                     // if we have cells stored, add them to selected cells
                     // and add them to visible cells
                     if (mCellsFromSettings != null) {
-                        mSelectedCells.addAll(mCellsFromSettings);
-                        mCellTowers.addAll(mCellsFromSettings);
+                        mCellsToShow.addAll(mCellsFromSettings);
+                        //mCellsSelected.addAll(mCellsFromSettings);
                     }
                 }
 
+                /**
+                 * get cells from HISTORY
+                 */
+                ArrayList<Cell> mHistoryCells = Cell.getSavedCellsFromPreferences();
+                if (mHistoryCells != null) {
 
-                // get current cell tower ID
-                //TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-                CellConnectionInfo cellInfo = new CellConnectionInfo(context);
+                    if (mHistoryCells.size() > 0) {
 
-                if (cellInfo.isError()) {
-                    showMessageBox(cellInfo.getError(), true);
-                    break;
-                }
+                        /**
+                         * check if history cell is already listed in preferences.
+                         */
+                        for (Cell single : mHistoryCells) {
 
-                // save current cell id
-                String mCellCurrent = cellInfo.getCellId();
-                //String mCellCurrent = "1337:1337:1337";
-                // set the size of booleans to match settings
-                boolean[] mCellChecked = new boolean[mCellTowers.size()];
+                            /**
+                             * current cell from history NOT in saved cells
+                             */
+                            if (!mCellsToShow.contains(single) && !mCellsFromSettings.contains(single))
+                                mCellsToShow.add(single);
 
-                // check all cells from settings
-                // aka set their parameters to TRUE
-                Arrays.fill(mCellChecked, Boolean.TRUE);
-
-                // boolean that will change if current
-                boolean mCellIsAlreadyStored = false;
-
-                // loop through our list of cells;
-                // if any from stored is our current, check it
-                if (mCellTowers.size() > 0) {
-                    for (int i = 0; i < mCellTowers.size(); i++) {
-
-                        // found a match!
-                        if (mCellTowers.contains(mCellCurrent)) {
-
-                            mCellIsAlreadyStored = true;
-                            //mCellChecked[i] = true;
-                            //System.out.println("we found a match");
-                            break;
                         }
 
                     }
-                }
 
-                //System.out.println("cell towers we're showing: "+ mCellTowers.toString());
-                //System.out.println("cell checked: "+ mCellChecked.toString());
-
-                // if cell tower is new, and not storred in array add it to array
-                if (!mCellIsAlreadyStored) {
-                    mCellTowers.add(mCellCurrent);
-
-                    // create new bool array
-                    boolean[] mCellCheckedTmp = new boolean[mCellTowers.size()];
-                    //mCellCheckedTmp =
-                    System.arraycopy(mCellChecked, 0, mCellCheckedTmp, 0, mCellChecked.length);
-                    mCellChecked = mCellCheckedTmp;
                 }
 
 
                 /**
-                 * this part is going to be crazy
+                 * get CURRENT cell
                  */
-//                ArrayList<Cell> cells = Cell.getSavedCellsFromPreferences();
-//
-//                if (cells != null) {
-//                    if (cells.size() > 0) {
-//                        mCellTowers.add("Add more cells from history?");
-//                    }
-//                }
+                CellConnectionInfo cellInfo = new CellConnectionInfo(context);
+
+                if (!cellInfo.isError()) {
+                    Cell tempCell = new Cell(cellInfo.getCellId(), Calendar.getInstance());
+
+                    // does our list contain current cell?
+                    // if not, add it
+                    if (!mCellsToShow.contains(tempCell) && !mCellsFromSettings.contains(tempCell)) {
+
+                        mCellsToShow.add(tempCell);
+
+                    }
+                }
 
 
-                // create array of strings from ArrayList for celltowers
-                String[] mCellTowerStrings = new String[mCellTowers.size()];
-                mCellTowerStrings = mCellTowers.toArray(mCellTowerStrings);
+                /**
+                 *
+                 * dialog start
+                 *
+                 */
+                //inflater = LayoutInflater.from(context);
+                final View dialogViewCell = inflater.inflate(R.layout.dialog_pick_condition, null);
+                final ViewGroup mCellTowers = (ViewGroup) dialogViewCell.findViewById(R.id.condition_pick);
+
+
+
+                //builder = new AlertDialog.Builder(context);
+                Util.showMessageBox("Click single item to select/deselect it.", false);
 
                 builder
-                        .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Pick Cell ID's (Current: "+ mCellCurrent +")")
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
+                        .setTitle("Cell tower selection")
+                        .setIcon(R.drawable.ic_cell)
+                        .setView(dialogViewCell)
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
 
+
+                                /**
+                                 *
+                                 * SAVING ITEMS
+                                 *
+                                 */
                                 // we have to pick at least one
-                                if (mSelectedCells.size() == 0) {
+                                if (mCellsSelected.size() == 0) {
                                     showMessageBox("Pick at least one radio tower!", true);
-                                    return ;
+                                    return;
                                 }
 
 
@@ -896,10 +887,10 @@ public class Util extends Activity {
                                 final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
 
-                                cond.setSetting("selectedcell", (new Gson().toJson(mSelectedCells)));
+                                cond.setSetting("selectedcell", (new Gson().toJson(mCellsSelected)));
                                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                                 cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.CELL_IN) ? "Connected to " : "Not connected to ") + " specific cells");
-                                cond.setSetting("text2", "Cells selected: "+ mSelectedCells.size());
+                                cond.setSetting("text2", "Cells selected: " + mCellsSelected.size());
 
 
                                 // if we are editing in sub-dialog, clear previous entry
@@ -912,29 +903,236 @@ public class Util extends Activity {
 
                             }
                         })
-                        .setMultiChoiceItems(mCellTowerStrings, mCellChecked, new DialogInterface.OnMultiChoiceClickListener() {
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                if (isChecked) {
-                                    /**
-                                     * do we want to open cell history dialog?
-                                     */
-//                                    if (mCellTowers.get(which).equals("Add more cells from history?")) {
-//                                        Cell.openCellTowersHistoryForEventCondition(
-//                                                context, opt, index, isEditing
-//                                                );
-//                                    }
-//                                    else
-                                        mSelectedCells.add(mCellTowers.get(which));
-                                }
-                                else
-                                    mSelectedCells.remove(mCellTowers.get(which));
-
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
                             }
                         })
                 ;
 
-                builder.show();
+                /**
+                 * create dialog
+                 */
+                final AlertDialog dialogCell = builder.create();
+
+                /**
+                 * fill dialog with cells
+                 */
+                //newRow;
+                for (final Cell single : mCellsToShow) {
+                    final ViewGroup newRow = (ViewGroup) inflater.inflate(R.layout.dialog_cellid_single, mCellTowers, false);
+
+
+                    ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId());
+                    ((TextView) newRow.findViewById(android.R.id.text2))
+                            .setText(single.getStoreDate().getTime().toString());
+
+                    ImageView imageView = (ImageView)newRow.findViewById(R.id.cellid_delete);
+
+
+                    /**
+                     * if we're updating, lets set selected current if it was retrieved from settings
+                     */
+                    if (isEditing) {
+                        if (mCellsFromSettings.contains(single)) {
+                            newRow.setSelected(true);
+
+                            // also, add this cell to "selected" array
+                            mCellsSelected.add(single);
+
+                        }
+                    }
+
+                    mCellTowers.addView(newRow);
+
+                    /**
+                     * clicking single row
+                     */
+                    newRow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (newRow.isSelected()) {
+                                mCellsSelected.remove(single);
+                                newRow.setSelected(false);
+                                System.out.println("removing tower from list: "+ mCellsSelected.toString());
+                            }
+                            else {
+                                //mCellsToShow.remove(single);
+                                mCellsSelected.add(single);
+                                newRow.setSelected(true);
+                                System.out.println("adding tower to list: "+ mCellsSelected.toString());
+                            }
+                        }
+                    });
+
+                    /**
+                     * clicking trash bin, just unselect cell
+                     */
+                    imageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            /**
+                             * remove cellID from history array
+                             */
+                            newRow.setSelected(false);
+                            mCellsSelected.remove(single);
+                            //removeCellIdFromArray(single.getCellId());
+                        }
+                    });
+
+                    //newRow = null;
+
+
+                    dialogCell.show();
+
+                }
+
+
+
+//                dialogCell.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                    @Override
+//                    public void onDismiss(DialogInterface dialogInterface) {
+//                        dialogInterface.dismiss();
+//                    }
+//                });
+                dialogCell.show();
+
+
+//                // array of selected items in dialog
+//                final ArrayList<String> mSelectedCells = new ArrayList<String>();
+//
+//                // array of cell towers we are showing in dialog
+//                final ArrayList<String> mCellTowers = new ArrayList<String>();
+//
+//                // if editing, retrieve saved cells
+//                ArrayList<String> mCellsFromSettings = null;
+//                if (isEditing) {
+//                    mCellsFromSettings = gson.fromJson(opt.getSetting("selectedcell"),
+//                                new TypeToken<List<String>>(){}.getType());
+//
+//                    // if we have cells stored, add them to selected cells
+//                    // and add them to visible cells
+//                    if (mCellsFromSettings != null) {
+//                        mSelectedCells.addAll(mCellsFromSettings);
+//                        mCellTowers.addAll(mCellsFromSettings);
+//                    }
+//                }
+//
+//
+//                // get current cell tower ID
+//                //TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+//                CellConnectionInfo cellInfo = new CellConnectionInfo(context);
+//
+//                if (cellInfo.isError()) {
+//                    showMessageBox(cellInfo.getError(), true);
+//                    break;
+//                }
+//
+//                // save current cell id
+//                String mCellCurrent = cellInfo.getCellId();
+//                //String mCellCurrent = "1337:1337:1337";
+//                // set the size of booleans to match settings
+//                boolean[] mCellChecked = new boolean[mCellTowers.size()];
+//
+//                // check all cells from settings
+//                // aka set their parameters to TRUE
+//                Arrays.fill(mCellChecked, Boolean.TRUE);
+//
+//                // boolean that will change if current
+//                boolean mCellIsAlreadyStored = false;
+//
+//                // loop through our list of cells;
+//                // if any from stored is our current, check it
+//                if (mCellTowers.size() > 0) {
+//                    for (int i = 0; i < mCellTowers.size(); i++) {
+//
+//                        // found a match!
+//                        if (mCellTowers.contains(mCellCurrent)) {
+//
+//                            mCellIsAlreadyStored = true;
+//                            //mCellChecked[i] = true;
+//                            //System.out.println("we found a match");
+//                            break;
+//                        }
+//
+//                    }
+//                }
+//
+//                //System.out.println("cell towers we're showing: "+ mCellTowers.toString());
+//                //System.out.println("cell checked: "+ mCellChecked.toString());
+//
+//                // if cell tower is new, and not storred in array add it to array
+//                if (!mCellIsAlreadyStored) {
+//                    mCellTowers.add(mCellCurrent);
+//
+//                    // create new bool array
+//                    boolean[] mCellCheckedTmp = new boolean[mCellTowers.size()];
+//                    //mCellCheckedTmp =
+//                    System.arraycopy(mCellChecked, 0, mCellCheckedTmp, 0, mCellChecked.length);
+//                    mCellChecked = mCellCheckedTmp;
+//                }
+//
+//
+//                // create array of strings from ArrayList for celltowers
+//                String[] mCellTowerStrings = new String[mCellTowers.size()];
+//                mCellTowerStrings = mCellTowers.toArray(mCellTowerStrings);
+//
+//                builder
+//                        .setIcon(R.drawable.ic_launcher)
+//                        .setTitle("Pick Cell ID's (Current: "+ mCellCurrent +")")
+//                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                dialog.dismiss();
+//                            }
+//                        })
+//                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                dialog.dismiss();
+//
+//                                // we have to pick at least one
+//                                if (mSelectedCells.size() == 0) {
+//                                    showMessageBox("Pick at least one radio tower!", true);
+//                                    return ;
+//                                }
+//
+//
+//                                // save condition & create new row
+//                                final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+//
+//
+//                                cond.setSetting("selectedcell", (new Gson().toJson(mSelectedCells)));
+//                                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+//                                cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.CELL_IN) ? "Connected to " : "Not connected to ") + " specific cells");
+//                                cond.setSetting("text2", "Cells selected: "+ mSelectedCells.size());
+//
+//
+//                                // if we are editing in sub-dialog, clear previous entry
+//                                if (isEditing)
+//                                    removeConditionOrAction(index, opt);
+//
+//
+//                                addNewConditionOrAction(context, cond, index);
+//
+//
+//                            }
+//                        })
+//                        .setMultiChoiceItems(mCellTowerStrings, mCellChecked, new DialogInterface.OnMultiChoiceClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+//                                if (isChecked) {
+//                                        mSelectedCells.add(mCellTowers.get(which));
+//                                }
+//                                else
+//                                    mSelectedCells.remove(mCellTowers.get(which));
+//
+//                            }
+//                        })
+//                ;
+//
+//                builder.show();
 
 
                 break;

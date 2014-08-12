@@ -1,7 +1,6 @@
 package gpapez.sfen;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputType;
@@ -9,9 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,26 +25,10 @@ public class Cell {
     private Calendar storeDate;
 
     protected static ArrayList<Cell> selectedCells = new ArrayList<Cell>();
-    private static boolean isCallFromEvent = false;
-    private static Context eventContext;
-    private static DialogOptions eventCondition;
-    private static int eventConditionKey;
 
     public Cell(String cellId, Calendar storeDate) {
         this.cellId = cellId;
         this.storeDate = storeDate;
-    }
-
-
-    protected static void openCellTowersHistoryForEventCondition(
-            Context context, DialogOptions condition, int conditionKey, boolean isUpdating
-    ) {
-        isCallFromEvent = true;
-        eventContext = context;
-        eventCondition = condition;
-        eventConditionKey = conditionKey;
-
-        openCellTowersHistoryDialog(context);
     }
 
 
@@ -196,13 +177,13 @@ public class Cell {
             cells = new ArrayList<Cell>();
         }
 
-
-        cells.add(
-                new Cell(
-                        "13:1337:13371338",
-                        Calendar.getInstance()
-                )
-        );
+//        // dummy
+//        cells.add(
+//                new Cell(
+//                        "13:1337:13371338",
+//                        Calendar.getInstance()
+//                )
+//        );
 
         if (cells.size() == 0) {
 
@@ -305,24 +286,6 @@ public class Cell {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 dialogInterface.dismiss();
-
-                /**
-                 * closing dialog, did we call this when adding/updating
-                 * condition?
-                 */
-                if (isCallFromEvent) {
-
-                    Util.openSubDialog(
-                            EventActivity.getInstance(),
-                            eventCondition,
-                            eventConditionKey
-                    );
-
-                    isCallFromEvent = false;
-                    eventContext = null;
-                    eventCondition = null;
-                    eventConditionKey = 0;
-                }
             }
         });
         dialog.show();
@@ -428,6 +391,24 @@ public class Cell {
         );
 
 
+    }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        if (cellId.equals(((Cell) o).getCellId()))
+            return true;
+
+        else
+            return false;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return cellId.hashCode();
     }
 }

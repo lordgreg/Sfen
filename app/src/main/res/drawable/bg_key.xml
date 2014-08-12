@@ -3,6 +3,7 @@
     <item
         android:state_selected="true"
         android:drawable="@android:color/holo_blue_light"/>
+
     <item
         android:drawable="@android:color/transparent" />
 </selector>
