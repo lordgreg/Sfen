@@ -352,9 +352,9 @@ public class BackgroundService extends Service {
      ***********************************************************************************************
      */
     protected void EventFinder(Context context, Intent intent) {
-        // loop through all events, check only the enabled ones..
+        // loop through all events, check only the enabled and NON-delayed ones..
         for (Event e : events) {
-            if (e.isEnabled() /* & !e.isRunning() */) {
+            if (e.isEnabled() & !e.isDelayed() ) {
 
                 /**
                  * any broadcast EXCEPT "EVENT_ENABLED" can re-trigger loading actions IF
@@ -392,6 +392,13 @@ public class BackgroundService extends Service {
             // or something else o_O
             else {
                 e.setRunning(false);
+
+                /**
+                 * delayed event has to initialize here
+                 */
+                if (e.isDelayed()) {
+                    runEventDelayedInit(context, intent, e);
+                }
             }
         }
 
@@ -1018,6 +1025,57 @@ public class BackgroundService extends Service {
 
         // disable force run
         e.setForceRun(false);
+
+
+    }
+
+
+    /**
+     *
+     * RUN DELAYED EVENT INIT
+     *
+     *
+     */
+    protected void runEventDelayedInit(Context context, Intent intent, Event e) {
+
+        /**
+         * run new alarm with extra intent
+         *
+         * #1 event id
+         * #2 force_recheck
+         */
+
+        /**
+         * remove active alarm if any
+         */
+        Alarm toDelete = null;
+        for (Alarm single : mActiveAlarms) {
+            if (single.getmAlarmID() == e.getUniqueID()) {
+                toDelete = single;
+            }
+        }
+
+
+        if (toDelete != null) {
+            toDelete.RemoveAlarm();
+
+            // remove it from array of active alarms
+            mActiveAlarms.remove(toDelete);
+
+            Log.d("sfen", "Previous alarm for delayed event "+ e.getName() +" deleted.");
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, e.getDelayMinutes());
+
+
+        Alarm delayedAlarm = new Alarm(context);
+
+        delayedAlarm.setmAlarmID(e.getUniqueID());
+        delayedAlarm.mIntentExtra = "EVENTDELAYED_"+ e.isDelayRecheckConditions() +"_"+ e.getUniqueID();
+        System.out.println("extra intent for delayed event: "+ delayedAlarm.mIntentExtra);
+        delayedAlarm.CreateAlarm(calendar);
+
 
 
     }

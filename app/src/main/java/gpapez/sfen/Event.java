@@ -41,6 +41,9 @@ public class Event {
     private boolean runOnce = false;
     private boolean hasRun = false;
     private int uniqueID = -1;
+    private boolean delayed = false;
+    private int delayMinutes = 3;
+    private boolean delayRecheckConditions = false;
 
     //private Profile profile;
     private int profile;
@@ -492,11 +495,12 @@ public class Event {
                         // current cell is stored
                         Cell tempCell = new Cell(cellInfo.getCellId(), Calendar.getInstance());
 
+
                         if (mCells.contains(tempCell)) {
                             // CELL IN returns true
                             if (cond.getOptionType() == DialogOptions.type.CELL_IN)
                                 conditionResults.add(true);
-                                // CELL OUT returns false
+                            // CELL OUT returns false
                             else
                                 conditionResults.add(false);
                         }
@@ -626,7 +630,7 @@ public class Event {
                         conditionResults.add(false);
 
 
-                    System.out.println("-----------------current battery status: "+ status);
+                    //System.out.println("-----------------current battery status: "+ status);
 
                     break;
 
@@ -868,8 +872,40 @@ public class Event {
     }
 
 
-    /**
-     *
-     */
+    public boolean isDelayed() {
+        return delayed;
+    }
+
+    public void setDelayed(boolean delayed) {
+        this.delayed = delayed;
+    }
+
+    public int getDelayMinutes() {
+        return delayMinutes;
+    }
+
+    public void setDelayMinutes(int delayMinutes) {
+        this.delayMinutes = delayMinutes;
+    }
+
+    public boolean isDelayRecheckConditions() {
+        return delayRecheckConditions;
+    }
+
+    public void setDelayRecheckConditions(boolean delayRecheckConditions) {
+        this.delayRecheckConditions = delayRecheckConditions;
+    }
+
+    public void setDelayEnable(int minutes, boolean recheck) {
+        delayed = true;
+        delayMinutes = minutes;
+        delayRecheckConditions = recheck;
+    }
+
+    public void setDelayDisable() {
+        delayed = false;
+        delayMinutes = 0;
+        delayRecheckConditions = false;
+    }
 
 }

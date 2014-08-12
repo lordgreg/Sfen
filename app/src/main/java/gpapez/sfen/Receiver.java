@@ -175,15 +175,20 @@ public class Receiver extends BroadcastReceiver {
 
         if (action.equals(getClass().getPackage().getName() +".ALARM_TRIGGER")) {
 //
-//            // SLEEPY ALARM HERE
-//            if (intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
-//                    !intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("")) {
-//
-//                Log.i("sfen", "Wakelock alarm trigger: "+
-//                                intent.getStringExtra("ALARM_TRIGGER_EXTRA")
-//                );
-//
-//            }
+//            // EXTRA ALARM HERE
+            // TODO: if it starts with EVENTDELAYED_ it means we're running delayed event
+            // full eventdelayed string: EVENTDELAYED_BOOL_ID (bool = recheck conditions,
+            // ID = event id.
+            // remember to set mCallBroadcast to false!
+            if (intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
+                    !intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("")) {
+
+                Log.i("sfen", "Extra intent: "+
+                                intent.getStringExtra("ALARM_TRIGGER_EXTRA")
+                );
+                mCallBroadcast = false;
+
+            }
 
 
             // when triggering for alarm, we have to use wakelock so it wakes

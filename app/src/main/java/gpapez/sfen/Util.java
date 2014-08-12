@@ -819,7 +819,7 @@ public class Util extends Activity {
                             /**
                              * current cell from history NOT in saved cells
                              */
-                            if (!mCellsToShow.contains(single) && !mCellsFromSettings.contains(single))
+                            if (!mCellsToShow.contains(single))
                                 mCellsToShow.add(single);
 
                         }
@@ -839,7 +839,7 @@ public class Util extends Activity {
 
                     // does our list contain current cell?
                     // if not, add it
-                    if (!mCellsToShow.contains(tempCell) && !mCellsFromSettings.contains(tempCell)) {
+                    if (!mCellsToShow.contains(tempCell)) {
 
                         mCellsToShow.add(tempCell);
 

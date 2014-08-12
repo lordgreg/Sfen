@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -115,6 +117,15 @@ public class EventActivity extends Activity {
 
             //Log.e("EVENT FROM OBJ", event.getName() + " with " + event.getConditions().size() + " conditions- key from all events: " + updateKey);
             refreshView();
+        }
+
+        /**
+         * NEW EVENT
+         */
+        else {
+
+            event = new Event();
+
         }
 
 
@@ -245,9 +256,9 @@ public class EventActivity extends Activity {
 
         // if we got to this part, we are good to go and we have add new Event to Events array
         // if we're editing event, just update it, otherwise create new object
-        if (!isUpdating) {
-            event = new Event();
-        }
+//        if (!isUpdating) {
+//            event = new Event();
+//        }
 
         event.setName(((TextView) findViewById(R.id.event_name)).getText().toString());
         event.setConditions(conditions);
@@ -261,8 +272,6 @@ public class EventActivity extends Activity {
         else
             event.setProfile(profile);
 
-        // TODO: add one or all settings for current event if needed
-        // event.setSetting("this", "test");
 
         // finally, save/update event to events array
         if (isUpdating) {
@@ -312,6 +321,7 @@ public class EventActivity extends Activity {
         //((Switch) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
         ((CheckBox) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
         ((CheckBox) findViewById(R.id.event_runonce)).setChecked(event.isRunOnce());
+        ((CheckBox) findViewById(R.id.event_delayed)).setChecked(event.isDelayed());
 
         // add all conditions to container
         //ArrayList<DialogOptions> tempConditions = event.getConditions();
@@ -633,6 +643,91 @@ public class EventActivity extends Activity {
 
             dialog.show();
         }
+
+    }
+
+    public void onClickEventDelayed(View v) {
+
+        final CheckBox checkBox = (CheckBox)findViewById(R.id.event_delayed);
+
+        /**
+         * DISABLING DELAY
+         */
+        if (checkBox.isChecked()) {
+            checkBox.setChecked(false);
+
+            event.setDelayed(false);
+
+        }
+        /**
+         * ENABLING DELAY (open dialog with options)
+         */
+        else {
+            checkBox.setChecked(true);
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            final EditText input = new EditText(sInstance);
+            final TextView info = new TextView(sInstance);
+            final TextView info2 = new TextView(sInstance);
+            final CheckBox checkBox1 = new CheckBox(sInstance);
+
+            info.setText("Number of minutes:");
+            info.setPadding(15, 15, 15, 5);
+            info2.setPadding(15, 5, 15, 15);
+            info2.setText("If conditions after the delay are not met, the Event won't trigger actions.");
+            input.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+            input.setText(String.valueOf(event.getDelayMinutes()));
+            checkBox1.setChecked(event.isDelayRecheckConditions());
+            checkBox1.setText("Recheck conditions after?");
+
+            LinearLayout newView = new LinearLayout(sInstance);
+            LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            newView.setLayoutParams(parms);
+            newView.setOrientation(LinearLayout.VERTICAL);
+            newView.setPadding(15, 15, 15, 15);
+            newView.addView(info, 0);
+            newView.addView(input, 1);
+            newView.addView(checkBox1, 2);
+            newView.addView(info2, 3);
+
+            builder
+                    .setIcon(R.drawable.ic_time)
+                    .setTitle("Delay options")
+                    .setView(newView)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+
+                            if (input.getText().equals("") || input.getText().equals("0")) {
+                                Util.showMessageBox("Insert minutes next time and all is going to be okay.", true);
+                                checkBox.setChecked(false);
+
+                                return ;
+                            }
+
+                            /**
+                             * enable event delay actions
+                             */
+                            event.setDelayEnable(Integer.parseInt(input.getText().toString()), checkBox1.isChecked());
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            checkBox.setChecked(false);
+                        }
+                    })
+                    .show();
+
+        }
+
+
 
     }
 }

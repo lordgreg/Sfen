@@ -181,11 +181,11 @@ public class Main extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.event_add_new) {
-            // TODO: if no profiles, show messagebox and return false;
-            if (BackgroundService.getInstance().profiles.size() == 0) {
-                Util.showMessageBox("You have to create at least one profile first!", true);
-                return false;
-            }
+//            TODO: if no profiles, show messagebox and return false;
+//            if (BackgroundService.getInstance().profiles.size() == 0) {
+//                Util.showMessageBox("You have to create at least one profile first!", true);
+//                return false;
+//            }
 
             startActivity(new Intent(this, EventActivity.class));
 

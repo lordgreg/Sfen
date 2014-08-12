@@ -56,6 +56,7 @@ public class Alarm {
             if (!mIntentExtra.equals(""))
                 mIntent.putExtra("ALARM_TRIGGER_EXTRA", mIntentExtra);
 
+
             return PendingIntent.getBroadcast(
                     //mContext,
                     //Main.getInstance(),
@@ -123,6 +124,7 @@ public class Alarm {
         mAlarmManager = (AlarmManager)mContext.getSystemService(Activity.ALARM_SERVICE);
         mAlarmManager.set(AlarmManager.RTC_WAKEUP, seconds*1000, mPendingIntent);
 
+        Log.d("sfen", "Starting alarm in: "+ seconds +" seconds.");
     }
 
     /**
@@ -138,6 +140,14 @@ public class Alarm {
      */
     public AlarmManager getAlarm() {
         return mAlarmManager;
+    }
+
+    public int getmAlarmID() {
+        return mAlarmID;
+    }
+
+    public void setmAlarmID(int mAlarmID) {
+        this.mAlarmID = mAlarmID;
     }
 
     public boolean isRepeating() {
