@@ -319,13 +319,14 @@ public class EventActivity extends Activity {
         //Util.addNewCondition(sInstance, conditions.get(0));
         for (DialogOptions cond : event.getConditions()) {
             //Util.addNewCondition(sInstance, cond, 0);
-            BackgroundService.getInstance().mUtil.addNewConditionOrAction(sInstance, cond, 0);
+            Util.actionFrom = Util.ACTION_FROM.EVENT;
+            Util.addNewConditionOrAction(sInstance, cond, 0);
         }
 
         conditions = updatedConditions;
 
         // also, would be great if we add all actions to container, no?
-        ArrayList<DialogOptions> allAct = event.getActions();
+        //ArrayList<DialogOptions> allAct = event.getActions();
         for (DialogOptions act : event.getActions()) {
             Util.actionFrom = Util.ACTION_FROM.EVENT;
             Util.addNewConditionOrAction(sInstance, act, 0);

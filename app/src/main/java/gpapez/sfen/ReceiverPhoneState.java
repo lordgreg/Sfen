@@ -8,6 +8,7 @@ import android.os.Vibrator;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -143,6 +144,25 @@ public class ReceiverPhoneState extends PhoneStateListener {
     public void onCellLocationChanged(CellLocation cellLocation){
         super.onCellLocationChanged(cellLocation);
 
+        /**
+         *
+         * if new location doesn't throw any errors, continue, otherwise, stop actions
+         *
+         */
+        String cellId = "";
+
+        CellConnectionInfo cellInfo = new CellConnectionInfo(Main.getInstance());
+
+        if (cellInfo.isError()) {
+//            Log.d("sfen", "No mobile: "+ cellInfo.getError());
+            return ;
+        }
+
+        else
+            cellId = cellInfo.getCellId();
+
+
+//        Log.d("sfen", "Got mobile cell: "+ cellInfo.getCellId());
 
         // when we change cells, we have to wake up to send broadcast
         PowerManager pm = (PowerManager) BackgroundService.getInstance()
@@ -153,13 +173,13 @@ public class ReceiverPhoneState extends PhoneStateListener {
         /**
          * saving new cell id to preferences?
          */
-//        SharedPreferences preferences = PreferenceManager
-//                .getDefaultSharedPreferences(Main.getInstance());
-//
-//
 
         String calUntilString = BackgroundService.getInstance().mPreferences
                 .getSharedPreferencesObject().getString("CellRecordUntil", "");
+
+        if (calUntilString.equals("\"\""))
+            calUntilString = "";
+
         /**
          * is saved date there?
          */
@@ -169,10 +189,31 @@ public class ReceiverPhoneState extends PhoneStateListener {
             Calendar calendar = Calendar.getInstance();
             Calendar calUntil = gson.fromJson(calUntilString, Calendar.class);
 
-            System.out.println("saving until "+ calUntil.getTime().toString());
+//            Log.d("sfen", "saving until "+ calUntil.getTime().toString() +"," +
+//                    "current time: "+ calendar.getTime().toString());
 
 
-            // TODO: call static object Cell and save new cellID into array into preferences
+            /**
+             * save new id into array IF save time meets conditions
+             */
+            if (calUntil.after(calendar)) {
+
+                Cell.addCellIdToArray(cellId);
+
+
+            }
+
+            /**
+             * if until date did already passed current date, clear it from settings
+             */
+            else {
+
+                // update date in preferences with empty string
+                BackgroundService.getInstance().mPreferences.setPreferences(
+                        "CellRecordUntil", new String("")
+                );
+
+            }
 
         }
 

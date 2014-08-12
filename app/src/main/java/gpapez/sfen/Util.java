@@ -809,6 +809,7 @@ public class Util extends Activity {
                     showMessageBox(cellInfo.getError(), true);
                     break;
                 }
+
                 // save current cell id
                 String mCellCurrent = cellInfo.getCellId();
                 //String mCellCurrent = "1337:1337:1337";
@@ -839,9 +840,7 @@ public class Util extends Activity {
                     }
                 }
 
-                System.out.println("cell towers we're showing: "+ mCellTowers.toString());
-
-
+                //System.out.println("cell towers we're showing: "+ mCellTowers.toString());
                 //System.out.println("cell checked: "+ mCellChecked.toString());
 
                 // if cell tower is new, and not storred in array add it to array
@@ -855,11 +854,18 @@ public class Util extends Activity {
                     mCellChecked = mCellCheckedTmp;
                 }
 
-                //System.out.println("cell checked: "+ mCellChecked.toString());
-//                if (2==2) {
-//                    System.out.println("*** test");
-//                    return;
+
+                /**
+                 * this part is going to be crazy
+                 */
+//                ArrayList<Cell> cells = Cell.getSavedCellsFromPreferences();
+//
+//                if (cells != null) {
+//                    if (cells.size() > 0) {
+//                        mCellTowers.add("Add more cells from history?");
+//                    }
 //                }
+
 
                 // create array of strings from ArrayList for celltowers
                 String[] mCellTowerStrings = new String[mCellTowers.size()];
@@ -909,8 +915,18 @@ public class Util extends Activity {
                         .setMultiChoiceItems(mCellTowerStrings, mCellChecked, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                if (isChecked)
-                                    mSelectedCells.add(mCellTowers.get(which));
+                                if (isChecked) {
+                                    /**
+                                     * do we want to open cell history dialog?
+                                     */
+//                                    if (mCellTowers.get(which).equals("Add more cells from history?")) {
+//                                        Cell.openCellTowersHistoryForEventCondition(
+//                                                context, opt, index, isEditing
+//                                                );
+//                                    }
+//                                    else
+                                        mSelectedCells.add(mCellTowers.get(which));
+                                }
                                 else
                                     mSelectedCells.remove(mCellTowers.get(which));
 

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal"
+    android:padding="2dip"
+    android:showDividers="middle"
+    android:divider="?android:dividerVertical"
+    android:dividerPadding="2dp"
+    android:background="@drawable/bg_key"
+    android:gravity="left|center_vertical">
+
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:layout_width="0dip"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:layout_height="fill_parent">
+
+        <TextView android:id="@android:id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Condition title"
+            android:singleLine="true"
+            android:textStyle="bold" />
+
+        <TextView android:id="@android:id/text2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:singleLine="true"
+            android:text="This is the condition description" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/cellid_delete"
+        android:src="@android:drawable/ic_menu_delete"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:background="?android:selectableItemBackground"
+        android:contentDescription="Remove Item"
+        android:adjustViewBounds="false"
+        android:cropToPadding="false" />
+
+</LinearLayout>
