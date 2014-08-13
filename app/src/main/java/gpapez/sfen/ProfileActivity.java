@@ -343,6 +343,9 @@ public class ProfileActivity extends Activity {
         }
         // adding NEW
         else {
+            if (actions == null)
+                actions = new ArrayList<DialogOptions>();
+
             actions.add(entry);
         }
 

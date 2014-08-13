@@ -203,7 +203,7 @@
 
     </LinearLayout>
 
-    <!-- RINGTONE -->
+    <!-- PRIORITY -->
     <LinearLayout
         android:layout_margin="5dp"
         android:padding="6dip"

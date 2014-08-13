@@ -317,6 +317,7 @@ public class EventActivity extends Activity {
      */
     public void refreshView() {
         ((TextView) findViewById(R.id.event_name)).setText(event.getName());
+        ((TextView) findViewById(R.id.priority)).setText(event.getPriorityString());
         ((Switch) findViewById(R.id.event_enabled)).setChecked(event.isEnabled());
         //((Switch) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
         ((CheckBox) findViewById(R.id.event_allconditions)).setChecked(event.isMatchAllConditions());
@@ -501,9 +502,10 @@ public class EventActivity extends Activity {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        String[] priorities = {"Low", "Bah", "Normal", "Beee!", "High"};
+        //String[] priorities = {"Low", "Bah", "Normal", "Beee!", "High"};
+        String[] priorities = event.getPriorityList().toArray(new String[event.getPriorityList().size()]);
 
-        int currentPriority = event.getPriority()+1;
+        int currentPriority = event.getPriority()-1;
 
         final int[] selected = new int[1];
 
@@ -516,13 +518,17 @@ public class EventActivity extends Activity {
 
                         event.setPriority(selected[0]+1);
 
-                        System.out.println("Priority set is: "+ event.getPriority());
+                        ((TextView) findViewById(R.id.priority)).setText(event.getPriorityString());
+
+
+                        //System.out.println("Priority set is: "+ event.getPriority());
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+
                     }
                 })
                 .setSingleChoiceItems(priorities, currentPriority, new DialogInterface.OnClickListener() {

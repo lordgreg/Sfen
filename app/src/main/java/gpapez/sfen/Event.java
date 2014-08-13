@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +49,7 @@ public class Event implements Comparable<Event> {
     private int priority = 1;
 
     //private Profile profile;
-    private int profile;
+    private int profile = -1;
 
 
     private ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
@@ -852,6 +853,18 @@ public class Event implements Comparable<Event> {
         this.actions = actions;
     }
 
+    public void addActions(ArrayList<DialogOptions> actions) {
+
+        this.actions.addAll(actions);
+
+    }
+
+    public void addAction(DialogOptions action) {
+
+        this.actions.add(action);
+
+    }
+
     public void setSetting(String key, String value) {
         settings.put(key, value);
     }
@@ -887,7 +900,10 @@ public class Event implements Comparable<Event> {
 
     public void setProfile(Profile profile) {
         //this.profile = profile;
-        this.profile = profile.getUniqueID();
+        if (profile == null)
+            this.profile = -1;
+        else
+            this.profile = profile.getUniqueID();
 
     }
 
@@ -950,6 +966,18 @@ public class Event implements Comparable<Event> {
         this.priority = priority;
     }
 
+    public List<String> getPriorityList() {
+
+        return Arrays.asList("Low", "Bah", "Normal", "Beee!", "High");
+
+    }
+
+    public String getPriorityString() {
+        List<String> list = getPriorityList();
+
+        return list.get(priority-1);
+    }
+
     public boolean isDelayed() {
         return delayed;
     }
@@ -987,13 +1015,17 @@ public class Event implements Comparable<Event> {
     }
 
 
+
+    /**
+     * sorting purposes. SORT BY priority!
+     *
+     * @param another
+     * @return
+     */
     @Override
     public int compareTo(Event another) {
 
-        // TODO: FIX COMPARING!
-        // TODO: ADD NEW COMPARE (by Priority)
-        return Integer.compare(uniqueID, another.getUniqueID());
-        //return 0;
+        return ((Integer)priority).compareTo(another.getPriority());
 
     }
 }

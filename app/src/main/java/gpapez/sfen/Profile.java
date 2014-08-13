@@ -15,7 +15,7 @@ public class Profile {
      * VARIABLES
      *
      */
-    private String name;
+    private String name = "Enter new Profile name!";
     private String icon;
     private int uniqueID;
     private boolean isActive;

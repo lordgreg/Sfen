@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -101,6 +102,12 @@ public class BackgroundService extends Service {
      */
     protected ArrayList<Event> events = new ArrayList<Event>();
     protected ArrayList<Profile> profiles = new ArrayList<Profile>();
+
+
+    /**
+     * event with all actions
+     */
+    private Event eventToRun;
 
     // preferences object
     protected Preferences mPreferences;
@@ -179,7 +186,6 @@ public class BackgroundService extends Service {
             }
 
         }
-
 
 
         /**
@@ -353,6 +359,11 @@ public class BackgroundService extends Service {
      */
     protected void EventFinder(Context context, Intent intent) {
         // loop through all events, check only the enabled and NON-delayed ones..
+
+        // sort events by priority
+        Collections.sort(events);
+        eventToRun = new Event();
+
         for (Event e : events) {
             if (e.isEnabled() & !e.isDelayed() ) {
 
@@ -378,7 +389,6 @@ public class BackgroundService extends Service {
                     // we trigger actions!
                     runEvent(context, intent, e);
 
-
                     // TODO: store action to log.
                 }
                 // conditions aren't met; switch event to not running (if maybe they were)
@@ -396,7 +406,7 @@ public class BackgroundService extends Service {
                 /**
                  * delayed event has to initialize here
                  */
-                if (e.isDelayed()) {
+                if (e.isDelayed() && e.isEnabled()) {
                     runEventDelayedInit(context, intent, e);
                 }
             }
@@ -407,6 +417,28 @@ public class BackgroundService extends Service {
             Log.d("sfen", "no events running.");
         }
 
+        /**
+         * start actions from running event!
+         */
+        else {
+
+            if (eventToRun != null) {
+
+                //runEvent(context, intent, eventToRun);
+                startSingleEvent(eventToRun);
+//                System.out.println("*** SINGLE EVENT TO RUN HAS THIS ACTIONS ***");
+//
+//                for (DialogOptions single : eventToRun.getActions()) {
+//
+//                    System.out.println("action: "+ single.getOptionType());
+//
+//                }
+
+                eventToRun = null;
+
+            }
+
+        }
 
         // clear all variables
         isOneRunning = false;
@@ -957,14 +989,14 @@ public class BackgroundService extends Service {
 
         /**
          *
-         * IF WE HAVE EVEN ACTIONS
+         * IF WE HAVE EVENT ACTIONS
          *
          */
         if (e.getActions().size() > 0) {
 
-            // RUN EVENT ACTIONS
-            runEventActions(e.getActions());
-
+            // add all actions & profile to eventToRun
+            //eventToRun.addActions(e.getActions());
+            addActionsToEventToRun(e.getActions());
 
         }
 
@@ -976,21 +1008,7 @@ public class BackgroundService extends Service {
          */
         if (e.getProfile() != null) {
 
-            /**
-             * set new as active
-             */
-            Profile.updateActiveProfile(e.getProfile().getUniqueID());
-
-            /**
-             * run profile actions
-             */
-            runProfileActions(e.getProfile());
-
-
-            /**
-             * run profile settings
-             */
-            runProfileSettings(e.getProfile());
+            eventToRun.setProfile(e.getProfile());
 
         }
 
@@ -1457,6 +1475,152 @@ public class BackgroundService extends Service {
         }
     }
 
+
+    /**
+     *
+     * Add actions to eventToRun event;
+     *
+     * CHECK IF types already exist and overwrite them!
+     *
+     */
+    private void addActionsToEventToRun(ArrayList<DialogOptions> actions) {
+
+        /**
+         * loop all current actions with the ones we're adding
+         *
+         * compare each and overwrite it
+         */
+        boolean newExists = false;
+        int newExistOnIndex = -1;
+
+        for (int i = 0; i < actions.size(); i++) {
+
+            for (int j = 0; j < eventToRun.getActions().size(); j++) {
+
+                System.out.println("is type " + actions.get(i).getOptionType() + " already in existing array? " +
+                        eventToRun.getActions().get(j).getOptionType());
+
+                /**
+                 * check types
+                 */
+
+                /**
+                 * IF BOTH TYPE EQUAL
+                 */
+                if (eventToRun.getActions().get(j).getOptionType() == actions.get(i).getOptionType()
+                        ||
+
+                        /**
+                         * IF MOBILE DATA Connected/Disconnected
+                         */
+                        // mobile data
+                        (
+                                eventToRun.getActions().get(j).getOptionType() == DialogOptions.type.ACT_MOBILEENABLE &&
+                                        actions.get(i).getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE
+                                        ||
+                                        eventToRun.getActions().get(j).getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE &&
+                                                actions.get(i).getOptionType() == DialogOptions.type.ACT_MOBILEENABLE
+                        )
+
+                        ||
+
+                        /**
+                         * IF WIFI Connected/Disconnected
+                         */
+                        // wifi connections
+                        (
+                                eventToRun.getActions().get(j).getOptionType() == DialogOptions.type.ACT_WIFIENABLE &&
+                                        actions.get(i).getOptionType() == DialogOptions.type.ACT_WIFIDISABLE
+                                        ||
+                                        eventToRun.getActions().get(j).getOptionType() == DialogOptions.type.ACT_WIFIDISABLE &&
+                                                actions.get(i).getOptionType() == DialogOptions.type.ACT_WIFIDISABLE
+                        )
+
+
+                        ) {
+                    newExists = true;
+                    newExistOnIndex = j;
+                    break;
+                }
+
+            }
+
+
+            // update if action exists
+            if (newExists) {
+
+                //System.out.println("updating existing type");
+                eventToRun.getActions().set(newExistOnIndex, actions.get(i));
+
+            }
+
+            // it doesn't exist yet, add it
+            else {
+
+                //System.out.println("adding new type");
+                eventToRun.getActions().add(actions.get(i));
+
+            }
+
+
+            // reset variables
+            newExists = false;
+            newExistOnIndex = -1;
+
+        }
+
+        /**
+         * if eventToRun doesn't have any actions yet, add them
+         */
+        if (eventToRun.getActions().size() == 0)
+            eventToRun.addActions(actions);
+
+    }
+
+
+    /**
+     * START SINGLE EVENT
+     */
+    protected void startSingleEvent(Event e) {
+
+        /**
+         * IF WE HAVE ACTIONS
+         */
+        if (e.getActions().size() > 0) {
+
+            runEventActions(e.getActions());
+
+        }
+
+
+        /**
+         *
+         * IF WE HAVE PROFILE SELECTED
+         *
+         */
+        if (e.getProfile() != null) {
+
+            /**
+             * set new as active
+             */
+            Profile.updateActiveProfile(e.getProfile().getUniqueID());
+
+            /**
+             * run profile actions
+             */
+            runProfileActions(e.getProfile());
+
+
+            /**
+             * run profile settings
+             */
+            runProfileSettings(e.getProfile());
+
+        }
+
+
+
+    }
 
 
 }
