@@ -19,7 +19,7 @@ import java.util.Calendar;
 /**
  * Created by Gregor on 11.8.2014.
  */
-public class Cell {
+public class Cell implements Comparable<Cell> {
 
     private String cellId;
     private Calendar storeDate;
@@ -397,7 +397,7 @@ public class Cell {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
 
         if (cellId.equals(((Cell) o).getCellId()))
             return true;
@@ -410,5 +410,16 @@ public class Cell {
     @Override
     public int hashCode() {
         return cellId.hashCode();
+    }
+
+
+    /**
+     * compareTo for Cell will check only dates and return their compareTo value
+     */
+    @Override
+    public int compareTo(Cell another) {
+        return storeDate.compareTo(another.getStoreDate());
+
+        //return 0;
     }
 }

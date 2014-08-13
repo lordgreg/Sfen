@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -127,12 +129,11 @@ public class Main extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        //System.out.println("resuming");
+
         // set to visible
         isVisible = true;
 
         refreshCurrentView();
-
 
     }
 

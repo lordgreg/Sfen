@@ -26,7 +26,8 @@ public class Profile {
      * SETTING VARIABLES
      */
     private boolean isVibrate;
-    private int brightnessValue;
+    private boolean brightnessDefault = true;
+    private int brightnessValue = 80;
     private boolean brightnessAuto = true;
     private String ringtone = "";
     private String notification = "";
@@ -184,6 +185,9 @@ public class Profile {
 
      */
     public int getIcon() {
+        if (icon == null)
+            return 0;
+
         return BackgroundService.getInstance().getResources()
                 .getIdentifier(
                         icon,
@@ -217,6 +221,14 @@ public class Profile {
 
     public void setBrightnessAuto(boolean brightnessAuto) {
         this.brightnessAuto = brightnessAuto;
+    }
+
+    public boolean isBrightnessDefault() {
+        return brightnessDefault;
+    }
+
+    public void setBrightnessDefault(boolean brightnessDefault) {
+        this.brightnessDefault = brightnessDefault;
     }
 
     public Uri getRingtone() {

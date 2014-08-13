@@ -203,6 +203,34 @@
 
     </LinearLayout>
 
+    <!-- RINGTONE -->
+    <LinearLayout
+        android:layout_margin="5dp"
+        android:padding="6dip"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:onClick="onClickEventPriority"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView android:id="@android:id/text1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:onClick="onClickEventPriority"
+            android:textAppearance="?android:attr/textAppearance"
+            android:text="Priority" />
+
+        <TextView android:id="@+id/priority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:singleLine="true"
+            android:onClick="onClickEventPriority"
+            android:text="Low" />
+    </LinearLayout>
+
 
 
 </LinearLayout>

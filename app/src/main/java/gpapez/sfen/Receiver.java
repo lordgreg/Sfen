@@ -1,6 +1,10 @@
 package gpapez.sfen;
 
 import android.app.AlarmManager;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -65,6 +69,8 @@ public class Receiver extends BroadcastReceiver {
         add(LocationManager.MODE_CHANGED_ACTION);       // gps on/off
         add(Intent.ACTION_BATTERY_CHANGED);             // battery status
         add(WifiManager.NETWORK_STATE_CHANGED_ACTION);   // wifi toggle
+        add(BluetoothAdapter.ACTION_STATE_CHANGED);     // bluetooth toggle
+        add(Intent.ACTION_HEADSET_PLUG);                // headset toggle
 
     }};
 
@@ -183,10 +189,69 @@ public class Receiver extends BroadcastReceiver {
             if (intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
                     !intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("")) {
 
-                Log.i("sfen", "Extra intent: "+
-                                intent.getStringExtra("ALARM_TRIGGER_EXTRA")
-                );
-                mCallBroadcast = false;
+                String extraIntent = intent.getStringExtra("ALARM_TRIGGER_EXTRA");
+
+
+                Log.i("sfen", "Extra intent: "+ extraIntent);
+
+                /**
+                 * we running delayed event!
+                 */
+                if (extraIntent.startsWith("EVENTDELAYED_")) {
+
+                    /**
+                     * not calling our specific broadcast message
+                     */
+                    mCallBroadcast = false;
+
+                    /**
+                     * split string to get boolean and event id
+                     *
+                     * 0 EVENTDELAYED
+                     * 1 true/false
+                     * 2 Event ID
+                     */
+                    String[] parts = extraIntent.split("_");
+
+                    boolean forceRecheck = Boolean.parseBoolean(parts[1]);
+                    int eventId = Integer.parseInt(parts[2]);
+                    boolean startEventActions = true;
+
+                    /**
+                     * we have to recheck conditions
+                     */
+                    Event e = Event.returnEventByUniqueID(eventId);
+
+
+                    if (forceRecheck) {
+                        if (!e.areEventConditionsMet(
+                                BackgroundService.getInstance(),
+                                BackgroundService.sIntent,
+                                e))
+                            startEventActions = false;
+                    }
+
+                    if (startEventActions) {
+
+                        Log.i("sfen", "Starting delayed event "+ e.getName());
+                        BackgroundService.getInstance().runEventActions(e.getActions());
+                        e.setRunning(true);
+                        e.setHasRun(true);
+                        e.setForceRun(false);
+
+                        /**
+                         * if event fragment is set, refresh view
+                         */
+                        if (Main.getInstance().fragmentEvent != null)
+                            Main.getInstance().fragmentEvent.refreshEventsView();
+
+
+                    }
+
+                }
+
+
+
 
             }
 

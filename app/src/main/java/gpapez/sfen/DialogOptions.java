@@ -13,7 +13,7 @@ import java.util.Random;
 public class DialogOptions {
     private String title;
     private String description;
-    private int icon;
+    private String icon;
 
     // list of possible Conditions in Options
     static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
@@ -34,6 +34,11 @@ public class DialogOptions {
         add(new DialogOptions("GPS disabled", "If GPS is disabled", R.drawable.ic_map, DialogOptions.type.GPS_DISABLED));
         add(new DialogOptions("Battery level", "Selected battery level", R.drawable.ic_battery, DialogOptions.type.BATTERY_LEVEL));
         add(new DialogOptions("Battery status", "Status of battery", R.drawable.ic_battery, DialogOptions.type.BATTERY_STATUS));
+        add(new DialogOptions("Bluetooth On", "If bluetooth is on", R.drawable.ic_bluetooth, type.BLUETOOTH_ON));
+        add(new DialogOptions("Bluetooth Off", "If bluetooth is off", R.drawable.ic_bluetooth, type.BLUETOOTH_OFF));
+        add(new DialogOptions("Headset connected", "If Headset is connected", R.drawable.ic_headset, type.HEADSET_CONNECTED));
+        add(new DialogOptions("Headset disconnected", "If Headset is disconnected", R.drawable.ic_headset, type.HEADSET_DISCONNECTED));
+
 
     }};
 
@@ -61,7 +66,8 @@ public class DialogOptions {
         // conditions
         LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, TIME, DAYSOFWEEK,
         SCREEN_ON, SCREEN_OFF, CELL_IN, CELL_OUT, EVENT_RUNNING, EVENT_NOTRUNNING,
-        GPS_ENABLED, GPS_DISABLED, BATTERY_LEVEL, BATTERY_STATUS,
+        GPS_ENABLED, GPS_DISABLED, BATTERY_LEVEL, BATTERY_STATUS, BLUETOOTH_ON, BLUETOOTH_OFF,
+        HEADSET_CONNECTED, HEADSET_DISCONNECTED,
 
         // actions
         ACT_NOTIFICATION, ACT_PLAYSFEN, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT,
@@ -89,11 +95,10 @@ public class DialogOptions {
         return uniqueID;
     }
 
-    public DialogOptions(String title, String description, int icon, type optionType)
-    {
+    public DialogOptions(String title, String description, int icon, type optionType) {
         this.title = title;
         this.description = description;
-        this.icon = icon;
+        this.icon = Main.getInstance().getResources().getResourceEntryName(icon);
         this.optionType = optionType;
     }
     public DialogOptions(String title, String description, int icon, type optionType, int maxNumber) {
@@ -110,7 +115,12 @@ public class DialogOptions {
     }
 
     public int getIcon() {
-        return icon;
+        return BackgroundService.getInstance().getResources()
+                .getIdentifier(
+                        icon,
+                        "drawable",
+                        BackgroundService.getInstance().getPackageName());
+
     }
 
     public type getOptionType() {

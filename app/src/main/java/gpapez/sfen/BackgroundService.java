@@ -801,35 +801,41 @@ public class BackgroundService extends Service {
         /**
          * DISPLAY BRIGHTNESS
          * http://developer.android.com/reference/android/provider/Settings.System.html
+         *
+         * Continue only if we are NOT using default settings
          */
+        if (!p.isBrightnessDefault()) {
 
-        /**
-         * DISPLAY BRIGHTNESS AUTO
-         */
-        if (p.isBrightnessAuto()) {
+            /**
+             * DISPLAY BRIGHTNESS AUTO
+             */
+            if (p.isBrightnessAuto()) {
 //            Log.i("sfen", "Brightness set to auto.");
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.SCREEN_BRIGHTNESS_MODE,
-                    Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
-            );
-        }
-        /**
-         * DISPLAY BRIGHTNESS MANUAL
-         */
-        else {
+                Settings.System.putInt(getContentResolver(),
+                        Settings.System.SCREEN_BRIGHTNESS_MODE,
+                        Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+                );
+            }
+            /**
+             * DISPLAY BRIGHTNESS MANUAL
+             */
+            else {
 //            Log.i("sfen", "Brightness set to "+ p.getBrightnessValue() +".");
 
-            if (p.getBrightnessValue() == 0)
-                p.setBrightnessValue(10);
+                if (p.getBrightnessValue() == 0)
+                    p.setBrightnessValue(10);
 
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.SCREEN_BRIGHTNESS_MODE,
-                    Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
-            );
+                Settings.System.putInt(getContentResolver(),
+                        Settings.System.SCREEN_BRIGHTNESS_MODE,
+                        Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                );
 
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.SCREEN_BRIGHTNESS, (p.getBrightnessValue()));
+                Settings.System.putInt(getContentResolver(),
+                        Settings.System.SCREEN_BRIGHTNESS, (p.getBrightnessValue()));
+            }
+
         }
+
 
         /**
          * VIBRATION
@@ -971,37 +977,9 @@ public class BackgroundService extends Service {
         if (e.getProfile() != null) {
 
             /**
-             * disable current active profile
-             */
-//            for (Profile current : profiles) {
-//
-//                if (current.isActive()) {
-//                    current.setActive(false);
-//
-//                    profiles.set(
-//                            profiles.indexOf(current),
-//                            current
-//                    );
-//
-//
-//                    Log.i("sfen", "Currently active profile " + current.getName() + " disabled.");
-//
-//                    //break;
-//
-//                }
-//
-//            }
-
-            /**
              * set new as active
              */
             Profile.updateActiveProfile(e.getProfile().getUniqueID());
-
-            /**
-             * run event actions
-             */
-            //runEvent();
-
 
             /**
              * run profile actions
@@ -1044,6 +1022,8 @@ public class BackgroundService extends Service {
          * #1 event id
          * #2 force_recheck
          */
+        e.setRunning(false);
+        e.setHasRun(false);
 
         /**
          * remove active alarm if any
@@ -1073,7 +1053,7 @@ public class BackgroundService extends Service {
 
         delayedAlarm.setmAlarmID(e.getUniqueID());
         delayedAlarm.mIntentExtra = "EVENTDELAYED_"+ e.isDelayRecheckConditions() +"_"+ e.getUniqueID();
-        System.out.println("extra intent for delayed event: "+ delayedAlarm.mIntentExtra);
+        //System.out.println("extra intent for delayed event: "+ delayedAlarm.mIntentExtra);
         delayedAlarm.CreateAlarm(calendar);
 
 
@@ -1360,6 +1340,22 @@ public class BackgroundService extends Service {
 //
 //                        mReceiverFilters.add(LocationManager.MODE_CHANGED_ACTION);
 //                        break;
+
+                    case BLUETOOTH_ON:
+                    case BLUETOOTH_OFF:
+
+                        if (e.isEnabled())
+                            mReceiverFilters.add("android.bluetooth.adapter.action.STATE_CHANGED");
+
+                        break;
+
+                    case HEADSET_CONNECTED:
+                    case HEADSET_DISCONNECTED:
+
+                        if (e.isEnabled())
+                            mReceiverFilters.add("android.intent.action.HEADSET_PLUG");
+
+                        break;
 
                     default:
                         Log.d("sfen", "No case match ("+ single.getOptionType() +" in updateEventConditionTimers).");

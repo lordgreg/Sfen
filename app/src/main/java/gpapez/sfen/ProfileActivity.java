@@ -122,6 +122,8 @@ public class ProfileActivity extends Activity {
          */
         else {
             profile = new Profile();
+
+            refreshView();
         }
 
     }
@@ -285,6 +287,13 @@ public class ProfileActivity extends Activity {
             Ringtone ringtone = RingtoneManager.getRingtone(sInstance, profile.getRingtone());
             ((TextView) findViewById(R.id.ringtone_name)).setText(ringtone.getTitle(sInstance));
         }
+        else {
+            Uri ringtoneDefaultUri = Uri.parse("content://settings/system/ringtone");
+            profile.setRingtone(ringtoneDefaultUri);
+
+            Ringtone ringtoneDefault = RingtoneManager.getRingtone(sInstance, ringtoneDefaultUri);
+            ((TextView) findViewById(R.id.ringtone_name)).setText(ringtoneDefault.getTitle(sInstance));
+        }
 
         if (isUpdating && profile.getNotification() != null) {
             Gson gson = new Gson();
@@ -292,9 +301,16 @@ public class ProfileActivity extends Activity {
             ((TextView) findViewById(R.id.notification_name)).setText(
                     notification.getTitle(sInstance));
         }
+        else {
+            Uri notificationDefaultUri = Uri.parse("content://settings/system/notification_sound");
+            profile.setNotification(notificationDefaultUri);
+
+            Ringtone ringtoneDefault = RingtoneManager.getRingtone(sInstance, notificationDefaultUri);
+            ((TextView) findViewById(R.id.notification_name)).setText(ringtoneDefault.getTitle(sInstance));
+        }
 
         // if icon isn't empty, add icon too.
-        if (profile.getIcon() !=  0) {
+        if (profile.getIcon() != 0) {
             ((ImageButton) findViewById(R.id.profile_icon)).setImageDrawable(getResources().getDrawable(profile.getIcon()));
             ((ImageButton) findViewById(R.id.profile_icon)).setTag(profile.getIcon());
         }
@@ -669,9 +685,12 @@ public class ProfileActivity extends Activity {
      */
     public void onClickProfileRingtone(View v) {
 
+        Uri ringtoneUri = profile.getRingtone();
+
         final Intent ringtone = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE);
-        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false);
+        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, ringtoneUri);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
 
@@ -689,9 +708,12 @@ public class ProfileActivity extends Activity {
      */
     public void onClickProfileNotificationSound(View v) {
 
+        Uri notificationUri = profile.getNotification();
+
         final Intent ringtone = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false);
+        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, notificationUri);
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         startActivityForResult(ringtone, REQUEST_NOTIFICATION_RESULT);
@@ -742,6 +764,11 @@ public class ProfileActivity extends Activity {
             if (profile.getBrightnessValue() >= 0)
                 seekBar.setProgress(profile.getBrightnessValue());
         }
+        else {
+            seekBar.setProgress(profile.getBrightnessValue());
+            checkBox.setChecked(profile.isBrightnessAuto());
+        }
+
 
         LinearLayout newView = new LinearLayout(sInstance);
         LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
@@ -752,6 +779,30 @@ public class ProfileActivity extends Activity {
         newView.setPadding(15, 15, 15, 15);
         newView.addView(seekBar, 0);
         newView.addView(checkBox, 1);
+
+        /**
+         * add checkbox for default settings
+         */
+        final CheckBox checkDefault = new CheckBox(sInstance);
+        checkDefault.setChecked(profile.isBrightnessDefault());
+
+        if (profile.isBrightnessDefault()) {
+            seekBar.setEnabled(false);
+            checkBox.setEnabled(false);
+        }
+
+        checkDefault.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkBox.setEnabled(!checkDefault.isChecked());
+
+                if (!checkBox.isChecked())
+                    seekBar.setEnabled(!checkDefault.isChecked());
+            }
+        });
+        checkDefault.setText("Use default system settings");
+        newView.addView(checkDefault, 2);
+
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(sInstance);
 
@@ -770,21 +821,7 @@ public class ProfileActivity extends Activity {
                         //options.put("BRIGHTNESS_VALUE", String.valueOf(seekBar.getProgress()));
                         profile.setBrightnessValue(seekBar.getProgress());
                         profile.setBrightnessAuto(checkBox.isChecked());
-                        //options.put("BRIGHTNESS_AUTO", String.valueOf(checkBox.isChecked()));
-
-                        /**
-                         * Create intent
-                         */
-                        //Main.getInstance().sendBroadcast("SET_BRIGHTNESS");
-//                        Intent i = new Intent(Main.getInstance().TAG +".BRIGHTNESS_SET");
-//
-//                        i.putExtra("BRIGHTNESS_VALUE", seekBar.getProgress());
-//                        i.putExtra("BRIGHTNESS_AUTOMODE", checkBox.isChecked());
-//
-//                        /**
-//                         * Broadcast what we want
-//                         */
-//                        sendBroadcast(i);
+                        profile.setBrightnessDefault(checkDefault.isChecked());
 
 
                     }
@@ -874,7 +911,12 @@ public class ProfileActivity extends Activity {
                 Ringtone ringtone = RingtoneManager.getRingtone(this, uri);
                 // Get your title here `ringtone.getTitle(this)`
                 //System.out.println("picked ringtone "+ ringtone.getTitle(sInstance));
-
+//                Uri ringtoneDefaultUri = RingtoneManager.getActualDefaultRingtoneUri(sInstance, RingtoneManager.TYPE_RINGTONE);
+//                Ringtone ringtoneDefault = RingtoneManager.getRingtone(sInstance, ringtoneDefaultUri);
+//
+//                System.out.println(ringtone.getTitle(sInstance) +" vs "+ ringtoneDefault.getTitle(sInstance));
+//                System.out.println(ringtone.hashCode() +" vs "+ ringtoneDefault.hashCode());
+//                System.out.println(uri +" vs "+ ringtoneDefaultUri);
                 //ImageButton imageButton = (ImageButton) findViewById(R.id.profile_icon);
                 TextView textView = (TextView) findViewById(R.id.ringtone_name);
                 textView.setText(ringtone.getTitle(sInstance));
@@ -904,7 +946,12 @@ public class ProfileActivity extends Activity {
                 ringtone = RingtoneManager.getRingtone(this, uri);
                 // Get your title here `ringtone.getTitle(this)`
                 //System.out.println("picked ringtone "+ ringtone.getTitle(sInstance));
-
+//                Uri ringtoneDefaultUri = RingtoneManager.getActualDefaultRingtoneUri(sInstance, RingtoneManager.TYPE_RINGTONE);
+//                Ringtone ringtoneDefault = RingtoneManager.getRingtone(sInstance, ringtoneDefaultUri);
+//
+//                System.out.println(ringtone.getTitle(sInstance) +" vs "+ ringtoneDefault.getTitle(sInstance));
+//                System.out.println(ringtone.hashCode() +" vs "+ ringtoneDefault.hashCode());
+//                System.out.println(uri +" vs "+ ringtoneDefaultUri);
                 //ImageButton imageButton = (ImageButton) findViewById(R.id.profile_icon);
                 textView = (TextView) findViewById(R.id.notification_name);
                 textView.setText(ringtone.getTitle(sInstance));

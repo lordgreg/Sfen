@@ -490,6 +490,51 @@ public class EventActivity extends Activity {
         }
     }
 
+    /**
+     *
+     * ONCLICK: Event Priority
+     *
+     * opens builder with possible priorities
+     *
+     */
+    public void onClickEventPriority(View v) {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        String[] priorities = {"Low", "Bah", "Normal", "Beee!", "High"};
+
+        int currentPriority = event.getPriority()+1;
+
+        final int[] selected = new int[1];
+
+        builder
+                .setTitle("Priority")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+
+                        event.setPriority(selected[0]+1);
+
+                        System.out.println("Priority set is: "+ event.getPriority());
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setSingleChoiceItems(priorities, currentPriority, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        selected[0] = which;
+                    }
+                })
+                .show();
+
+    }
+
 
     /**
      *

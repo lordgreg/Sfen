@@ -1,5 +1,6 @@
 package gpapez.sfen;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,7 +33,7 @@ import java.util.Random;
  *
  * Created by Gregor on 10.7.2014.
  */
-public class Event {
+public class Event implements Comparable<Event> {
     private String name;
     private boolean enabled;
     private boolean running = false;
@@ -44,6 +45,7 @@ public class Event {
     private boolean delayed = false;
     private int delayMinutes = 3;
     private boolean delayRecheckConditions = false;
+    private int priority = 1;
 
     //private Profile profile;
     private int profile;
@@ -129,6 +131,68 @@ public class Event {
 
                     break;
 
+                case BLUETOOTH_ON:
+                case BLUETOOTH_OFF:
+
+                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                            BluetoothAdapter.ERROR);
+
+                    /**
+                     * if state == on
+                     */
+                    if (state == BluetoothAdapter.STATE_ON) {
+
+                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_ON)
+                            conditionResults.add(true);
+                        else
+                            conditionResults.add(false);
+
+                    }
+                    /**
+                     * if state == off
+                     */
+                    else {
+
+                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_OFF)
+                            conditionResults.add(true);
+                        else
+                            conditionResults.add(false);
+
+                    }
+
+                    break;
+
+
+                case HEADSET_CONNECTED:
+                case HEADSET_DISCONNECTED:
+
+                    state = intent.getIntExtra("state", -1);
+
+                    /**
+                     * if state == on (plugged in)
+                     */
+                    if (state == 1) {
+
+                        if (cond.getOptionType() == DialogOptions.type.HEADSET_CONNECTED)
+                            conditionResults.add(true);
+                        else
+                            conditionResults.add(false);
+
+                    }
+                    /**
+                     * if state == off
+                     */
+                    else {
+
+                        if (cond.getOptionType() == DialogOptions.type.HEADSET_DISCONNECTED)
+                            conditionResults.add(true);
+                        else
+                            conditionResults.add(false);
+
+
+                    }
+
+                    break;
 
                 case GPS_ENABLED:
                 case GPS_DISABLED:
@@ -872,6 +936,20 @@ public class Event {
     }
 
 
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        if (priority > 5)
+            priority = 5;
+
+        if (priority < 1)
+            priority = 1;
+
+        this.priority = priority;
+    }
+
     public boolean isDelayed() {
         return delayed;
     }
@@ -908,4 +986,14 @@ public class Event {
         delayRecheckConditions = false;
     }
 
+
+    @Override
+    public int compareTo(Event another) {
+
+        // TODO: FIX COMPARING!
+        // TODO: ADD NEW COMPARE (by Priority)
+        return Integer.compare(uniqueID, another.getUniqueID());
+        //return 0;
+
+    }
 }
