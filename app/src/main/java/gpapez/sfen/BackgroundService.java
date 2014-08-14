@@ -107,7 +107,7 @@ public class BackgroundService extends Service {
     /**
      * event with all actions
      */
-    private Event eventToRun;
+    protected Event eventToRun;
 
     // preferences object
     protected Preferences mPreferences;
@@ -159,6 +159,7 @@ public class BackgroundService extends Service {
         }
 
         mPreferences = new Preferences(Main.getInstance());
+
 
         if (mPreferences != null) {
 
@@ -426,13 +427,13 @@ public class BackgroundService extends Service {
 
                 //runEvent(context, intent, eventToRun);
                 startSingleEvent(eventToRun);
-//                System.out.println("*** SINGLE EVENT TO RUN HAS THIS ACTIONS ***");
-//
-//                for (DialogOptions single : eventToRun.getActions()) {
-//
-//                    System.out.println("action: "+ single.getOptionType());
-//
-//                }
+                Log.d("sfen", "Running next actions:");
+
+                for (DialogOptions single : eventToRun.getActions()) {
+
+                    Log.d("sfen", "> "+ single.getOptionType());
+
+                }
 
                 eventToRun = null;
 
@@ -967,7 +968,7 @@ public class BackgroundService extends Service {
      * @param e
      ***********************************************************************************************
      */
-    private void runEvent(Context context, Intent intent, Event e) {
+    protected void runEvent(Context context, Intent intent, Event e) {
         // if event is already running
         // don't re-run actions
         if (
@@ -1493,6 +1494,9 @@ public class BackgroundService extends Service {
         boolean newExists = false;
         int newExistOnIndex = -1;
 
+        if (eventToRun == null)
+            eventToRun = new Event();
+
         for (int i = 0; i < actions.size(); i++) {
 
             for (int j = 0; j < eventToRun.getActions().size(); j++) {
@@ -1618,7 +1622,11 @@ public class BackgroundService extends Service {
 
         }
 
+    }
 
+    protected void startSingleEvent() {
+
+        startSingleEvent(eventToRun);
 
     }
 

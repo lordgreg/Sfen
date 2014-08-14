@@ -183,6 +183,32 @@
     </ScrollView>
 
 
+    <!-- CALL ALLOW / DENY LIST -->
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Call allow &amp; deny"
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:id="@+id/textView4" />
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingBottom="10dp">
+
+        <!-- Note that this LinearLayout has the "animateLayoutChanges" property set to true.
+             This tells the framework to automatically animate child views (in this case, rows)
+             as they are added to and removed from the LinearLayout. -->
+        <LinearLayout android:id="@+id/calllist_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:showDividers="middle"
+            android:divider="?android:dividerHorizontal"
+            android:animateLayoutChanges="true" />
+
+    </ScrollView>
+
+
+
+    <!-- ACTIONS -->
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -205,47 +231,6 @@
 
     </ScrollView>
 
-
-    <!-- ADVANCED PART -->
-    <!--
-
-        THERE IS NO ADVANCED PART FOR PROFILES!
-    -->
-    <!--
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Advanced"
-        android:id="@+id/textViewAdvanced"
-        android:autoText="false"
-        style="?android:attr/listSeparatorTextViewStyle" />
-
-    <CheckBox
-        android:button="@null"
-        android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Match all conditions?"
-        android:onClick="onClickEventAllConditions"
-        android:padding="6dip"
-        android:layout_margin="5dp"
-        android:id="@+id/event_allconditions"
-        android:checked="true" />
-
-    <CheckBox
-        android:button="@null"
-        android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Trigger only once"
-        android:onClick="onClickEventAllConditions"
-        android:padding="6dip"
-        android:layout_margin="5dp"
-        android:id="@+id/event_runonce"
-        android:checked="false" />
-
-
-    -->
 
 </LinearLayout>
 </ScrollView>

@@ -3,15 +3,19 @@ package gpapez.sfen;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -86,7 +90,15 @@ public class Cell implements Comparable<Cell> {
         info.setText("Number of minutes to store cell tower ID's:");
         info.setPadding(10, 10, 10, 10);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setText("10");
+
+        // get number of minutes from preferences
+        int recordMinutes = 10;
+        try {
+            recordMinutes = Preferences
+                    .getSharedPreferences().getInt("CellRecordMinutes", 10);
+        } catch (Exception e) {}
+
+        input.setText(String.valueOf(recordMinutes));
 
         LinearLayout newView = new LinearLayout(Main.getInstance());
         LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
@@ -98,7 +110,71 @@ public class Cell implements Comparable<Cell> {
         newView.addView(info, 0);
         newView.addView(input, 1);
 
+        /**
+         * if time stored, lets show info until when are we recording this
+         */
+        Calendar calendarUntil = null;
+        try {
+            Gson gson = new Gson();
+            calendarUntil = gson.fromJson(
+                    Preferences
+                            .getSharedPreferences().getString("CellRecordUntil", null),
+                    Calendar.class
+            );
+        }
+        catch (Exception e) {}
 
+
+        /**
+         * calendar time was stored, add more info to dialog
+         */
+        if (calendarUntil != null) {
+            //System.out.println("current saved preference? " + calendarUntil.getTime().toString());
+            final TextView infoCalendar = new TextView(context);
+            infoCalendar.setText("Already recording until: "+ calendarUntil.getTime().toString());
+            infoCalendar.setPadding(10, 15, 10, 10);
+
+            newView.addView(infoCalendar, 2);
+        }
+
+
+        /**
+         * add another checkbox for permanent recording
+         */
+        final CheckBox checkPermanent = new CheckBox(context);
+        checkPermanent.setText("Record cell tower ID's as long as Sfen is running?");
+        checkPermanent.setPadding(10, 10, 10, 10);
+
+        checkPermanent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkPermanent.isChecked())
+                    input.setEnabled(false);
+                else
+                    input.setEnabled(true);
+            }
+        });
+
+        /**
+         * retrieve permanent info
+         */
+        boolean isRecordingPermanent =
+                Preferences
+                        .getSharedPreferences().getBoolean("CellRecordPermanent", false);
+
+
+        // tick checkbox if permanent is enabled
+        if (isRecordingPermanent) {
+            checkPermanent.setChecked(isRecordingPermanent);
+
+            input.setEnabled(false);
+        }
+
+
+
+        newView.addView(checkPermanent);
+
+        //SharedPreferences msp = BackgroundService.getInstance().mPreferences.getSharedPreferencesObject();
 
         builder
                 .setView(newView)
@@ -136,8 +212,22 @@ public class Cell implements Comparable<Cell> {
                                     "CellRecordUntil", calendar
                             );
 
-                            Util.showMessageBox("New cells will be added to the list for the next " +
+                            // permanent setting
+                            Preferences.getSharedPreferences().edit().putBoolean(
+                                    "CellRecordPermanent",
+                                    checkPermanent.isChecked()).apply();
+
+                            // input setting
+                            Preferences.getSharedPreferences().edit().putInt(
+                                    "CellRecordMinutes",
+                                    Integer.parseInt(input.getText().toString())).apply();
+
+                            if (!checkPermanent.isChecked())
+                                Util.showMessageBox("New cells will be added to the list for the next " +
                                     minutes +" minutes.", false);
+                            else
+                                Util.showMessageBox("New cells will be added to the list for the whole " +
+                                        "time of Sfen running.", false);
 
                         }
 
@@ -145,11 +235,27 @@ public class Cell implements Comparable<Cell> {
                     }
                 })
                         //.set
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Clear & Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // just close the dialog if we didn't select the days
                         dialog.dismiss();
+
+                        /**
+                         * clear preference entry
+                         */
+                        Preferences.getSharedPreferences().edit().putString(
+                                "CellRecordUntil",
+                                new String()).apply();
+
+                        Preferences.getSharedPreferences().edit().putBoolean(
+                                "CellRecordPermanent",
+                                false).apply();
+
+                        // input setting
+                        Preferences.getSharedPreferences().edit().putInt(
+                                "CellRecordMinutes",
+                                10).apply();
+
 
                     }
                 });
@@ -235,7 +341,7 @@ public class Cell implements Comparable<Cell> {
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId());
             ((TextView) newRow.findViewById(android.R.id.text2))
-                    .setText(single.getStoreDate().getTime().toString());
+                    .setText(Util.getDate(single.getStoreDate()));
 
             ImageView imageView = (ImageView)newRow.findViewById(R.id.cellid_delete);
 

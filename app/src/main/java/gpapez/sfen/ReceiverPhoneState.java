@@ -170,48 +170,73 @@ public class ReceiverPhoneState extends PhoneStateListener {
         PowerManager.WakeLock mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sfen");
         mWakeLock.acquire();
 
-        /**
-         * saving new cell id to preferences?
-         */
-
-        String calUntilString = BackgroundService.getInstance().mPreferences
-                .getSharedPreferencesObject().getString("CellRecordUntil", "");
-
-        if (calUntilString.equals("\"\""))
-            calUntilString = "";
 
         /**
-         * is saved date there?
+         * retrieve permanent info
          */
-        if (!calUntilString.equals("")) {
+        boolean isRecordingPermanent =
+                Preferences
+                        .getSharedPreferences().getBoolean("CellRecordPermanent", false);
 
-            Gson gson = new Gson();
-            Calendar calendar = Calendar.getInstance();
-            Calendar calUntil = gson.fromJson(calUntilString, Calendar.class);
 
-//            Log.d("sfen", "saving until "+ calUntil.getTime().toString() +"," +
-//                    "current time: "+ calendar.getTime().toString());
+
+
+        /**
+         * permanent recording saves all cells
+         */
+        if (isRecordingPermanent) {
+
+            Cell.addCellIdToArray(cellId);
+
+        }
+
+        /**
+         * permanent is disabled, then check times
+         */
+        else {
 
 
             /**
-             * save new id into array IF save time meets conditions
+             * saving new cell id to preferences?
              */
-            if (calUntil.after(calendar)) {
-
-                Cell.addCellIdToArray(cellId);
-
-
+            Calendar calendar = Calendar.getInstance();
+            Calendar calendarUntil = null;
+            try {
+                Gson gson = new Gson();
+                calendarUntil = gson.fromJson(
+                        Preferences
+                                .getSharedPreferences().getString("CellRecordUntil", null),
+                        Calendar.class
+                );
+            } catch (Exception e) {
             }
 
             /**
-             * if until date did already passed current date, clear it from settings
+             * is saved date there?
              */
-            else {
+            if (calendarUntil != null) {
 
-                // update date in preferences with empty string
-                BackgroundService.getInstance().mPreferences.setPreferences(
-                        "CellRecordUntil", new String("")
-                );
+                /**
+                 * save new id into array IF save time meets conditions
+                 */
+                if (calendarUntil.after(calendar)) {
+
+                    Cell.addCellIdToArray(cellId);
+
+
+                }
+
+                /**
+                 * if until date did already passed current date, clear it from settings
+                 */
+                else {
+
+                    // update date in preferences with empty string
+                    BackgroundService.getInstance().mPreferences.setPreferences(
+                            "CellRecordUntil", new String()
+                    );
+
+                }
 
             }
 

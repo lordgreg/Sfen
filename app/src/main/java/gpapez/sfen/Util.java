@@ -459,15 +459,18 @@ public class Util extends Activity {
                 // create MAP object
                 final View timerangeView = inflater.inflate(R.layout.dialog_sub_timerange, null);
 
-                final DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-
-                // set 24hour format
                 final TimePicker timeFrom = (TimePicker) timerangeView.findViewById(R.id.time_from);
                 final TimePicker timeTo = (TimePicker) timerangeView.findViewById(R.id.time_to);
-                //((TimePicker) timerangeView.findViewById(R.id.time_from)).setIs24HourView(true);
-                //((TimePicker) timerangeView.findViewById(R.id.time_to)).setIs24HourView(true);
-                timeFrom.setIs24HourView(true);
-                timeTo.setIs24HourView(true);
+
+                final DateFormat dateFormat;
+                if (isTime24()) {
+                    dateFormat = new SimpleDateFormat("HH:mm");
+                    timeFrom.setIs24HourView(true);
+                    timeTo.setIs24HourView(true);
+                }
+                else {
+                    dateFormat = new SimpleDateFormat("h:mm a");
+                }
 
                 // editing?
                 ArrayList<Integer> mTimeFromSettings = null;
@@ -540,7 +543,11 @@ public class Util extends Activity {
 
                 // create dialog parts
                 final TimePicker timePicker = new TimePicker(context);
-                timePicker.setIs24HourView(true);
+//                timePicker.setIs24HourView(true);
+
+                if (isTime24())
+                      timePicker.setIs24HourView(true);
+
 
 
                 // we're editing option, get stored time out of settings
@@ -1679,8 +1686,14 @@ public class Util extends Activity {
                 AsyncTask<Void,Void,Void> mAsyncTask = new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... voids) {
-                            //startActivity(intent);
-                            ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+
+
+                            if (actionFrom == ACTION_FROM.PROFILE)
+                                ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+
+                            if (actionFrom == ACTION_FROM.EVENT)
+                                EventActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+
 
                             return null;
                         }
@@ -2047,6 +2060,22 @@ public class Util extends Activity {
         return rText;
     }
 
+    protected static String getDate(Calendar cal) {
+
+        String dateFormat = Preferences
+                .getSharedPreferences().getString("dateFormat", null);
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+        return sdf.format(cal.getTime());
+
+    }
+
+    protected static boolean isTime24() {
+        return Preferences
+                .getSharedPreferences().getBoolean("date24hour", false);
+    }
 
 
 }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -47,8 +48,9 @@ public class EventActivity extends Activity {
     protected ArrayList<DialogOptions> conditions = new ArrayList<DialogOptions>();
     protected ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
 
-
-
+    // on activity result
+    final int REQUEST_PICK_SHORTCUT = 0x100;
+    final int REQUEST_CREATE_SHORTCUT = 0x200;
 
 
     @Override
@@ -74,7 +76,7 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optConditions, "Pick condition");
+                BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optConditions, "Pick condition");
             }
         });
 
@@ -112,7 +114,7 @@ public class EventActivity extends Activity {
             updatedActions = new ArrayList<DialogOptions>();
             profile = event.getProfile();
 
-            getActionBar().setTitle("Editing "+ event.getName());
+            getActionBar().setTitle("Editing " + event.getName());
             //getActionBar().
 
             //Log.e("EVENT FROM OBJ", event.getName() + " with " + event.getConditions().size() + " conditions- key from all events: " + updateKey);
@@ -177,7 +179,7 @@ public class EventActivity extends Activity {
         int id = item.getItemId();
 
         if (id == android.R.id.home ||
-            id == R.id.action_cancel) {
+                id == R.id.action_cancel) {
 
             Main.getInstance().options.put("eventSave", "0");
             finish();
@@ -191,12 +193,13 @@ public class EventActivity extends Activity {
             // geofaces if we have such conditions
             if (saveEvent()) {
                 // update conditions for current event
-                BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>(){{add(event);}});
+                BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>() {{
+                    add(event);
+                }});
 
 
                 return true;
-            }
-            else
+            } else
                 return false;
         }
         return super.onOptionsItemSelected(item);
@@ -204,16 +207,16 @@ public class EventActivity extends Activity {
 
     /**
      * SINGLETON INSTANCE
-     *
+     * <p/>
      * Singleton function that returns the current instance of our class
      * if it does not exist, it creates new instance.
+     *
      * @return instance of current class
      */
     public static EventActivity getInstance() {
         if (sInstance == null) {
             return new EventActivity();
-        }
-        else
+        } else
             return sInstance;
     }
 
@@ -277,11 +280,9 @@ public class EventActivity extends Activity {
         if (isUpdating) {
             //events.set(events.indexOf(e), e);
             BackgroundService.getInstance().events.set(updateKey, event);
-        }
-        else {
+        } else {
             BackgroundService.getInstance().events.add(event);
         }
-
 
 
         // at the end, send broadcast, if the event is enabled
@@ -312,7 +313,7 @@ public class EventActivity extends Activity {
     /**
      * refreshView is used only if we passed event from other activity
      * and would like to populate entries in eventactivity
-     *
+     * <p/>
      * we have to update name, conditions and actions!
      */
     public void refreshView() {
@@ -379,7 +380,7 @@ public class EventActivity extends Activity {
 
     /**
      * EDIT NAME HANDLER
-     *
+     * <p/>
      * from xml: android:onClick="editName"
      */
     public void onClickEventName(View v) {
@@ -393,10 +394,9 @@ public class EventActivity extends Activity {
 
         // updating or new?
         if (isUpdating || isChanged) {
-           eventName.setText(((TextView)findViewById(R.id.event_name)).getText());
+            eventName.setText(((TextView) findViewById(R.id.event_name)).getText());
             //((TextView) findViewById(R.id.event_name)).setText(event.getName());
-        }
-        else {
+        } else {
             eventName.setText("Enter event name");
         }
 
@@ -405,14 +405,14 @@ public class EventActivity extends Activity {
 
         // auto open soft keyboard
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
         builder
                 .setView(promptView)
                 .setIcon(R.drawable.ic_launcher)
                 .setTitle("Pick name")
 
-                //.setView(findViewById())
+                        //.setView(findViewById())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -421,7 +421,7 @@ public class EventActivity extends Activity {
 
                         // close the keyboard if any
                         if (imm != null) {
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                         }
 
                     }
@@ -438,15 +438,14 @@ public class EventActivity extends Activity {
                             // updating event? changed then.
                             // actually, tell that we've updated anyways
                             //if (isUpdating)
-                                isChanged = true;
-                        }
-                        else {
+                            isChanged = true;
+                        } else {
                             Util.showMessageBox("Event name cannot be empty.", false);
                         }
 
                         // close the keyboard if any
                         if (imm != null) {
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                         }
                     }
                 });
@@ -492,11 +491,9 @@ public class EventActivity extends Activity {
     }
 
     /**
-     *
      * ONCLICK: Event Priority
-     *
+     * <p/>
      * opens builder with possible priorities
-     *
      */
     public void onClickEventPriority(View v) {
 
@@ -505,7 +502,7 @@ public class EventActivity extends Activity {
         //String[] priorities = {"Low", "Bah", "Normal", "Beee!", "High"};
         String[] priorities = event.getPriorityList().toArray(new String[event.getPriorityList().size()]);
 
-        int currentPriority = event.getPriority()-1;
+        int currentPriority = event.getPriority() - 1;
 
         final int[] selected = new int[1];
 
@@ -516,7 +513,7 @@ public class EventActivity extends Activity {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
 
-                        event.setPriority(selected[0]+1);
+                        event.setPriority(selected[0] + 1);
 
                         ((TextView) findViewById(R.id.priority)).setText(event.getPriorityString());
 
@@ -543,9 +540,7 @@ public class EventActivity extends Activity {
 
 
     /**
-     *
      * OPEN PROFILES DIALOG
-     *
      */
     private void openDialogProfiles() {
 
@@ -556,7 +551,7 @@ public class EventActivity extends Activity {
             Util.showMessageBox("There are no profiles! Go create one now!", true);
 
 
-            return ;
+            return;
         }
 
         /**
@@ -575,7 +570,7 @@ public class EventActivity extends Activity {
         builder
                 .setView(dialogView)
                 .setIcon(this.getResources().getDrawable(R.drawable.ic_launcher))
-                //.setTitle("Pick Profile")
+                        //.setTitle("Pick Profile")
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -586,7 +581,6 @@ public class EventActivity extends Activity {
 
 
         final AlertDialog dialog = builder.create();
-
 
 
         Profile pTemp = new Profile();
@@ -601,7 +595,7 @@ public class EventActivity extends Activity {
         showProfilesInDialog.addAll(BackgroundService.getInstance().profiles);
 
         for (final Profile single : showProfilesInDialog) {
-        //for (int i = 0; i < BackgroundService.getInstance().profiles.size(); i++) {
+            //for (int i = 0; i < BackgroundService.getInstance().profiles.size(); i++) {
             //final DialogOptions opt = BackgroundService.getInstance().profiles.get(i);
 
             newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
@@ -634,7 +628,7 @@ public class EventActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     dialog.dismiss();
-                    ((ViewGroup)mContainerOptions.getParent()).removeView(mContainerOptions);
+                    ((ViewGroup) mContainerOptions.getParent()).removeView(mContainerOptions);
                     //openSubDialog(context, opt, 0);
                     // DO THING HERE!
 
@@ -656,7 +650,6 @@ public class EventActivity extends Activity {
                     );
                     ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
                             .setImageDrawable(getResources().getDrawable(single.getIcon()));
-
 
 
                     /**
@@ -699,7 +692,7 @@ public class EventActivity extends Activity {
 
     public void onClickEventDelayed(View v) {
 
-        final CheckBox checkBox = (CheckBox)findViewById(R.id.event_delayed);
+        final CheckBox checkBox = (CheckBox) findViewById(R.id.event_delayed);
 
         /**
          * DISABLING DELAY
@@ -758,7 +751,7 @@ public class EventActivity extends Activity {
                                 Util.showMessageBox("Insert minutes next time and all is going to be okay.", true);
                                 checkBox.setChecked(false);
 
-                                return ;
+                                return;
                             }
 
                             /**
@@ -778,7 +771,57 @@ public class EventActivity extends Activity {
 
         }
 
+    }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        /**
+         * we've got a OK result, continue
+         */
+        /**
+         * if requestCode is REQUEST_PICK_SHORTCUT, we're continuing on creating shortcut
+         */if (resultCode == RESULT_OK) switch (requestCode) {
+
+            case REQUEST_PICK_SHORTCUT:
+                startActivityForResult(data, REQUEST_CREATE_SHORTCUT);
+
+                break;
+
+            case REQUEST_CREATE_SHORTCUT:
+                String name = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME);
+                //Log.d("sfen", "shortcut name: " + name);
+
+                Intent intent = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
+
+                // start shortcut
+                //startActivity(intent);
+                // http://stackoverflow.com/questions/13147174/android-create-run-shortcuts
+
+                /**
+                 * shortcut created. save it.
+                 */
+                final DialogOptions cond = new DialogOptions("Shortcut", name,
+                        R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT);
+
+                cond.setSetting("intent_uri", intent.toUri(Intent.URI_INTENT_SCHEME));
+
+                cond.setSetting("text1", cond.getTitle());
+                cond.setSetting("text2", cond.getDescription());
+
+
+                /**
+                 * add new action
+                 */
+                Util.addNewConditionOrAction(sInstance, cond, 0);
+
+                break;
+
+
+        }
 
     }
+
 }

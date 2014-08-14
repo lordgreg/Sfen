@@ -39,13 +39,16 @@ public class ProfileActivity extends Activity {
 
     private static ProfileActivity sInstance = null;
     protected ViewGroup mContainerAction;
+    protected ViewGroup mContainerCallAllowDeny;
 
     // in case of updating profile
     protected boolean isUpdating = false;
     protected boolean isChanged = false;
     protected int updateKey = -1;
-    protected ArrayList<DialogOptions> updatedSoundAndDisplay;
     protected ArrayList<DialogOptions> updatedActions;
+
+    // allow & deny list
+    protected ArrayList<CallAllowDeny> callAllowDeny = new ArrayList<CallAllowDeny>();
 
     // placeholder for current Profile
     protected Profile profile = null;
@@ -75,9 +78,10 @@ public class ProfileActivity extends Activity {
 
 
         /**
-         * ACTION CONTAINER
+         * CONTAINERs
          */
         mContainerAction = (ViewGroup) findViewById(R.id.action_container);
+        mContainerCallAllowDeny = (ViewGroup) findViewById(R.id.calllist_container);
 
 
 
@@ -322,6 +326,36 @@ public class ProfileActivity extends Activity {
         }
 
         actions = updatedActions;
+
+
+        /**
+         * add allow/deny call list. if none, create new button
+         */
+        if (callAllowDeny == null || callAllowDeny.size() == 0) {
+
+            // addnew
+            final ViewGroup newRow = (ViewGroup) LayoutInflater.from(this).inflate(
+                    R.layout.condition_action_header, mContainerAction, false);
+
+            ((TextView) newRow.findViewById(android.R.id.text1)).setText(getString(R.string.calllist_new));
+            ((TextView) newRow.findViewById(android.R.id.text2)).setText(getString(R.string.calllist_new_sub));
+
+            // LISTENER for NEW ACTION
+            newRow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
+                    Util.actionFrom = Util.ACTION_FROM.PROFILE;
+
+                    // run static CallAllowDeny.openSelection
+
+                }
+            });
+
+            mContainerCallAllowDeny.addView(newRow, 0);
+
+
+        }
 
     }
 
@@ -870,26 +904,7 @@ public class ProfileActivity extends Activity {
                  * shortcut created. save it.
                  */
                 final DialogOptions cond = new DialogOptions("Shortcut", name,
-
                         R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT);
-
-//
-//                class UriSerializer implements JsonSerializer<Uri> {
-//                    public JsonElement serialize(Uri src, Type typeOfSrc, JsonSerializationContext context) {
-//                        return new JsonPrimitive(src.toString());
-//                    }
-//                }
-//                Gson gson = new GsonBuilder()
-//                        .registerTypeAdapter(Uri.class, new UriSerializer())
-//                        .create();
-//
-//                //Gson gson = new Gson();
-//
-//
-////                System.out.println("*** Saving intent\n"+ gson.toJson(intent));
-////                System.out.println("*** Uri looks like\n"+ intent.toUri(Intent.URI_INTENT_SCHEME));
-//
-//                cond.setSetting("shortcut_intent", gson.toJson(intent));
 
                 cond.setSetting("intent_uri", intent.toUri(Intent.URI_INTENT_SCHEME));
 

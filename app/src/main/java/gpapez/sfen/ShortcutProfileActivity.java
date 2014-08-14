@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * Created by Gregor on 10.8.2014.
  */
-public class ShortcutActivity extends Activity {
+public class ShortcutProfileActivity extends Activity {
 
     private static Context sInstance;
     private ArrayList<Profile> profiles;
@@ -131,7 +131,7 @@ public class ShortcutActivity extends Activity {
 
                         Intent intent = new Intent();
 
-                        Intent launchIntent = new Intent(sInstance, ShortcutActivity.class);
+                        Intent launchIntent = new Intent(sInstance, ShortcutProfileActivity.class);
                         launchIntent.putExtra("PROFILE_TO_RUN", profiles.get(i).getUniqueID());
 
                         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, launchIntent);

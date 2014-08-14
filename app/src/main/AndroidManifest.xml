@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -92,15 +93,25 @@
         <receiver android:name="gpapez.sfen.Receiver" >
         </receiver>
 
-
+        <!-- SHORTCUTS -->
         <activity
-            android:name=".ShortcutActivity"
+            android:name=".ShortcutProfileActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="Sfen Profiles">
-            <intent-filter >
+            <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ShortcutEventActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="Sfen Events">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+            </intent-filter>
+        </activity>
+
 
 
     </application>
