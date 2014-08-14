@@ -3,7 +3,6 @@ package gpapez.sfen;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -131,7 +130,7 @@ public class Cell implements Comparable<Cell> {
         if (calendarUntil != null) {
             //System.out.println("current saved preference? " + calendarUntil.getTime().toString());
             final TextView infoCalendar = new TextView(context);
-            infoCalendar.setText("Already recording until: "+ calendarUntil.getTime().toString());
+            infoCalendar.setText("Already recording until: "+ Util.getDateLong(calendarUntil));
             infoCalendar.setPadding(10, 15, 10, 10);
 
             newView.addView(infoCalendar, 2);
@@ -208,9 +207,10 @@ public class Cell implements Comparable<Cell> {
                             //System.out.println("we are saving ids until "+ calendar.getTime().toString());
 
                             // store all to preferences again
-                            BackgroundService.getInstance().mPreferences.setPreferences(
-                                    "CellRecordUntil", calendar
-                            );
+                            Preferences.getSharedPreferences().edit().putString(
+                                    "CellRecordUntil",
+                                    new Gson().toJson(calendar)).apply();
+
 
                             // permanent setting
                             Preferences.getSharedPreferences().edit().putBoolean(
@@ -341,7 +341,7 @@ public class Cell implements Comparable<Cell> {
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId());
             ((TextView) newRow.findViewById(android.R.id.text2))
-                    .setText(Util.getDate(single.getStoreDate()));
+                    .setText(Util.getDateLong(single.getStoreDate()));
 
             ImageView imageView = (ImageView)newRow.findViewById(R.id.cellid_delete);
 

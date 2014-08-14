@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -993,7 +992,7 @@ public class Util extends Activity {
 
                     ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId());
                     ((TextView) newRow.findViewById(android.R.id.text2))
-                            .setText(single.getStoreDate().getTime().toString());
+                            .setText(Util.getDateLong(single.getStoreDate()));
 
 
                     /**
@@ -1020,13 +1019,13 @@ public class Util extends Activity {
                             if (newRow.isSelected()) {
                                 mCellsSelected.remove(single);
                                 newRow.setSelected(false);
-                                System.out.println("removing tower from list: "+ mCellsSelected.toString());
+                                //System.out.println("removing tower from list: "+ mCellsSelected.toString());
                             }
                             else {
                                 //mCellsToShow.remove(single);
                                 mCellsSelected.add(single);
                                 newRow.setSelected(true);
-                                System.out.println("adding tower to list: "+ mCellsSelected.toString());
+                                //System.out.println("adding tower to list: "+ mCellsSelected.toString());
                             }
                         }
                     });
@@ -2069,6 +2068,27 @@ public class Util extends Activity {
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 
         return sdf.format(cal.getTime());
+
+    }
+
+    protected static String getDateLong(Calendar cal) {
+
+        String dateFormat = Preferences
+                .getSharedPreferences().getString("dateFormat", null);
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat +" "+ getTimeFormat());
+
+        return sdf.format(cal.getTime());
+
+    }
+
+    protected static String getTimeFormat() {
+
+        if (isTime24())
+            return "HH:mm";
+        else
+            return "h:mm a";
 
     }
 

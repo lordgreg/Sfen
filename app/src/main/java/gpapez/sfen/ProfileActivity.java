@@ -62,6 +62,7 @@ public class ProfileActivity extends Activity {
     final int REQUEST_CREATE_SHORTCUT = 0x200;
     final int REQUEST_RINGTONE_RESULT = 3;
     final int REQUEST_NOTIFICATION_RESULT = 4;
+//    final int REQUEST_CONTACT_RESULT = 5;
 
     // options hashmap
 
@@ -347,7 +348,7 @@ public class ProfileActivity extends Activity {
                     //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
                     Util.actionFrom = Util.ACTION_FROM.PROFILE;
 
-                    // run static CallAllowDeny.openSelection
+                    CallAllowDeny.openSelectionDialog();
 
                 }
             });
@@ -978,6 +979,15 @@ public class ProfileActivity extends Activity {
 
 
                 break;
+
+
+//            case REQUEST_CONTACT_RESULT:
+//
+//                Uri contactData = data.getData();
+//
+//                CallAllowDeny.openSubDialogWithSettings(contactData);
+//
+//                break;
 
         }
 
