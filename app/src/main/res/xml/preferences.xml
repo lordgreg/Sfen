@@ -22,18 +22,6 @@
             <!--android:summary="Sfen will wake up every %s minutes to check for Event conditions"-->
             <!--android:key="wakelockTimer" />-->
 
-        <CheckBoxPreference
-            android:title="Use 24 hour format"
-            android:defaultValue="true"
-            android:key="date24hour" />
-
-        <ListPreference
-            android:title="Date format"
-            android:summary="%s"
-            android:key="dateFormat"
-            android:defaultValue="dd/MM/yyyy"
-            android:entries="@array/dateEntries"
-            android:entryValues="@array/dateValues" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Advanced">
