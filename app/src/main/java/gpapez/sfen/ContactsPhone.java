@@ -5,7 +5,11 @@ import android.database.Cursor;
 import android.provider.ContactsContract;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Created by Gregor on 14.8.2014.
@@ -34,9 +38,9 @@ public class ContactsPhone {
      *
      * @return arraylist of strings
      */
-    protected static HashMap<Long, String> getContactsGroups() {
+    protected static HashMap<Integer, String> getContactsGroups() {
 
-        HashMap<Long, String> groups = new HashMap<Long, String>();
+        HashMap<Integer, String> groups = new HashMap<Integer, String>();
         ContentResolver cr = ProfileActivity.getInstance().getContentResolver();
 
         Cursor pGroup = cr.query(ContactsContract.Groups.CONTENT_URI,
@@ -53,7 +57,7 @@ public class ContactsPhone {
             String group = pGroup.getString(
                     pGroup.getColumnIndex(ContactsContract.Groups.TITLE));
 
-            long _id = pGroup.getLong(
+            int _id = pGroup.getInt(
                     pGroup.getColumnIndex(ContactsContract.Groups._ID)
             );
 
@@ -70,7 +74,7 @@ public class ContactsPhone {
 
     }
 
-    protected static boolean isNumberInGroup(long number, long groupId) {
+    protected static boolean isNumberInGroup(String number, long groupId) {
 
         long contactId = getContactByPhoneNumber(number);
 
@@ -81,7 +85,7 @@ public class ContactsPhone {
 
 
 
-    protected static long getContactByPhoneNumber(long number) {
+    protected static long getContactByPhoneNumber(String number) {
 
         long contactId = 0;
         ContentResolver cr = ProfileActivity.getInstance().getContentResolver();
@@ -112,7 +116,7 @@ public class ContactsPhone {
 
 
 
-    protected static boolean isNumberInContact(long number, long contactId) {
+    protected static boolean isNumberInContact(String number, long contactId) {
 
         boolean ret = false;
         ContentResolver cr = ProfileActivity.getInstance().getContentResolver();
@@ -124,7 +128,7 @@ public class ContactsPhone {
                         ContactsContract.CommonDataKinds.Phone.CONTACT_ID
                 },
                 ContactsContract.CommonDataKinds.Phone.NUMBER+" like'%" + number +"%' AND "+
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID+" like'%" + contactId +"%'",
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID+"=" + contactId +"",
                 null, null
         );
 
@@ -241,7 +245,7 @@ public class ContactsPhone {
                         ContactsContract.Contacts._ID,
                         ContactsContract.Contacts.DISPLAY_NAME
                 },
-                ContactsContract.CommonDataKinds.Phone._ID+" like'%" + id +"%'",
+                ContactsContract.CommonDataKinds.Phone._ID+"=" + id +"",
                 null, null
         );
 
@@ -307,7 +311,7 @@ public class ContactsPhone {
                         ContactsContract.Groups._ID,
                         ContactsContract.Groups.TITLE
                 },
-                ContactsContract.Groups._ID +" like'%" + id +"%'",
+                ContactsContract.Groups._ID +"=" + id +"",
                 null, null
         );
 
@@ -356,11 +360,12 @@ public class ContactsPhone {
                 String contactID = cur.getString(cur.getColumnIndex(ContactsContract.Data.CONTACT_ID));
                 String groupID = cur.getString(cur.getColumnIndex(ContactsContract.Data.DATA1));
 
-                System.out.println(name +" has group "+ groupID);
+                //System.out.println(name +" has group "+ groupID);
 
-                //groups.add(number);
+                groups.add(groupID);
             }
         }
+        cur.close();
 
 
         return groups;
@@ -370,15 +375,11 @@ public class ContactsPhone {
 
 
 
-    protected static HashMap<String, ArrayList<String>> getContactsNumbers() {
+    protected static HashMap<Integer, String> getContactsWithNumbers() {
 
-        /**
-         * http://www.coderzheaven.com/2011/06/13/get-all-details-from-contacts-in-android/
-         */
         HashMap<String, ArrayList<String>> contactsNumbers = new HashMap<String, ArrayList<String>>();
-        HashMap<String, ArrayList<String>> contactsGroups = new HashMap<String, ArrayList<String>>();
-
         ContentResolver cr = ProfileActivity.getInstance().getContentResolver();
+        HashMap<Integer, String> contacts = new HashMap<Integer, String>();
 
         /**
          * cursor to get ALL contacts
@@ -392,7 +393,7 @@ public class ContactsPhone {
              * loop through all contacts
              */
             while (cur.moveToNext()) {
-                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                int id = cur.getInt(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 
 
@@ -403,41 +404,76 @@ public class ContactsPhone {
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                     //System.out.println("name : " + name + ", ID : " + id);
 
-                    ArrayList<String> phoneNumbers = new ArrayList<String>();
-                    ArrayList<String> groups = new ArrayList<String>();
-
-                    // get phone numbers
-                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
-                            new String[]{id},
-                            null);
-
-                    while (pCur.moveToNext()) {
-
-                        String phone = pCur.getString(
-                                pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        //System.out.println("phone" + phone);
+                    contacts.put(id, name);
 
 
-                        // add number to array of numbers
-                        phoneNumbers.add(phone);
-
-                    }
-                    pCur.close();
-
-
-                    // now add everything into hashmap
-                    contactsNumbers.put(name, phoneNumbers);
-                    contactsGroups.put(name, groups);
+//                    ArrayList<String> phoneNumbers = new ArrayList<String>();
+//
+//                    // get phone numbers
+//                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+//                            null,
+//                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
+//                            new String[]{id},
+//                            null);
+//
+//                    while (pCur.moveToNext()) {
+//
+//                        String phone = pCur.getString(
+//                                pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//                        //System.out.println("phone" + phone);
+//
+//
+//                        // add number to array of numbers
+//                        phoneNumbers.add(phone);
+//
+//                    }
+                    //pCur.close();
+//
+//
+//                    now add everything into hashmap
+//                    contactsNumbers.put(name, phoneNumbers);
 
 
                 }
             }
         }
 
-        return contactsNumbers;
+        cur.close();
 
+        //return contactsNumbers;
+        return contacts;
+
+    }
+
+    protected static LinkedHashMap sortHashMapByValuesD(HashMap passedMap) {
+        List mapKeys = new ArrayList(passedMap.keySet());
+        List mapValues = new ArrayList(passedMap.values());
+        Collections.sort(mapValues);
+        Collections.sort(mapKeys);
+
+        LinkedHashMap sortedMap = new LinkedHashMap();
+
+        Iterator valueIt = mapValues.iterator();
+        while (valueIt.hasNext()) {
+            Object val = valueIt.next();
+            Iterator keyIt = mapKeys.iterator();
+
+            while (keyIt.hasNext()) {
+                Object key = keyIt.next();
+                String comp1 = passedMap.get(key).toString();
+                String comp2 = val.toString();
+
+                if (comp1.equals(comp2)){
+                    passedMap.remove(key);
+                    mapKeys.remove(key);
+                    sortedMap.put((Integer)key, (String)val);
+                    break;
+                }
+
+            }
+
+        }
+        return sortedMap;
     }
 
 }
