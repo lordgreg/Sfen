@@ -21,6 +21,7 @@ public class Profile {
     private boolean isActive;
 
     private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
+    private ArrayList<CallAllowDeny> callAllowDenies = new ArrayList<CallAllowDeny>();
 
     /**
      * SETTING VARIABLES
@@ -155,6 +156,14 @@ public class Profile {
 
     public void setActions(ArrayList<DialogOptions> actions) {
         this.actions = actions;
+    }
+
+    public ArrayList<CallAllowDeny> getCallAllowDenies() {
+        return callAllowDenies;
+    }
+
+    public void setCallAllowDenies(ArrayList<CallAllowDeny> callAllowDenies) {
+        this.callAllowDenies = callAllowDenies;
     }
 
     public boolean isActive() {

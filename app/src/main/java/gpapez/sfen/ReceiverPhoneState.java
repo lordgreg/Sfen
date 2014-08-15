@@ -8,7 +8,6 @@ import android.os.Vibrator;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -106,6 +105,9 @@ public class ReceiverPhoneState extends PhoneStateListener {
              */
             case TelephonyManager.CALL_STATE_RINGING:
 
+                System.out.println("call from number "+ incomingNumber);
+                // 031123456
+
                 /**
                  * if we already have another call active, stop executing actions
                  */
@@ -127,11 +129,43 @@ public class ReceiverPhoneState extends PhoneStateListener {
 
 
                 /**
+                 * loudness setting
+                 */
+                int loudness = profile.getVolumeRingtone();
+
+                /**
+                 * Number on Allow / Deny list?
+                 */
+                if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL &&
+                        CallAllowDeny.isNumberOnAllowOrDenyList(incomingNumber, CallAllowDeny.TYPE.DENY)
+                        ) {
+
+//                    System.out.println(incomingNumber +" is on DENY list.");
+
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    loudness = 0;
+
+                }
+
+                else if ((audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT ||
+                        audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE) &&
+                        CallAllowDeny.isNumberOnAllowOrDenyList(incomingNumber, CallAllowDeny.TYPE.ALLOW)
+                        ) {
+
+//                    System.out.println(incomingNumber +" is on ALLOW list.");
+
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    loudness = audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
+
+                }
+
+
+                /**
                  * set loudness-
                  */
                 audioManager.setStreamVolume(
                         AudioManager.STREAM_RING,
-                        profile.getVolumeRingtone(),
+                        loudness,
                         AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
 
 

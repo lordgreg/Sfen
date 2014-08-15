@@ -10,6 +10,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -50,6 +51,10 @@ public class ProfileActivity extends Activity {
     // allow & deny list
     protected ArrayList<CallAllowDeny> callAllowDeny = new ArrayList<CallAllowDeny>();
 
+
+    // first run bool
+    private boolean mHasRun = false;
+
     // placeholder for current Profile
     protected Profile profile = null;
 
@@ -86,6 +91,11 @@ public class ProfileActivity extends Activity {
 
 
 
+
+        /**
+         * show add new action button
+         */
+
         // ACTION
         final ViewGroup newAction = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.condition_action_header, mContainerAction, false);
@@ -102,8 +112,7 @@ public class ProfileActivity extends Activity {
                 Util.openDialog(sInstance, DialogOptions.optActions, "Pick action");
             }
         });
-
-        mContainerAction.addView(newAction, 0);
+        mContainerAction.addView(newAction);
 
 
         // stop! hammertime!
@@ -114,11 +123,31 @@ public class ProfileActivity extends Activity {
             profile = (new Gson()).fromJson(getIntent().getExtras().getString("sProfile"), Profile.class);
             updateKey = getIntent().getIntExtra("sProfileIndexKey", -1);
             updatedActions = new ArrayList<DialogOptions>();
+            callAllowDeny = profile.getCallAllowDenies();
+
+            actions = profile.getActions();
+            if (actions == null)
+                profile.setActions(new ArrayList<DialogOptions>());
+
+            // if null actions, create new object
+            if (callAllowDeny == null)
+                profile.setCallAllowDenies(new ArrayList<CallAllowDeny>());
+
+
+
+            // also, would be great if we add all actions to container, no?
+            ArrayList<DialogOptions> allAct = profile.getActions();
+            for (DialogOptions act : profile.getActions()) {
+                addNewAction(sInstance, act, 0);
+            }
+
+            actions = updatedActions;
+
+
+
 
             getActionBar().setTitle("Editing "+ profile.getName());
-            //getActionBar().
 
-            //Log.e("EVENT FROM OBJ", event.getName() + " with " + event.getConditions().size() + " conditions- key from all events: " + updateKey);
             refreshView();
         }
 
@@ -130,6 +159,10 @@ public class ProfileActivity extends Activity {
 
             refreshView();
         }
+
+
+
+        mHasRun = true;
 
     }
 
@@ -190,7 +223,6 @@ public class ProfileActivity extends Activity {
      */
     private boolean saveProfile() {
 
-
         // do we have event name?
         if (((TextView) findViewById(R.id.profile_name)).getText().length() == 0) {
             Util.showMessageBox("And you think you can get away without entering Event name?", true);
@@ -236,6 +268,11 @@ public class ProfileActivity extends Activity {
          */
         profile.setActions(actions);
 
+        /**
+         * set allow/deny calls
+         */
+        profile.setCallAllowDenies(callAllowDeny);
+
 
 
         // finally, save/update profile to profiles array
@@ -261,8 +298,8 @@ public class ProfileActivity extends Activity {
 
                     BackgroundService.getInstance().events.set(i, e);
 
-                    System.out.println("Updated event "+
-                            BackgroundService.getInstance().events.get(i).getName() +"" +
+                    Log.d("sfen", "Updated event " +
+                            BackgroundService.getInstance().events.get(i).getName() + "" +
                             "with new profile.");
 
                 }
@@ -320,43 +357,118 @@ public class ProfileActivity extends Activity {
             ((ImageButton) findViewById(R.id.profile_icon)).setTag(profile.getIcon());
         }
 
-        // also, would be great if we add all actions to container, no?
-        ArrayList<DialogOptions> allAct = profile.getActions();
-        for (DialogOptions act : profile.getActions()) {
-            addNewAction(sInstance, act, 0);
-        }
-
-        actions = updatedActions;
-
-
         /**
          * add allow/deny call list. if none, create new button
          */
-        if (callAllowDeny == null || callAllowDeny.size() == 0) {
+        // we have callAllowDeny list which is not empty, so start filling it!
+        if (callAllowDeny.size() > 0) {
+            mContainerCallAllowDeny.removeAllViews();
 
-            // addnew
-            final ViewGroup newRow = (ViewGroup) LayoutInflater.from(this).inflate(
-                    R.layout.condition_action_header, mContainerAction, false);
+//            System.out.println("Our allow/deny list is NOT empty!");
+//            System.out.println("Size: "+ callAllowDeny.size());
 
-            ((TextView) newRow.findViewById(android.R.id.text1)).setText(getString(R.string.calllist_new));
-            ((TextView) newRow.findViewById(android.R.id.text2)).setText(getString(R.string.calllist_new_sub));
+            for (int i = 0; i < callAllowDeny.size(); i++) {
+                final int[] entryKey = new int[1];
+                entryKey[0] = i;
 
-            // LISTENER for NEW ACTION
-            newRow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
-                    Util.actionFrom = Util.ACTION_FROM.PROFILE;
+                final ViewGroup newRow = (ViewGroup) LayoutInflater.from(this).inflate(
+                        R.layout.condition_single_item, mContainerAction, false);
 
-                    CallAllowDeny.openSelectionDialog();
+                ((TextView) newRow.findViewById(android.R.id.text1)).setText(
+                        (
+                                (callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.CONTACT) ?
+                                "Contact" :
+                                        ((callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.GROUP) ?
+                                        "Group" :
+                                                "Phone number")
+                        )
+                );
+                ((TextView) newRow.findViewById(android.R.id.text2)).setText(
+                        (
+                                (callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.CONTACT) ?
+                                        "Number of contacts: "+ callAllowDeny.get(i).getContactId().size() :
+                                        ((callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.GROUP) ?
+                                                "Number of groups: "+ callAllowDeny.get(i).getGroupId().size() :
+                                                "Phone number: "+ callAllowDeny.get(i).getPhoneNumber())
+                        )
+                );
 
-                }
-            });
+                ((ImageButton) newRow.findViewById(R.id.condition_icon))
+                        .setImageDrawable(getResources().getDrawable(
+                                ((callAllowDeny.get(i).getCallType() == CallAllowDeny.TYPE.ALLOW) ? R.drawable.ic_allow : R.drawable.ic_deny)
+                        ));
 
-            mContainerCallAllowDeny.addView(newRow, 0);
+                newRow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        // set entry key
+                        CallAllowDeny.editingKey = entryKey[0];
+
+                        // run dialog depending of current entry type
+                        if (callAllowDeny.get(entryKey[0]).getEntryType() == CallAllowDeny.ENTRY_TYPE.CONTACT)
+                            CallAllowDeny.showDialogContacts(callAllowDeny.get(entryKey[0]).getCallType());
+
+                        else if (callAllowDeny.get(entryKey[0]).getEntryType() == CallAllowDeny.ENTRY_TYPE.GROUP)
+                            CallAllowDeny.showDialogGroups(callAllowDeny.get(entryKey[0]).getCallType());
+
+                        else
+                            CallAllowDeny.showDialogNumber(callAllowDeny.get(entryKey[0]).getCallType());
+
+                    }
+                });
+
+                newRow.findViewById(R.id.condition_single_delete).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // when clicking recycle bin at condition, remove it from view and
+                        // from array of all conditions
+
+                        int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
+
+                        //EventActivity.getInstance().mContainerCondition.removeViewAt(index);
+                        mContainerCallAllowDeny.removeViewAt(index);
+
+                        callAllowDeny.remove(entryKey[0]);
+
+                    }
+                });
+
+
+                mContainerCallAllowDeny.addView(newRow, 0);
+
+
+            }
 
 
         }
+
+
+        /**
+         * create Add new allow/deny button
+         */
+        // addnew
+        final ViewGroup newRow = (ViewGroup) LayoutInflater.from(this).inflate(
+                R.layout.condition_action_header, mContainerAction, false);
+
+        ((TextView) newRow.findViewById(android.R.id.text1)).setText(getString(R.string.calllist_new));
+        ((TextView) newRow.findViewById(android.R.id.text2)).setText(getString(R.string.calllist_new_sub));
+
+        // LISTENER for NEW ACTION
+        newRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
+                Util.actionFrom = Util.ACTION_FROM.PROFILE;
+
+                CallAllowDeny.openSelectionDialog();
+
+            }
+        });
+
+        mContainerCallAllowDeny.addView(newRow);
+
+
 
     }
 
@@ -468,7 +580,7 @@ public class ProfileActivity extends Activity {
         // CREATING SINGLE profile!!!
         else {
 
-                actions.remove(actions.indexOf(entry));
+            actions.remove(actions.indexOf(entry));
 
         }
     }
