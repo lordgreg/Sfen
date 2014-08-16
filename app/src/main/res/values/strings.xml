@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">Sfen</string>
     <string name="title_activity_main">Sfen</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="add_new_event">Add new event above to get started!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -279,17 +278,17 @@ Are you sure?</string>
     <string name="delayed_event">Delayed Event?</string>
     <string name="profile_name">Profile name</string>
     <string name="edit_profile_icon">Edit Item</string>
-    <string name="sound_and_display"><![CDATA[Sound &amp; Display]]></string>
+    <string name="sound_and_display"><![CDATA[Sound & Display]]></string>
     <string name="vibrate_when_ringing">Vibrate when ringing</string>
     <string name="ringtone">Ringtone</string>
     <string name="ringtone_description">File selected</string>
     <string name="notification_sound">Notification sound</string>
     <string name="notification_sound_description">File selected</string>
-    <string name="call_alow_and_deny"><![CDATA[Call allow &amp; deny]]></string>
+    <string name="call_alow_and_deny"><![CDATA[Call allow & deny]]></string>
     <string name="new_condition">New condition</string>
     <string name="new_condition_description">Click here to add new condition...</string>
     <string name="notification">Notification</string>
-    <string name="music_video_games_and_other_media"><![CDATA[Music, video, games &amp; other media]]></string>
+    <string name="music_video_games_and_other_media"><![CDATA[Music, video, games & other media]]></string>
     <string name="alarm">Alarm</string>
     <string name="radius">Radius:</string>
     <string name="from">From</string>

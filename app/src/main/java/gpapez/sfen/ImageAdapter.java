@@ -71,7 +71,9 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.ic_home,
             R.drawable.ic_work,
             R.drawable.ic_allow,
-            R.drawable.ic_deny
+            R.drawable.ic_deny,
+            R.drawable.ic_day,
+            R.drawable.ic_night
 
     };
 }

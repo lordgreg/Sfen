@@ -123,7 +123,6 @@ public class BackgroundService extends Service {
         sInstance = this;
     }
 
-
     /**
      * onStartCommand (INIT!)
      *
@@ -170,11 +169,11 @@ public class BackgroundService extends Service {
 
             // first time run, set events to not running
             else {
-                for (int i = 0; i < events.size(); i++) {
-                    //System.out.println("set event as not running.");
-                    events.get(i).setRunning(false);
-                    events.get(i).setHasRun(false);
-                }
+//                for (int i = 0; i < events.size(); i++) {
+//                    //System.out.println("set event as not running.");
+//                    events.get(i).setRunning(false);
+//                    events.get(i).setHasRun(false);
+//                }
 
             }
 
@@ -391,10 +390,10 @@ public class BackgroundService extends Service {
                      * if we have intent extra from alarm trigger as FORCE_RUN, set all events
                      * to force run!
                      */
-                    if (intent.getAction().contains("ALARM_TRIGGER") &&
+                    if (intent.getAction().equals(getClass().getPackage().getName() + ".ALARM_TRIGGER") &&
                             intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
                             intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("FORCE_RUN")) {
-                        System.out.println("FORCE RUNNING EVENTS AFTER END_TIME");
+                        Log.d("sfen", "Force running events after ending time-range...");
                         e.setForceRun(true);
                         e.setRunning(false);
                     }
@@ -441,16 +440,23 @@ public class BackgroundService extends Service {
 
                 //runEvent(context, intent, eventToRun);
                 startSingleEvent(eventToRun);
-                Log.d("sfen", "Running next actions:");
 
-                for (DialogOptions single : eventToRun.getActions()) {
-
-                    Log.d("sfen", "> "+ single.getOptionType());
-
+                if (eventToRun.getProfile() != null) {
+                    Log.d("sfen", "Running profile: "+ eventToRun.getProfile().getName());
                 }
 
-                eventToRun = null;
+                if (eventToRun.getActions().size() > 0) {
+                    Log.d("sfen", "Running next actions:");
 
+                    for (DialogOptions single : eventToRun.getActions()) {
+
+                        Log.d("sfen", "> " + single.getOptionType());
+
+                    }
+
+                    eventToRun = null;
+
+                }
             }
 
         }
