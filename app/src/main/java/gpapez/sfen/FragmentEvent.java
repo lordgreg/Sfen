@@ -73,17 +73,7 @@ public class FragmentEvent extends Fragment {
          *
          * if bgService is already running, don't touch anything!
          */
-//        if (Main.getInstance().bgService == null) {
-//            for (int i = 0; i < BackgroundService.getInstance().events.size(); i++) {
-//                // TODO: call DisableAllEvents() for first run.
-//                //BackgroundService.getInstance().events.get(i).setRunning(false);
-//                //BackgroundService.getInstance().events.get(i).setHasRun(false);
-//            }
-//        }
-//        else {
-//            //Main.getInstance().refreshEventsView();
-            refreshEventsView();
-//        }
+          refreshEventsView();
 
 
         /**
@@ -142,8 +132,8 @@ public class FragmentEvent extends Fragment {
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(e.getName());
             ((TextView) newRow.findViewById(android.R.id.text2)).setText(
-                    (e.isRunning()) ? "Active" :
-                            ((e.isEnabled() ? "Enabled" : "Disabled"))
+                    (e.isRunning()) ? getString(R.string.active) :
+                            ((e.isEnabled() ? sInstance.getString(R.string.enabled) : sInstance.getString(R.string.disabled)))
             );
 
             // change color depending on if event is running
@@ -252,7 +242,9 @@ public class FragmentEvent extends Fragment {
      */
     private void onLongClickSingleEvent(final Event e, final ViewGroup newRow) {
         // array of options
-        final String[] sOptions = {"Edit", ((e.isEnabled()) ? "Disable" : "Enable"), "Delete"};
+        final String[] sOptions = {sInstance.getString(R.string.edit), ((e.isEnabled()) ? 
+                sInstance.getString(R.string.disable) : sInstance.getString(R.string.enable)), 
+                sInstance.getString(R.string.delete)};
         // show dialog with more options for single event
         final AlertDialog.Builder builder = new AlertDialog.Builder(Main.getInstance());
         builder

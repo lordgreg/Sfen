@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="From"
+        android:text="@string/from"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView" />
 
@@ -22,7 +22,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="To"
+        android:text="@string/to"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView2" />
 

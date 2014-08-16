@@ -21,12 +21,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="New condition" />
+            android:text="@string/new_condition" />
 
         <TextView android:id="@android:id/text2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Click here to add new condition..." />
+            android:text="@string/new_condition_description" />
 
     </LinearLayout>
 

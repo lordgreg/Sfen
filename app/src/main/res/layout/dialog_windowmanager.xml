@@ -30,6 +30,6 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Ok"
+        android:text="@string/ok"
         android:id="@+id/wm_button" />
 </LinearLayout>

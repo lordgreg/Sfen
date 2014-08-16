@@ -95,7 +95,7 @@ public class FragmentProfile extends Fragment {
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(p.getName());
             ((TextView) newRow.findViewById(android.R.id.text2)).setText(
-                    (p.isActive()) ? "Active" : "Ready");
+                    (p.isActive()) ? sInstance.getString(R.string.active) : sInstance.getString(R.string.ready));
 
             ((ImageButton) newRow.findViewById(R.id.single_edit))
                     .setImageDrawable(getResources().getDrawable(p.getIcon()));
@@ -193,7 +193,10 @@ public class FragmentProfile extends Fragment {
      */
     private void onLongClickSingleProfile(final Profile p, final ViewGroup newRow) {
         // array of options
-        final String[] sOptions = {"Activate", "Edit", "Delete"};
+        final String[] sOptions = {
+                sInstance.getString(R.string.activate),
+                sInstance.getString(R.string.edit),
+                sInstance.getString(R.string.delete)};
         // show dialog with more options for single event
         final AlertDialog.Builder builder = new AlertDialog.Builder(Main.getInstance());
         builder
@@ -259,7 +262,7 @@ public class FragmentProfile extends Fragment {
                     }
                 })
 
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(sInstance.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();

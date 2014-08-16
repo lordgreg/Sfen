@@ -57,9 +57,9 @@ public class AndroidLocation extends Activity implements LocationListener {
 //        }
 
         if (provider == null) {
-            errorString = "Location setting has to be enabled in System Settings.";
+            errorString = getString(R.string.location_setting_enabled);
             isError = true;
-            Log.e("sfen", "Location setting has to be enabled for location manager to work.");
+            Log.e("sfen", getString(R.string.location_setting_enabled));
         }
         else {
             //provider = locationManager.getBestProvider(criteria, false);
@@ -71,7 +71,7 @@ public class AndroidLocation extends Activity implements LocationListener {
                 //System.out.println("Provider " + provider + " has been selected.");
                 onLocationChanged(location);
             } else {
-                errorString = "Location not available";
+                errorString = getString(R.string.location_not_available);
                 isError = true;
                 Log.e("sfen", errorString);
 
@@ -104,20 +104,18 @@ public class AndroidLocation extends Activity implements LocationListener {
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Toast.makeText(context, "Enabled new provider " + provider,
+        Toast.makeText(context, getString(R.string.location_enabled_new_provider, provider),
                 Toast.LENGTH_SHORT).show();
 
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        Toast.makeText(context, "Disabled provider " + provider,
+        Toast.makeText(context, getString(R.string.location_disabled_provider, provider),
                 Toast.LENGTH_SHORT).show();
     }
 

@@ -70,19 +70,8 @@ public class ImageAdapter extends BaseAdapter {
             R.drawable.ic_whitelist,
             R.drawable.ic_home,
             R.drawable.ic_work,
-            /*
-            android.R.drawable.ic_menu_call,
-            android.R.drawable.ic_menu_camera,
-            android.R.drawable.ic_menu_compass,
-            android.R.drawable.ic_menu_day,
-            android.R.drawable.ic_menu_delete,
-            android.R.drawable.ic_menu_directions,
-            android.R.drawable.ic_menu_month,
-            android.R.drawable.ic_menu_agenda,
-            android.R.drawable.presence_online,
-            android.R.drawable.presence_away,
-            android.R.drawable.presence_busy,
-            android.R.drawable.presence_invisible
-*/
+            R.drawable.ic_allow,
+            R.drawable.ic_deny
+
     };
 }

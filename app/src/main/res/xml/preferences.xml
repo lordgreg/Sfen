@@ -1,37 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="General" >
+    <PreferenceCategory android:title="@string/general" >
         <CheckBoxPreference
-            android:title="Enable Root"
+            android:title="@string/enable_root"
             android:defaultValue="false"
-            android:summary="Some options in applications will only work if Root is enabled"
+            android:summary="@string/root_summary"
             android:key="rootEnable"/>
 
         <CheckBoxPreference
-            android:title="Start at boot"
+            android:title="@string/start_at_boot"
             android:defaultValue="false"
-            android:summary="Sfen will launch itself when device boots up"
+            android:summary="@string/start_at_boot_summary"
             android:key="launchAtBoot" />
-
-        <!--android:numeric="integer"-->
-        <!--<EditTextPreference-->
-            <!--android:title="Deep Sleep Wakelock"-->
-            <!--android:defaultValue="15"-->
-            <!--android:numeric="integer"-->
-            <!--android:summary="Sfen will wake up every %s minutes to check for Event conditions"-->
-            <!--android:key="wakelockTimer" />-->
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Advanced">
+    <PreferenceCategory android:title="@string/advanced">
         <Preference
-            android:title="Record Cell Tower ID's"
-            android:summary="Record and store cell tower ID's for specific time"
+            android:title="@string/record_cell_tower_ids"
+            android:summary="@string/record_cell_tower_ids_summary"
             android:key="openCellTowerRecordDialog" />
 
-        <Preference android:title="Cell Towers History"
-            android:summary="View history of saved cell tower ID's"
+        <Preference android:title="@string/cell_towers_history"
+            android:summary="@string/cell_towers_history_summary"
             android:key="openCellTowersHistoryDialog" />
 
 

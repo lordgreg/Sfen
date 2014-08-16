@@ -105,7 +105,7 @@ public class ReceiverPhoneState extends PhoneStateListener {
              */
             case TelephonyManager.CALL_STATE_RINGING:
 
-                System.out.println("call from number "+ incomingNumber);
+                //System.out.println("call from number "+ incomingNumber);
                 // 031123456
 
                 /**

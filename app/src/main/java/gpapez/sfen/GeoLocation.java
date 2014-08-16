@@ -226,9 +226,8 @@ public class GeoLocation implements
 
         // location access unavailable?
         else if (statusCode == LocationStatusCodes.GEOFENCE_NOT_AVAILABLE) {
-            Util.showMessageBox("Geofence service is not available now. Typically this is because " +
-                    "the user turned off location access in settings > location access ("+
-                    statusCode +")", true);
+            Util.showMessageBox(mContext.getString(R.string.geofence_service_not_available, statusCode),
+                    true);
 
         }
 

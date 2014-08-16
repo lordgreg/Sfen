@@ -20,8 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,11 +75,11 @@ public class Main extends Activity {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // for each of the sections in the app, add a tab to the action bar.
-        actionBar.addTab(actionBar.newTab().setText("Events")
-                .setTag("Events")
+        actionBar.addTab(actionBar.newTab().setText(getString(R.string.events))
+                .setTag(getString(R.string.events))
                 .setTabListener(new MainTabListener(fragmentEvent)));
-        actionBar.addTab(actionBar.newTab().setText("Profiles")
-                .setTag("Profiles")
+        actionBar.addTab(actionBar.newTab().setText(getString(R.string.profiles))
+                .setTag(getString(R.string.profiles))
                 .setTabListener(new MainTabListener(fragmentProfile)));
 //        actionBar.addTab(actionBar.newTab().setText("Whitelists")
 //                .setTabListener(this));
@@ -99,7 +97,7 @@ public class Main extends Activity {
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             //System.out.println("service: "+ service.service.getClassName());
             if ((getClass().getPackage().getName() +".BackgroundService").equals(service.service.getClassName())) {
-                System.out.println("our background service is running.");
+                //System.out.println("our background service is running.");
 
                 bgService = BackgroundService.getInstance().sIntent;
 
@@ -182,11 +180,6 @@ public class Main extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.event_add_new) {
-//            TODO: if no profiles, show messagebox and return false;
-//            if (BackgroundService.getInstance().profiles.size() == 0) {
-//                Util.showMessageBox("You have to create at least one profile first!", true);
-//                return false;
-//            }
 
             startActivity(new Intent(this, EventActivity.class));
 
@@ -204,10 +197,10 @@ public class Main extends Activity {
             // quitting? so soon? ask nicely, windows mode, if person is sure!
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder
-                    .setMessage("Service will be stopped and Events won't be triggered.\n\nAre you sure?")
+                    .setMessage(getString(R.string.service_will_be_stopped))
                     .setIcon(getResources().getDrawable(R.drawable.ic_launcher))
                     .setTitle(getString(R.string.error))
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             if (bgService != null) {
@@ -219,7 +212,7 @@ public class Main extends Activity {
                         }
                     })
 
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
@@ -271,7 +264,7 @@ public class Main extends Activity {
             ClipData clip = ClipData.newPlainText("Sfen", exportString);
             clipboard.setPrimaryClip(clip);
 
-            Util.showMessageBox("Events and Profiles copied to clipboard!", true);
+            Util.showMessageBox(getString(R.string.copied_to_clipboard), true);
 
         }
 
@@ -301,14 +294,14 @@ public class Main extends Activity {
             builder
                     .setView(newView)
                     .setIcon(R.drawable.ic_launcher)
-                    .setTitle("Import string")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setTitle(getString(R.string.import_string))
+                    .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
 
                             if (input.length() == 0) {
-                                Util.showMessageBox("Nothing to import!", true);
+                                Util.showMessageBox(getString(R.string.nothing_to_import), true);
                                 return;
                             }
 
@@ -432,7 +425,7 @@ public class Main extends Activity {
                         }
                     })
                             //.set
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // just close the dialog if we didn't select the days

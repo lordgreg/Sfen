@@ -15,8 +15,9 @@ import java.util.HashMap;
  */
 public class CallAllowDeny {
 
-    protected enum TYPE {ALLOW, DENY};
-    protected enum ENTRY_TYPE {CONTACT, GROUP, NUMBER};
+    protected enum TYPE {ALLOW, DENY}
+
+    protected enum ENTRY_TYPE {CONTACT, GROUP, NUMBER}
 
     private TYPE callType;
     private ENTRY_TYPE entryType;
@@ -95,16 +96,16 @@ public class CallAllowDeny {
         final AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.getInstance());
 
         String[] options = new String[]{
-                "Allow Single contact",
-                "Deny Single contact",
-                "Allow Group",
-                "Deny Group",
-                "Allow Phone number",
-                "Deny Phone number"
+                ProfileActivity.getInstance().getString(R.string.allow_single_contact),
+                ProfileActivity.getInstance().getString(R.string.deny_single_contact),
+                ProfileActivity.getInstance().getString(R.string.allow_group),
+                ProfileActivity.getInstance().getString(R.string.deny_group),
+                ProfileActivity.getInstance().getString(R.string.allow_phone_number),
+                ProfileActivity.getInstance().getString(R.string.deny_phone_number)
         };
 
         builder
-                .setTitle("Select option")
+                .setTitle(ProfileActivity.getInstance().getString(R.string.select_option))
                 .setIcon(R.drawable.ic_launcher)
                 .setSingleChoiceItems(options, -1, new DialogInterface.OnClickListener() {
                     @Override
@@ -114,7 +115,7 @@ public class CallAllowDeny {
                         openSpecifiedSelection(i);
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(ProfileActivity.getInstance().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
@@ -241,7 +242,7 @@ public class CallAllowDeny {
 
         builder
                 .setIcon(R.drawable.ic_whitelist)
-                .setTitle("Single contacts")
+                .setTitle(ProfileActivity.getInstance().getString(R.string.single_contacts))
                 .setMultiChoiceItems(contactsString, checkedContacts, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i, boolean checked) {
@@ -253,7 +254,7 @@ public class CallAllowDeny {
 //                        System.out.println("Touched "+ contactsString[i]);
                     }
                 })
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(ProfileActivity.getInstance().getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -263,8 +264,8 @@ public class CallAllowDeny {
                          * selected contacts?
                          */
                         if (selectedContacts.size() == 0) {
-                            Util.showMessageBox("Select contact(s) to continue", false);
-                            return ;
+                            Util.showMessageBox(ProfileActivity.getInstance().getString(R.string.select_contacts_to_continue), false);
+                            return;
                         }
 
                         /**
@@ -301,7 +302,6 @@ public class CallAllowDeny {
                             ProfileActivity.getInstance().callAllowDeny.remove(editKey[0]);
 
 
-
                         /**
                          * add them to list in profileactivity
                          */
@@ -316,7 +316,7 @@ public class CallAllowDeny {
 
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(ProfileActivity.getInstance().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
@@ -429,7 +429,7 @@ public class CallAllowDeny {
 
         builder
                 .setIcon(R.drawable.ic_whitelist)
-                .setTitle("Groups")
+                .setTitle(ProfileActivity.getInstance().getString(R.string.groups))
                 .setMultiChoiceItems(groupsString, checkedGroups, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i, boolean checked) {
@@ -441,7 +441,7 @@ public class CallAllowDeny {
 //                        System.out.println("Touched "+ contactsString[i]);
                     }
                 })
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(ProfileActivity.getInstance().getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -451,7 +451,7 @@ public class CallAllowDeny {
                          * selected groups?
                          */
                         if (selectedGroups.size() == 0) {
-                            Util.showMessageBox("Select group(s) to continue", false);
+                            Util.showMessageBox(ProfileActivity.getInstance().getString(R.string.select_groups_to_continue), false);
                             return ;
                         }
 
@@ -504,7 +504,7 @@ public class CallAllowDeny {
 
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(ProfileActivity.getInstance().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
@@ -545,7 +545,7 @@ public class CallAllowDeny {
          */
         final EditText input = new EditText(ProfileActivity.getInstance());
         final TextView info = new TextView(ProfileActivity.getInstance());
-        info.setText("Enter (part of) phone number");
+        info.setText(ProfileActivity.getInstance().getString(R.string.enter_phone_number));
         info.setPadding(10, 10, 10, 10);
 
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -567,16 +567,16 @@ public class CallAllowDeny {
 
         builder
                 .setIcon(R.drawable.ic_whitelist)
-                .setTitle("Phone number")
+                .setTitle(ProfileActivity.getInstance().getString(R.string.phone_number))
                 .setView(newView)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(ProfileActivity.getInstance().getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
 
                         if (input.getText().length() < 3) {
 
-                            Util.showMessageBox("Phone number must contain more than 3 numbers!", true);
+                            Util.showMessageBox(ProfileActivity.getInstance().getString(R.string.phone_number_must_contain), true);
                             return;
 
                         }
@@ -613,7 +613,7 @@ public class CallAllowDeny {
 
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(ProfileActivity.getInstance().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();

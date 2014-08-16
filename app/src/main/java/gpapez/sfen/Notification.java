@@ -148,7 +148,7 @@ public class Notification {
                     .setContentText(description)
                     .setTicker(title)
                     .setSmallIcon(icon)
-                    .addAction(android.R.drawable.ic_menu_directions, "Open Sfen", getPendingIntent())
+                    .addAction(android.R.drawable.ic_menu_directions, mService.getString(R.string.open_sfen), getPendingIntent())
                     .setContentIntent(getPendingIntent())
 
                     ;

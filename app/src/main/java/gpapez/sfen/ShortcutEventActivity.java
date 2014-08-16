@@ -50,7 +50,7 @@ public class ShortcutEventActivity extends Activity {
 
             else {
 
-                Util.showMessageBox("Event does not exist. Delete shortcut and create new one!",
+                Util.showMessageBox(getString(R.string.event_does_not_exist),
                         false);
 
             }
@@ -73,7 +73,7 @@ public class ShortcutEventActivity extends Activity {
 
         if (mPreferences == null) {
 
-            Util.showMessageBox("Cannot retrieve preferences...", false);
+            Util.showMessageBox(getString(R.string.cannot_retrieve_preferences), false);
             finish();
             return;
 
@@ -85,7 +85,7 @@ public class ShortcutEventActivity extends Activity {
 
         if (events == null) {
 
-            Util.showMessageBox("Sfen doesn't have any events stored.", false);
+            Util.showMessageBox(getString(R.string.no_events_stored), false);
             finish();
             return;
 
@@ -139,7 +139,7 @@ public class ShortcutEventActivity extends Activity {
 
                     }
                 })
-                .setTitle("Select event");
+                .setTitle(getString(R.string.select_event));
 
 
         final AlertDialog dialog = builder.create();

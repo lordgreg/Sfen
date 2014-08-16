@@ -54,7 +54,7 @@ public class ShortcutProfileActivity extends Activity {
 
             else {
 
-                Util.showMessageBox("Profile does not exist. Delete shortcut and create new one!",
+                Util.showMessageBox(getString(R.string.profile_does_not_exist),
                         false);
 
             }
@@ -77,7 +77,7 @@ public class ShortcutProfileActivity extends Activity {
 
         if (mPreferences == null) {
 
-            Util.showMessageBox("Cannot retrieve preferences...", false);
+            Util.showMessageBox(getString(R.string.cannot_retrieve_preferences), false);
             finish();
             return;
 
@@ -89,7 +89,7 @@ public class ShortcutProfileActivity extends Activity {
 
         if (profiles == null) {
 
-            Util.showMessageBox("Sfen doesn't have any profiles stored.", false);
+            Util.showMessageBox(getString(R.string.no_profiles_stored), false);
             finish();
             return;
 
@@ -143,7 +143,7 @@ public class ShortcutProfileActivity extends Activity {
 
                     }
                 })
-                .setTitle("Select profile");
+                .setTitle(getString(R.string.select_profile));
 
 
         final AlertDialog dialog = builder.create();

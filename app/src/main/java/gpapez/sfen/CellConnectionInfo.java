@@ -26,11 +26,14 @@ public class CellConnectionInfo {
     private String cellType;
     private boolean isError;
     private String errorString;
+    private Activity sActivity;
     //private Object mCell;
     //private Object cell;
 
     public CellConnectionInfo(Activity activity) {
         try {
+            sActivity = activity;
+
             telephonyManager = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
 
             // cell code ID using getAllCellInfo can be used on >=4.1 of
@@ -63,14 +66,14 @@ public class CellConnectionInfo {
                     setCellType(cell);
                 } else {
                     isError = true;
-                    errorString = "No mobile connection.";
+                    errorString = activity.getString(R.string.no_mobile_connection);
                     Log.e("sfen", errorString);
                 }
             }
 
         } catch (Exception e) {
             isError = true;
-            errorString = "No mobile connection.";
+            errorString = activity.getString(R.string.no_mobile_connection);
             Log.e("sfen", errorString +"("+ e.toString() +")");
             e.printStackTrace();
         }
@@ -121,7 +124,7 @@ public class CellConnectionInfo {
                     cellType = "";
                     cellId = "NULL";
                     isError = true;
-                    errorString = "Unknown cell type (" + cellType + ")!";
+                    errorString = sActivity.getString(R.string.unknown_cell_type, cellType);
                     Log.e("sfen", errorString);
                 }
             }
@@ -142,7 +145,7 @@ public class CellConnectionInfo {
             cellType = "";
             cellId = "NULL";
             isError = true;
-            errorString = "Unknown cell type (" + cellType + ")!";
+            errorString = sActivity.getString(R.string.unknown_cell_type, cellType);
             Log.e("sfen", errorString);
         }
     }

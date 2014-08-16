@@ -22,7 +22,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Main settings"
+        android:text="@string/main_settings"
         android:id="@+id/textView"
         android:autoText="false"
         style="?android:attr/listSeparatorTextViewStyle" />
@@ -41,7 +41,7 @@
 
     <TextView
         style="@android:style/Widget.ListView"
-        android:text="Profile name"
+        android:text="@string/profile_name"
         android:id="@+id/profile_name"
         android:onClick="onClickProfileName"
         android:clickable="true"
@@ -60,7 +60,7 @@
             android:onClick="onClickProfileIcon"
             android:src="@drawable/ic_notification"
             android:background="?android:selectableItemBackground"
-            android:contentDescription="Edit Item"
+            android:contentDescription="@string/edit_profile_icon"
             android:adjustViewBounds="false"
             android:cropToPadding="false" />
 
@@ -70,13 +70,13 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Sound &amp; Display"
+        android:text="@string/sound_and_display"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView2" />
 
     <TextView
         style="@android:style/Widget.ListView"
-        android:text="Volumes"
+        android:text="@string/volumes"
         android:id="@+id/profile_volumes"
         android:onClick="onClickVolumes"
         android:clickable="true"
@@ -90,7 +90,7 @@
         android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Vibrate when ringing"
+        android:text="@string/vibrate_when_ringing"
         android:onClick="onClickProfileVibrate"
         android:padding="6dip"
         android:layout_margin="5dp"
@@ -114,7 +114,7 @@
             android:singleLine="true"
             android:onClick="onClickProfileRingtone"
             android:textAppearance="?android:attr/textAppearance"
-            android:text="Ringtone" />
+            android:text="@string/ringtone" />
 
         <TextView android:id="@+id/ringtone_name"
             android:layout_width="match_parent"
@@ -122,7 +122,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:singleLine="true"
             android:onClick="onClickProfileRingtone"
-            android:text="File selected" />
+            android:text="@string/ringtone_description" />
     </LinearLayout>
 
 
@@ -143,7 +143,7 @@
             android:singleLine="true"
             android:onClick="onClickProfileNotificationSound"
             android:textAppearance="?android:attr/textAppearance"
-            android:text="Notification sound" />
+            android:text="@string/notification_sound" />
 
         <TextView android:id="@+id/notification_name"
             android:layout_width="match_parent"
@@ -151,13 +151,13 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:singleLine="true"
             android:onClick="onClickProfileNotificationSound"
-            android:text="File selected" />
+            android:text="@string/notification_sound_description" />
     </LinearLayout>
 
 
     <TextView
         style="@android:style/Widget.ListView"
-        android:text="Brightness"
+        android:text="@string/brightness"
         android:id="@+id/profile_brightness"
         android:onClick="onClickProfileBrightness"
         android:clickable="true"
@@ -187,7 +187,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Call allow &amp; deny"
+        android:text="@string/call_alow_and_deny"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView4" />
 
@@ -212,7 +212,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Actions"
+        android:text="@string/actions"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView3" />
 

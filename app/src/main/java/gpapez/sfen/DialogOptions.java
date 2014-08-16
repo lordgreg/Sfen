@@ -17,27 +17,27 @@ public class DialogOptions {
 
     // list of possible Conditions in Options
     static final ArrayList<DialogOptions> optConditions = new ArrayList<DialogOptions>() {{
-        add(new DialogOptions("Inside Location", "Inside location", R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
-        add(new DialogOptions("Outside Location", "Outside location", R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
-        add(new DialogOptions("Time Range", "Time range", R.drawable.ic_time, DialogOptions.type.TIMERANGE));
-        add(new DialogOptions("Specific Time", "Specific Time", R.drawable.ic_time, DialogOptions.type.TIME));
-        add(new DialogOptions("Days", "Day(s) of week", R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
-        add(new DialogOptions("Connected to Wifi", "Connected to Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
-        add(new DialogOptions("Disconnected from Wifi", "Disconnected from Wifi", R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
-        add(new DialogOptions("Screen On", "If screen is on", R.drawable.ic_screen, DialogOptions.type.SCREEN_ON));
-        add(new DialogOptions("Screen Off", "If screen is off", R.drawable.ic_screen, DialogOptions.type.SCREEN_OFF));
-        add(new DialogOptions("Connected to Cells", "When connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_IN));
-        add(new DialogOptions("Not connected to Cells", "When not connected to specific Cell ID's", R.drawable.ic_cell, DialogOptions.type.CELL_OUT));
-        add(new DialogOptions("Event running", "Another Event currently running", R.drawable.ic_launcher, DialogOptions.type.EVENT_RUNNING));
-        add(new DialogOptions("Event not running", "Another Event currently not running", R.drawable.ic_launcher, DialogOptions.type.EVENT_NOTRUNNING));
-        add(new DialogOptions("GPS enabled", "If GPS is enabled", R.drawable.ic_map, DialogOptions.type.GPS_ENABLED));
-        add(new DialogOptions("GPS disabled", "If GPS is disabled", R.drawable.ic_map, DialogOptions.type.GPS_DISABLED));
-        add(new DialogOptions("Battery level", "Selected battery level", R.drawable.ic_battery, DialogOptions.type.BATTERY_LEVEL));
-        add(new DialogOptions("Battery status", "Status of battery", R.drawable.ic_battery, DialogOptions.type.BATTERY_STATUS));
-        add(new DialogOptions("Bluetooth On", "If bluetooth is on", R.drawable.ic_bluetooth, type.BLUETOOTH_ON));
-        add(new DialogOptions("Bluetooth Off", "If bluetooth is off", R.drawable.ic_bluetooth, type.BLUETOOTH_OFF));
-        add(new DialogOptions("Headset connected", "If Headset is connected", R.drawable.ic_headset, type.HEADSET_CONNECTED));
-        add(new DialogOptions("Headset disconnected", "If Headset is disconnected", R.drawable.ic_headset, type.HEADSET_DISCONNECTED));
+        add(new DialogOptions(Main.getInstance().getString(R.string.inside_location), Main.getInstance().getString(R.string.inside_location_description), R.drawable.ic_map, DialogOptions.type.LOCATION_ENTER));
+        add(new DialogOptions(Main.getInstance().getString(R.string.outside_location), Main.getInstance().getString(R.string.outside_location_description), R.drawable.ic_map, DialogOptions.type.LOCATION_LEAVE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.time_range), Main.getInstance().getString(R.string.time_range_description), R.drawable.ic_time, DialogOptions.type.TIMERANGE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.specific_time), Main.getInstance().getString(R.string.specific_time_description), R.drawable.ic_time, DialogOptions.type.TIME));
+        add(new DialogOptions(Main.getInstance().getString(R.string.days), Main.getInstance().getString(R.string.days_of_week_description), R.drawable.ic_date, DialogOptions.type.DAYSOFWEEK));
+        add(new DialogOptions(Main.getInstance().getString(R.string.connected_to_wifi), Main.getInstance().getString(R.string.connected_to_wifi_description), R.drawable.ic_wifi, DialogOptions.type.WIFI_CONNECT));
+        add(new DialogOptions(Main.getInstance().getString(R.string.disconnected_from_wifi), Main.getInstance().getString(R.string.disconnected_from_wifi_description), R.drawable.ic_wifi, DialogOptions.type.WIFI_DISCONNECT));
+        add(new DialogOptions(Main.getInstance().getString(R.string.screen_on), Main.getInstance().getString(R.string.screen_on_description), R.drawable.ic_screen, DialogOptions.type.SCREEN_ON));
+        add(new DialogOptions(Main.getInstance().getString(R.string.screen_off), Main.getInstance().getString(R.string.screen_off_description), R.drawable.ic_screen, DialogOptions.type.SCREEN_OFF));
+        add(new DialogOptions(Main.getInstance().getString(R.string.connected_to_cells), Main.getInstance().getString(R.string.connected_to_cells_description), R.drawable.ic_cell, DialogOptions.type.CELL_IN));
+        add(new DialogOptions(Main.getInstance().getString(R.string.not_connected_to_cells), Main.getInstance().getString(R.string.not_connected_to_cells_description), R.drawable.ic_cell, DialogOptions.type.CELL_OUT));
+        add(new DialogOptions(Main.getInstance().getString(R.string.event_running), Main.getInstance().getString(R.string.event_running_description), R.drawable.ic_launcher, DialogOptions.type.EVENT_RUNNING));
+        add(new DialogOptions(Main.getInstance().getString(R.string.event_not_running), Main.getInstance().getString(R.string.event_not_running_description), R.drawable.ic_launcher, DialogOptions.type.EVENT_NOTRUNNING));
+        add(new DialogOptions(Main.getInstance().getString(R.string.gps_enabled), Main.getInstance().getString(R.string.gps_enabled_description), R.drawable.ic_map, DialogOptions.type.GPS_ENABLED));
+        add(new DialogOptions(Main.getInstance().getString(R.string.gps_disabled), Main.getInstance().getString(R.string.gps_disabled_description), R.drawable.ic_map, DialogOptions.type.GPS_DISABLED));
+        add(new DialogOptions(Main.getInstance().getString(R.string.battery_level), Main.getInstance().getString(R.string.battery_level_description), R.drawable.ic_battery, DialogOptions.type.BATTERY_LEVEL));
+        add(new DialogOptions(Main.getInstance().getString(R.string.battery_status), Main.getInstance().getString(R.string.battery_status_description), R.drawable.ic_battery, DialogOptions.type.BATTERY_STATUS));
+        add(new DialogOptions(Main.getInstance().getString(R.string.bluetooth_on), Main.getInstance().getString(R.string.bluetooth_on_description), R.drawable.ic_bluetooth, type.BLUETOOTH_ON));
+        add(new DialogOptions(Main.getInstance().getString(R.string.bluetooth_off), Main.getInstance().getString(R.string.bluetooth_off_description), R.drawable.ic_bluetooth, type.BLUETOOTH_OFF));
+        add(new DialogOptions(Main.getInstance().getString(R.string.headset_connected), Main.getInstance().getString(R.string.headset_connected_description), R.drawable.ic_headset, type.HEADSET_CONNECTED));
+        add(new DialogOptions(Main.getInstance().getString(R.string.headset_disconnected), Main.getInstance().getString(R.string.headset_disconnected_description), R.drawable.ic_headset, type.HEADSET_DISCONNECTED));
 
 
     }};
@@ -48,17 +48,17 @@ public class DialogOptions {
     //context.getResources().getDrawable(R.drawable.ic_launcher)
     static final ArrayList<DialogOptions> optActions = new ArrayList<DialogOptions>() {{
         //add(new DialogOptions("Show notification", "Will show notification in notification area", android.R.drawable.ic_dialog_info, DialogOptions.type.ACT_NOTIFICATION));
-        add(new DialogOptions("Show notification", "Will show notification in notification area", R.drawable.ic_notification, DialogOptions.type.ACT_NOTIFICATION));
-        add(new DialogOptions("Enable Wifi", "Enable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
-        add(new DialogOptions("Disable Wifi", "Disable Wifi when conditions met", R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
-        add(new DialogOptions("Enable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
-        add(new DialogOptions("Disable Mobile Data", "Available for rooted phones only", R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
-        add(new DialogOptions("Vibrate", "Vibrate phone when triggered", R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
-        add(new DialogOptions("Play Sfen", "Will make a sheep sound", R.drawable.ic_sound, DialogOptions.type.ACT_PLAYSFEN));
-        add(new DialogOptions("Dialog with text", "Will show dialog with text", R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
-        add(new DialogOptions("Open application", "Will open specified application", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
-        add(new DialogOptions("Open shortcut", "Will open specified shortcut", R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
-        add(new DialogOptions("Run Event", "Will run specified event", R.drawable.ic_event, DialogOptions.type.ACT_RUNEVENT));
+        add(new DialogOptions(Main.getInstance().getString(R.string.show_notification), Main.getInstance().getString(R.string.show_notification_description), R.drawable.ic_notification, DialogOptions.type.ACT_NOTIFICATION));
+        add(new DialogOptions(Main.getInstance().getString(R.string.enable_wifi), Main.getInstance().getString(R.string.enable_wifi_description), R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIENABLE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.disable_wifi), Main.getInstance().getString(R.string.disable_wifi_description), R.drawable.ic_wifi, DialogOptions.type.ACT_WIFIDISABLE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.enable_mobile_data), Main.getInstance().getString(R.string.enable_mobile_data_description), R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEENABLE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.disable_mobile_data), Main.getInstance().getString(R.string.disable_mobile_data_description), R.drawable.ic_mobiledata, DialogOptions.type.ACT_MOBILEDISABLE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.vibrate), Main.getInstance().getString(R.string.vibrate_description), R.drawable.ic_launcher, DialogOptions.type.ACT_VIBRATE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.play_sfen), Main.getInstance().getString(R.string.play_sfen_description), R.drawable.ic_sound, DialogOptions.type.ACT_PLAYSFEN));
+        add(new DialogOptions(Main.getInstance().getString(R.string.dialog_with_text), Main.getInstance().getString(R.string.dialog_with_text_description), R.drawable.ic_dialog, DialogOptions.type.ACT_DIALOGWITHTEXT));
+        add(new DialogOptions(Main.getInstance().getString(R.string.open_application), Main.getInstance().getString(R.string.open_application_description), R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
+        add(new DialogOptions(Main.getInstance().getString(R.string.open_shortcut), Main.getInstance().getString(R.string.open_shortcut_description), R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
+        add(new DialogOptions(Main.getInstance().getString(R.string.run_event), Main.getInstance().getString(R.string.run_event_description), R.drawable.ic_event, DialogOptions.type.ACT_RUNEVENT));
     }};
 
 

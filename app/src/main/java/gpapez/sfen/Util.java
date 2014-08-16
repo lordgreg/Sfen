@@ -62,7 +62,14 @@ public class Util extends Activity {
     protected static ACTION_FROM actionFrom;
 
     // days
-    final static String[] sDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    final static String[] sDays = {
+            Main.getInstance().getString(R.string.day_monday),
+            Main.getInstance().getString(R.string.day_tuesday),
+            Main.getInstance().getString(R.string.day_wednesday),
+            Main.getInstance().getString(R.string.day_thursday),
+            Main.getInstance().getString(R.string.day_friday),
+            Main.getInstance().getString(R.string.day_saturday),
+            Main.getInstance().getString(R.string.day_sunday)};
 
 
     // empty constructor
@@ -92,7 +99,7 @@ public class Util extends Activity {
         builder.setView(dialogView)
                 .setIcon(context.getResources().getDrawable(R.drawable.ic_launcher))
                 .setTitle(title)
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(Main.getInstance().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // canceling main dialog
@@ -159,8 +166,8 @@ public class Util extends Activity {
 
                 builder.setView(dialogMap)
                         .setIcon(context.getResources().getDrawable(R.drawable.ic_launcher))
-                        .setTitle("Pick location")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setTitle(context.getString(R.string.location_pick))
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
 
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
@@ -168,22 +175,22 @@ public class Util extends Activity {
                                 dialog.dismiss();
 
                                 if (marker == null) {
-                                    showMessageBox("Click on map to add a location!", true);
+                                    showMessageBox(context.getString(R.string.map_click_to_add_location), true);
                                 } else {
 
                                     // this is amazing! we've managed to click and make a marker, lets add condition to list of conditions, ya?
                                     final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
                                     cond.setSetting("latitude", "" + marker.getPosition().latitude);
                                     cond.setSetting("longitude", "" + marker.getPosition().longitude);
-                                    cond.setSetting("radius", ""+ circle.getRadius());
+                                    cond.setSetting("radius", "" + circle.getRadius());
 
                                     cond.setSetting("text1",
                                             ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ?
-                                                    "Outside" : "Inside") + " Location"
+                                                    context.getString(R.string.outside) : context.getString(R.string.inside)) + context.getString(R.string.outside_inside_location)
                                     );
                                     cond.setSetting("text2", "Lat: " + String.format("%.2f", marker.getPosition().latitude) +
                                             ", Long: " + String.format("%.2f", marker.getPosition().longitude) +
-                                            ", Rad: "+ ((TextView)dialogMap.findViewById(R.id.radius_info)).getText().toString());
+                                            ", Rad: " + ((TextView) dialogMap.findViewById(R.id.radius_info)).getText().toString());
 
 
                                     if (isEditing)
@@ -207,7 +214,7 @@ public class Util extends Activity {
 
                         })
 
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
                                 dialog.dismiss();
@@ -240,7 +247,7 @@ public class Util extends Activity {
                     //txtView.append(loc.getError() + ((loc.getProvider()!="") ? " ("+ loc.getProvider() +")" : "")  +"\n");
                     myLocation = new LatLng(65.9667, -18.5333);
                 } else {
-                    showMessageBox("Click on map to mark your desired location.", false);
+                    showMessageBox(context.getString(R.string.map_click_to_mark_desired_location), false);
                 }
 
                 map = ((MapFragment) fm.findFragmentById(R.id.map)).getMap();
@@ -378,8 +385,8 @@ public class Util extends Activity {
 
                 builder
                         .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Pick day(s)")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setTitle(context.getString(R.string.pick_days))
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -387,7 +394,7 @@ public class Util extends Activity {
 
                                 // we cannot continue if we didn't pick any days, right?
                                 if (mSelectedDays.size() == 0) {
-                                    showMessageBox("Good job sport! And which days did you pick?", true);
+                                    showMessageBox(context.getString(R.string.days_none_selected), true);
 
                                 } else {
                                     // lets sort the days first
@@ -410,7 +417,7 @@ public class Util extends Activity {
                                     //EventActivity.getInstance().conditions.add(cond);
 
                                     cond.setSetting("selectedDays", (new Gson().toJson(mSelectedDays)));
-                                    cond.setSetting("text1", "Days (" + mSelectedDays.size() + ")");
+                                    cond.setSetting("text1", context.getString(R.string.days_selected, mSelectedDays.size()));
                                     cond.setSetting("text2", allDays);
 
                                     // if we are editing in sub-dialog, clear previous entry
@@ -482,7 +489,7 @@ public class Util extends Activity {
                         .setIcon(R.drawable.ic_launcher)
 
                         .setTitle("" + dateFormat.format(new Date()))
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -501,14 +508,24 @@ public class Util extends Activity {
                                 cond.setSetting("fromMinute", timeFrom.getCurrentMinute().toString());
                                 cond.setSetting("toHour", timeTo.getCurrentHour().toString());
                                 cond.setSetting("toMinute", timeTo.getCurrentMinute().toString());
-                                cond.setSetting("text1", "Time range");
-                                cond.setSetting("text2", "From " +
-                                        String.format("%02d", timeFrom.getCurrentHour()) + ":" +
-                                        String.format("%02d", timeFrom.getCurrentMinute())
-                                        + " to " +
-                                        String.format("%02d", timeTo.getCurrentHour()) + ":" +
-                                        String.format("%02d", timeTo.getCurrentMinute())
-                                        + "");
+                                cond.setSetting("text1", context.getString(R.string.time_range));
+
+                                cond.setSetting("text2", context.getString(R.string.range_from_to,
+                                        ""+ String.format("%02d", timeFrom.getCurrentHour()) + ":" +
+                                                String.format("%02d", timeFrom.getCurrentMinute())
+                                        ,
+
+                                        ""+ String.format("%02d", timeTo.getCurrentHour()) + ":" +
+                                                String.format("%02d", timeTo.getCurrentMinute())
+                                        ));
+
+//                                cond.setSetting("text2", "From " +
+//                                        String.format("%02d", timeFrom.getCurrentHour()) + ":" +
+//                                        String.format("%02d", timeFrom.getCurrentMinute())
+//                                        + " to " +
+//                                        String.format("%02d", timeTo.getCurrentHour()) + ":" +
+//                                        String.format("%02d", timeTo.getCurrentMinute())
+//                                        + "");
 
                                 // editing.
                                 if (isEditing)
@@ -547,9 +564,9 @@ public class Util extends Activity {
 
                 builder
                         .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Pick time")
+                        .setTitle(context.getString(R.string.pick_time))
                         .setView(timePicker)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
@@ -560,11 +577,11 @@ public class Util extends Activity {
 
                                 cond.setSetting("hour", timePicker.getCurrentHour().toString());
                                 cond.setSetting("minute", timePicker.getCurrentMinute().toString());
-                                cond.setSetting("text1", "Specific Time");
-                                cond.setSetting("text2", "At exactly " +
+                                cond.setSetting("text1", context.getString(R.string.specify_time));
+                                cond.setSetting("text2", context.getString(R.string.time_exact,
                                         String.format("%02d", timePicker.getCurrentHour()) + ":" +
-                                        String.format("%02d", timePicker.getCurrentMinute())
-                                        + "");
+                                                String.format("%02d", timePicker.getCurrentMinute()))
+                                );
 
                                 // editing.
                                 if (isEditing)
@@ -575,7 +592,7 @@ public class Util extends Activity {
 
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
@@ -600,7 +617,7 @@ public class Util extends Activity {
                 List<String> mWifiArray = new ArrayList<String>();
 
                 if (wifiList == null) {
-                    showMessageBox("Wifi is disabled. Please turn it on first.", false);
+                    showMessageBox(context.getString(R.string.wifi_is_disabled), false);
                     return ;
                 }
 
@@ -640,8 +657,8 @@ public class Util extends Activity {
 
                 builder
                         .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Pick Wifi")
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setTitle(context.getString(R.string.pick_wifi))
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // just close the dialog if we didn't select the days
@@ -649,7 +666,7 @@ public class Util extends Activity {
 
                             }
                         })
-                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 // close dialog
@@ -657,7 +674,7 @@ public class Util extends Activity {
 
                                 // we cannot continue if we didn't pick any days, right?
                                 if (mSelectedWifi.size() == 0) {
-                                    showMessageBox("You almost made it! Next time, pick at least one option.", true);
+                                    showMessageBox(context.getString(R.string.wifi_pick_one_option), true);
 
                                 } else {
 
@@ -679,7 +696,10 @@ public class Util extends Activity {
 
                                     cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                                     //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
-                                    cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.WIFI_CONNECT) ? "Connecting to " : "Disconnecting from ") + "Wifi");
+                                    cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.WIFI_CONNECT) ?
+                                            context.getString(R.string.wifi_connecting_to) :
+                                            context.getString(R.string.wifi_disconnecting_from)) +
+                                            context.getString(R.string.wifi_info_suffix));
                                     cond.setSetting("text2", allDays);
 
 
@@ -724,7 +744,7 @@ public class Util extends Activity {
             case SCREEN_OFF:
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Screen On/Off Condition. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_screen_on_off), true);
                     return ;
                 }
 
@@ -734,9 +754,16 @@ public class Util extends Activity {
                 //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                 condScreen.setSetting("text1", opt.getTitle());
-                condScreen.setSetting("text2", "Screen is "+
-                        ((opt.getOptionType() == DialogOptions.type.SCREEN_ON) ? "On" : "Off")
-                        +".");
+                condScreen.setSetting("text2",
+
+                        context.getString(R.string.screen_is_on_off,
+                                        ((opt.getOptionType() == DialogOptions.type.SCREEN_ON) ?
+                                                context.getString(R.string.on) :
+                                                        context.getString(R.string.off))
+
+                        )
+
+                );
 
                 //addNewAction(context, cond);
                 addNewConditionOrAction(context, condScreen, 0);
@@ -751,7 +778,7 @@ public class Util extends Activity {
             case BLUETOOTH_OFF:
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Bluetooth On/Off Condition. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_bluetooth), true);
                     return ;
                 }
 
@@ -759,9 +786,16 @@ public class Util extends Activity {
                 final DialogOptions condBt = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
                 condBt.setSetting("text1", opt.getTitle());
-                condBt.setSetting("text2", "Bluetooth is "+
-                        ((opt.getOptionType() == DialogOptions.type.BLUETOOTH_ON) ? "On" : "Off")
-                        +".");
+                condBt.setSetting("text2",
+
+                        context.getString(R.string.bluetooth_state,
+                                ((opt.getOptionType() == DialogOptions.type.BLUETOOTH_ON) ?
+                                        context.getString(R.string.on) :
+                                        context.getString(R.string.off))
+
+
+                                )
+                );
 
                 addNewConditionOrAction(context, condBt, 0);
 
@@ -776,7 +810,7 @@ public class Util extends Activity {
 
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Headset Connected/Disconnected Condition. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_headstate_condition), true);
                     return ;
                 }
 
@@ -784,9 +818,16 @@ public class Util extends Activity {
                 final DialogOptions condHs = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
                 condHs.setSetting("text1", opt.getTitle());
-                condHs.setSetting("text2", "Headset "+
-                        ((opt.getOptionType() == DialogOptions.type.HEADSET_CONNECTED) ? "Connected" : "Disconnected")
-                        +".");
+                condHs.setSetting("text2",
+
+                        context.getString(R.string.headset_state,
+                                ((opt.getOptionType() == DialogOptions.type.HEADSET_CONNECTED) ?
+                                        context.getString(R.string.connected) :
+                                        context.getString(R.string.disconnected))
+
+
+                        )
+                );
 
                 addNewConditionOrAction(context, condHs, 0);
 
@@ -800,7 +841,7 @@ public class Util extends Activity {
             case GPS_DISABLED:
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit GPS On/Off Condition. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_gps_condition), true);
                     return ;
                 }
 
@@ -810,9 +851,15 @@ public class Util extends Activity {
                 //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                 condGps.setSetting("text1", opt.getTitle());
-                condGps.setSetting("text2", "GPS is "+
-                        ((opt.getOptionType() == DialogOptions.type.GPS_ENABLED) ? "On" : "Off")
-                        +".");
+                condGps.setSetting("text2",
+                        context.getString(R.string.gps_state,
+                                ((opt.getOptionType() == DialogOptions.type.GPS_ENABLED) ?
+                                        context.getString(R.string.on) :
+                                        context.getString(R.string.off))
+
+
+                        )
+                );
 
                 //addNewAction(context, cond);
                 addNewConditionOrAction(context, condGps, 0);
@@ -915,13 +962,13 @@ public class Util extends Activity {
 
 
                 //builder = new AlertDialog.Builder(context);
-                Util.showMessageBox("Click single item to select/deselect it.", false);
+                Util.showMessageBox(context.getString(R.string.click_to_select_deselect), false);
 
                 builder
-                        .setTitle("Cell tower selection")
+                        .setTitle(context.getString(R.string.cell_tower_selection))
                         .setIcon(R.drawable.ic_cell)
                         .setView(dialogViewCell)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -934,7 +981,7 @@ public class Util extends Activity {
                                  */
                                 // we have to pick at least one
                                 if (mCellsSelected.size() == 0) {
-                                    showMessageBox("Pick at least one radio tower!", true);
+                                    showMessageBox(context.getString(R.string.no_radio_tower_selected), true);
                                     return;
                                 }
 
@@ -945,8 +992,14 @@ public class Util extends Activity {
 
                                 cond.setSetting("selectedcell", (new Gson().toJson(mCellsSelected)));
                                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
-                                cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.CELL_IN) ? "Connected to " : "Not connected to ") + " specific cells");
-                                cond.setSetting("text2", "Cells selected: " + mCellsSelected.size());
+                                cond.setSetting("text1",
+                                        ((opt.getOptionType() == DialogOptions.type.CELL_IN) ?
+                                                context.getString(R.string.connected_to_specific_cells) :
+                                                context.getString(R.string.not_connected_to_specific_cells))
+
+
+                                );
+                                cond.setSetting("text2", context.getString(R.string.cells_selected, mCellsSelected.size()));
 
 
                                 // if we are editing in sub-dialog, clear previous entry
@@ -959,7 +1012,7 @@ public class Util extends Activity {
 
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -1080,7 +1133,7 @@ public class Util extends Activity {
 
                 // if there are no other events, we're screwed o_O
                 if (mShownEvents.size() == 0) {
-                    showMessageBox("There are no other events to pick", true);
+                    showMessageBox(context.getString(R.string.no_events_to_pick), true);
                     return;
                 }
 
@@ -1107,21 +1160,21 @@ public class Util extends Activity {
                 // finally, open a dialog
                 builder
                         .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Pick Events")
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setTitle(context.getString(R.string.pick_events))
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
                         })
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
 
                                 // we have to pick at least one
                                 if (mSelectedEvents.size() == 0) {
-                                    showMessageBox("Pick at least one Event!", true);
+                                    showMessageBox(context.getString(R.string.pick_at_least_one_event), true);
                                     return ;
                                 }
 
@@ -1131,8 +1184,13 @@ public class Util extends Activity {
 
                                 cond.setSetting("selectevents", (new Gson().toJson(mSelectedEvents)));
                                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
-                                cond.setSetting("text1", "When event(s)"+ ((opt.getOptionType() == DialogOptions.type.EVENT_RUNNING) ? " " : " not ") + "running");
-                                cond.setSetting("text2", "Events selected: "+ mSelectedEvents.size());
+                                cond.setSetting("text1",
+                                                ((opt.getOptionType() == DialogOptions.type.EVENT_RUNNING) ?
+                                                        context.getString(R.string.when_events_running) :
+                                                        context.getString(R.string.when_events_not_running))
+
+                                );
+                                cond.setSetting("text2", context.getString(R.string.events_selected, mSelectedEvents.size()));
 
 
                                 // if we are editing in sub-dialog, clear previous entry
@@ -1204,8 +1262,8 @@ public class Util extends Activity {
                                 final DialogOptions cond = new DialogOptions(opt.getTitle(),
                                         opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
-                                cond.setSetting("text1", "Battery level");
-                                cond.setSetting("text2", "Battery at "+ mBatteryLevels[which]);
+                                cond.setSetting("text1", context.getString(R.string.battery_level));
+                                cond.setSetting("text2", context.getString(R.string.battery_at, mBatteryLevels[which]));
 
                                 /**
                                  * create setting with battery level without percentage
@@ -1224,8 +1282,8 @@ public class Util extends Activity {
                         })
                         .setIcon(R.drawable.ic_battery)
 
-                        .setTitle("Pick battery level")
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setTitle(context.getString(R.string.pick_battery_level))
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -1242,10 +1300,10 @@ public class Util extends Activity {
             case BATTERY_STATUS:
 
                 final String[] mBatteryStatuses = new String[] {
-                        "Charging",
-                        "Discharging",
-                        "Not Charging",
-                        "Full"
+                        context.getString(R.string.battery_charging),
+                        context.getString(R.string.battery_discharging),
+                        context.getString(R.string.battery_not_charging),
+                        context.getString(R.string.battery_full)
                 };
 
 
@@ -1273,8 +1331,13 @@ public class Util extends Activity {
                                 final DialogOptions cond = new DialogOptions(opt.getTitle(),
                                         opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
-                                cond.setSetting("text1", "Battery status");
-                                cond.setSetting("text2", "Battery is "+ mBatteryStatuses[which]);
+                                cond.setSetting("text1", context.getString(R.string.battery_status));
+                                cond.setSetting("text2",
+                                        context.getString(R.string.battery_status_description2,
+                                                mBatteryStatuses[which])
+
+
+                                );
 
                                 /**
                                  * create setting with battery level without percentage
@@ -1293,8 +1356,8 @@ public class Util extends Activity {
                         })
                         .setIcon(R.drawable.ic_battery)
 
-                        .setTitle("Pick battery level")
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setTitle(context.getString(R.string.battery_level))
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -1313,7 +1376,7 @@ public class Util extends Activity {
 
             // are we trying to edit the notification? because, uhm... we can't
             if (isEditing) {
-                showMessageBox("You cannot edit Notification action. You can only remove it.", true);
+                showMessageBox(context.getString(R.string.cannot_edit_notification_action), true);
                 return ;
             }
 
@@ -1323,7 +1386,7 @@ public class Util extends Activity {
             //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
             //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
             cond.setSetting("text1", opt.getTitle());
-            cond.setSetting("text2", "Notification will appear.");
+            cond.setSetting("text2", context.getString(R.string.notification_will_appear));
 
             //addNewAction(context, cond);
             addNewConditionOrAction(context, cond, 0);
@@ -1337,7 +1400,7 @@ public class Util extends Activity {
 
                 // are we trying to edit the notification? because, uhm... we can't
                 if (isEditing) {
-                    showMessageBox("You cannot edit Play Sfen action. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_play_sfen_action), true);
                     return ;
                 }
 
@@ -1347,7 +1410,7 @@ public class Util extends Activity {
                 //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                 condPlaySfen.setSetting("text1", opt.getTitle());
-                condPlaySfen.setSetting("text2", "Sound of Sfen will be heard");
+                condPlaySfen.setSetting("text2", context.getString(R.string.sfen_play_description));
 
                 //addNewAction(context, cond);
                 addNewConditionOrAction(context, condPlaySfen, 0);
@@ -1361,7 +1424,7 @@ public class Util extends Activity {
             case ACT_WIFIDISABLE:
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Wifi enable/disable action. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_wifi_action), true);
                     return ;
                 }
 
@@ -1372,8 +1435,12 @@ public class Util extends Activity {
                 //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                 wificond.setSetting("text1", opt.getTitle());
-                wificond.setSetting("text2", "Wifi will be "+
-                        ((opt.getOptionType() == DialogOptions.type.ACT_WIFIENABLE) ? "enabled" : "disabled")
+                wificond.setSetting("text2",
+                        context.getString(R.string.wifi_description,
+                                ((opt.getOptionType() == DialogOptions.type.ACT_WIFIENABLE) ?
+                                        context.getString(R.string.enabled) :
+                                        context.getString(R.string.disabled))
+                                )
                 );
 
                 //addNewAction(context, cond);
@@ -1389,7 +1456,7 @@ public class Util extends Activity {
             case ACT_MOBILEDISABLE:
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Mobile data enable/disable action. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_mobile_data_action), true);
                     return ;
                 }
 
@@ -1399,8 +1466,14 @@ public class Util extends Activity {
                 //cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                 //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                 mobilecond.setSetting("text1", opt.getTitle());
-                mobilecond.setSetting("text2", "Mobile data will be "+
-                                ((opt.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE) ? "enabled" : "disabled")
+                mobilecond.setSetting("text2",
+
+                        context.getString(R.string.mobile_data_description,
+                                ((opt.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE) ?
+                                        context.getString(R.string.enabled) :
+                                        context.getString(R.string.disabled))
+                        )
+
                 );
 
                 //addNewAction(context, cond);
@@ -1417,18 +1490,21 @@ public class Util extends Activity {
 
                 // if we're editing, return error
                 if (isEditing) {
-                    showMessageBox("You cannot edit Vibration type action. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_vibration_action), true);
                     return ;
                 }
 
-                final String[] vibrationTypes = {"Short", "Medium", "Long"};
+                final String[] vibrationTypes = {
+                        context.getString(R.string.vibration_short),
+                        context.getString(R.string.vibration_medium),
+                        context.getString(R.string.vibration_long)};
 
 
 
                 builder
                         .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Vibration type")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setTitle(context.getString(R.string.vibration_type))
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -1436,7 +1512,7 @@ public class Util extends Activity {
 
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // just close the dialog if we didn't select the days
@@ -1453,7 +1529,7 @@ public class Util extends Activity {
                                         opt.getIcon(), opt.getOptionType());
 
                                 vibCond.setSetting("text1", opt.getTitle());
-                                vibCond.setSetting("text2", "Phone will vibrate");
+                                vibCond.setSetting("text2", context.getString(R.string.phone_will_vibrate));
                                 vibCond.setSetting("vibrationtype", vibrationTypes[which]);
 
                                 addNewConditionOrAction(context, vibCond, 0);
@@ -1473,13 +1549,13 @@ public class Util extends Activity {
                 final TextView info = new TextView(context);
                 final EditText input = new EditText(context);
 
-                info.setText("Input text");
+                info.setText(context.getString(R.string.input_text));
 
                 if (isEditing) {
                     input.setText(opt.getSetting("text"));
                 }
                 else {
-                    input.setText("Event triggered! It's time for Sfen Lambada dance!");
+                    input.setText(context.getString(R.string.input_text_default_string));
                 }
 
                 LinearLayout newView = new LinearLayout(context);
@@ -1498,7 +1574,7 @@ public class Util extends Activity {
                         .setView(newView)
                         .setIcon(R.drawable.ic_launcher)
                         .setTitle("Sfen!")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -1519,7 +1595,7 @@ public class Util extends Activity {
                             }
                         })
                         //.set
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // just close the dialog if we didn't select the days
@@ -1560,7 +1636,7 @@ public class Util extends Activity {
                         .setView(dialogView)
                         .setIcon(R.drawable.ic_launcher)
                         .setTitle("Sfen!")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
@@ -1614,7 +1690,10 @@ public class Util extends Activity {
                                 final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(),
                                         opt.getIcon(), opt.getOptionType());
 
-                                cond.setSetting("text1", "Open "+ packageInfo.applicationInfo.loadLabel(pm).toString());
+                                cond.setSetting("text1",
+                                        context.getString(R.string.open_application_description2,
+                                                packageInfo.applicationInfo.loadLabel(pm).toString())
+                                );
                                 cond.setSetting("text2", packageInfo.packageName);
                                 cond.setSetting("packagename", packageInfo.packageName);
 
@@ -1639,7 +1718,7 @@ public class Util extends Activity {
 
                 // if we don't have installed apps, add blank text
                 if (installedApps == null) {
-                    showMessageBox("No applications installed.", false);
+                    showMessageBox(context.getString(R.string.no_applications_installed), false);
                     return ;
                 }
 
@@ -1659,7 +1738,7 @@ public class Util extends Activity {
 
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Shortcut action. You can only delete it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_shortcut_action), true);
                     return ;
                 }
 
@@ -1668,7 +1747,7 @@ public class Util extends Activity {
 
                 final Intent intent = new Intent(Intent.ACTION_PICK_ACTIVITY);
                 intent.putExtra(Intent.EXTRA_INTENT, new Intent(Intent.ACTION_CREATE_SHORTCUT));
-                intent.putExtra(Intent.EXTRA_TITLE, "Select shortcut");
+                intent.putExtra(Intent.EXTRA_TITLE, context.getString(R.string.select_shortcut));
 
 
 
@@ -1698,7 +1777,7 @@ public class Util extends Activity {
             case ACT_LOCKSCREENDISABLE:
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Lock screen enable/disable action. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_lockscreen_action), true);
                     return ;
                 }
 
@@ -1706,8 +1785,14 @@ public class Util extends Activity {
                 final DialogOptions lockcond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
                 lockcond.setSetting("text1", opt.getTitle());
-                lockcond.setSetting("text2", "Lock screen will be "+
-                                ((opt.getOptionType() == DialogOptions.type.ACT_LOCKSCREENENABLE) ? "enabled" : "disabled")
+                lockcond.setSetting("text2",
+
+                        context.getString(R.string.lockscreen_action_description,
+                                ((opt.getOptionType() == DialogOptions.type.ACT_LOCKSCREENENABLE) ?
+                                        context.getString(R.string.enabled) :
+                                        context.getString(R.string.disabled))
+                        )
+
                 );
 
                 //addNewAction(context, cond);
@@ -1723,13 +1808,12 @@ public class Util extends Activity {
             case ACT_RUNEVENT:
 
                 if (isEditing) {
-                    showMessageBox("You cannot edit Run Event Action. You can only remove it.", true);
+                    showMessageBox(context.getString(R.string.cannot_edit_run_event_action), true);
                     return ;
                 }
 
                 if (BackgroundService.getInstance().events.size() == 0) {
-                    showMessageBox("There are no Events created. Create one first to use " +
-                            "this option.", true);
+                    showMessageBox(context.getString(R.string.no_events_created), true);
                     return ;
                 }
 
@@ -1744,7 +1828,7 @@ public class Util extends Activity {
 
                 builder
                         .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Pick event")
+                        .setTitle(context.getString(R.string.pick_event))
                         .setItems(events, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -1753,12 +1837,13 @@ public class Util extends Activity {
                                 final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
                                 cond.setSetting("text1", opt.getTitle());
-                                cond.setSetting("text2", "Event "+
-                                        BackgroundService.getInstance().events.get(i).getName() +" will run");
+                                cond.setSetting("text2", 
+                                        context.getString(R.string.event_will_run,
+                                                BackgroundService.getInstance().events.get(i).getName()));
 
                                 cond.setSetting("EVENT_UNIQUEID",
                                         String.valueOf(BackgroundService.getInstance().events.get(i).getUniqueID())
-                                        );
+                                );
 
                                 //addNewAction(context, cond);
                                 addNewConditionOrAction(context, cond, 0);
@@ -1996,7 +2081,6 @@ public class Util extends Activity {
         newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: clicking our newly added condition
                 int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
                 openSubDialog(context, entry, index);
                 //showMessageBox("clicked " + entry.getTitle() + ", " + entry.getOptionType() +" type: "+ entry.isItemConditionOrAction() +" on index "+ index, false);
@@ -2036,7 +2120,7 @@ public class Util extends Activity {
                 ConnectionResult.SUCCESS)
             return true;
         else {
-            showMessageBox("Google Play Services not installed!", true);
+            showMessageBox(Main.getInstance().getString(R.string.google_play_service_not_installed), true);
             return false;
         }
 
@@ -2050,6 +2134,8 @@ public class Util extends Activity {
     }
 
     protected static String getDateLong(Calendar cal, Context context) {
-        return android.text.format.DateFormat.getDateFormat(context).format(cal.getTime()) + " " + android.text.format.DateFormat.getTimeFormat(context).format(cal.getTime());
+        return android.text.format.DateFormat.getDateFormat(context).format(cal.getTime()) +
+                " " +
+                android.text.format.DateFormat.getTimeFormat(context).format(cal.getTime());
     }
 }

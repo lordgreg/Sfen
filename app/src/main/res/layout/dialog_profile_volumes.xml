@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ringtone"
+        android:text="@string/ringtone"
         android:textColor="?android:textColorHint"
         android:id="@+id/textView" />
 
@@ -44,7 +44,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Notification"
+        android:text="@string/notification"
         android:textColor="?android:textColorHint"
         android:id="@+id/textView2" />
 
@@ -78,7 +78,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Music, video, games &amp; other media"
+        android:text="@string/music_video_games_and_other_media"
         android:textColor="?android:textColorHint"
         android:id="@+id/textView3" />
 
@@ -111,7 +111,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Alarm"
+        android:text="@string/alarm"
         android:textColor="?android:textColorHint"
         android:id="@+id/textView4" />
 

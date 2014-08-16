@@ -24,7 +24,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.location.Geofence;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -172,7 +171,7 @@ public class BackgroundService extends Service {
             // first time run, set events to not running
             else {
                 for (int i = 0; i < events.size(); i++) {
-                    System.out.println("set event as not running.");
+                    //System.out.println("set event as not running.");
                     events.get(i).setRunning(false);
                     events.get(i).setHasRun(false);
                 }
@@ -386,6 +385,21 @@ public class BackgroundService extends Service {
 
                     isOneRunning = true;
 
+
+
+                    /**
+                     * if we have intent extra from alarm trigger as FORCE_RUN, set all events
+                     * to force run!
+                     */
+                    if (intent.getAction().contains("ALARM_TRIGGER") &&
+                            intent.getStringExtra("ALARM_TRIGGER_EXTRA") != null &&
+                            intent.getStringExtra("ALARM_TRIGGER_EXTRA").equals("FORCE_RUN")) {
+                        System.out.println("FORCE RUNNING EVENTS AFTER END_TIME");
+                        e.setForceRun(true);
+                        e.setRunning(false);
+                    }
+
+
                     // wow. conditions are met! you know what that means?
                     // we trigger actions!
                     runEvent(context, intent, e);
@@ -472,7 +486,6 @@ public class BackgroundService extends Service {
     protected void runActions(ArrayList<DialogOptions> actions) {
 
 
-        Gson gson = new Gson();
         WifiManager wifiManager;
         ConnectivityManager conMan;
 
@@ -531,18 +544,7 @@ public class BackgroundService extends Service {
                 case ACT_MOBILEDISABLE:
 
                     // opposite of ACT_MOBILEENABLE
-                    conMan = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-                    //NetworkInfo.State mobile = conMan.getNetworkInfo(0).getState();
-//Util.showMessageBox("mobile state: "+ conMan.getNetworkInfo(0).getState(), false);
-                    // if connected, disable data.
-                    //if (conMan.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED) {
-                    // TODO: ADD root options! (mobile data toggle!) su -c "svc data disable"
-                    // continue only if we have root
-                    //mUtil.callRootCommand("svc data disable");
                     mSudo.callRootCommand("svc data disable");
-
-                    //}
 
                     break;
 
@@ -1207,6 +1209,7 @@ public class BackgroundService extends Service {
 
 
                             mAlarm = new Alarm(sInstance, single.getUniqueID());
+                            mAlarm.mIntentExtra = "FORCE_RUN";
                             mAlarm.CreateAlarmRepeating(timeEnd, interval);
                             mActiveAlarms.add(mAlarm);
 

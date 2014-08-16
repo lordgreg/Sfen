@@ -31,7 +31,7 @@ public class Preferences {
         mGson = new Gson();
 
         if (context == null) {
-            System.out.println("Preferences aren't accessible! Context is null!");
+            Log.e("sfen", "Preferences aren't accessible! Context is null!");
         }
         else {
             mContext = context;

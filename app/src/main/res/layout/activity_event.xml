@@ -20,7 +20,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Main settings"
+        android:text="@string/main_settings"
         android:id="@+id/textView"
         android:autoText="false"
         style="?android:attr/listSeparatorTextViewStyle" />
@@ -28,7 +28,7 @@
 
     <TextView
         style="@android:style/Widget.ListView"
-        android:text="Event Name"
+        android:text="@string/event_name"
         android:id="@+id/event_name"
         android:onClick="onClickEventName"
         android:clickable="true"
@@ -64,7 +64,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Conditions"
+        android:text="@string/conditions"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView2" />
 
@@ -86,7 +86,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Profile"
+        android:text="@string/profile"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView3" />
 
@@ -103,7 +103,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Actions"
+        android:text="@string/actions"
         style="?android:attr/listSeparatorTextViewStyle"
         android:id="@+id/textView4" />
 
@@ -127,7 +127,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Advanced"
+        android:text="@string/advanced"
         android:id="@+id/textViewAdvanced"
         android:autoText="false"
         style="?android:attr/listSeparatorTextViewStyle" />
@@ -137,7 +137,7 @@
         android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Match all conditions?"
+        android:text="@string/match_all_conditions"
         android:onClick="onClickEventAllConditions"
         android:padding="6dip"
         android:layout_margin="5dp"
@@ -149,7 +149,7 @@
         android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Trigger only once"
+        android:text="@string/trigger_only_once"
         android:onClick="onClickEventAllConditions"
         android:padding="6dip"
         android:enabled="false"
@@ -182,13 +182,13 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearance"
                 android:singleLine="true"
-                android:text="Delayed Event?" />
+                android:text="@string/delayed_event" />
 
             <TextView android:id="@android:id/text2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Event will run after specified number of minutes" />
+                android:text="@string/event_delay_information" />
         </LinearLayout>
 
         <CheckBox
@@ -220,7 +220,7 @@
             android:singleLine="true"
             android:onClick="onClickEventPriority"
             android:textAppearance="?android:attr/textAppearance"
-            android:text="Priority" />
+            android:text="@string/priority" />
 
         <TextView android:id="@+id/priority"
             android:layout_width="match_parent"
@@ -228,7 +228,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:singleLine="true"
             android:onClick="onClickEventPriority"
-            android:text="Low" />
+            android:text="@string/priority_1" />
     </LinearLayout>
 
 

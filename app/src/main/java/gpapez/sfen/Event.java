@@ -476,7 +476,7 @@ public class Event implements Comparable<Event> {
                                     Double.parseDouble(cond.getSetting("latitude")),
                                     Double.parseDouble(cond.getSetting("longitude")), results);
 
-                            System.out.println("distance between current location and "+ cond.getDescription() +": "+ results[0] +" in meters.");
+                            Log.d("sfen", "distance between current location and "+ cond.getDescription() +": "+ results[0] +" in meters.");
                             if (results[0] < Float.parseFloat(cond.getSetting("radius"))) {
                                 conditionResults.add(true);
                             }
@@ -598,39 +598,46 @@ public class Event implements Comparable<Event> {
                     // find the one that is included in settings,
                     // return true/false
                     //int mCurrentID = cond.getUniqueID();
-                    boolean mFound = false;
+                    boolean mFound = true;
                     for (Event single : BackgroundService.getInstance().events) {
 
                         // match was found
                         if (mEventsToCheck.contains(single.getUniqueID())) {
-                            mFound = true;
+                            //mFound = true;
 
                             // EVENT_RUNNING
                             if (cond.getOptionType() == DialogOptions.type.EVENT_RUNNING) {
-                                if (single.isRunning())
-                                    conditionResults.add(true);
-                                else
-                                    conditionResults.add(false);
+                                if (!single.isRunning()) {
+                                    mFound = false;
+                                    break;
+                                }
+//                                    conditionResults.add(true);
+//                                else
+//                                    conditionResults.add(false);
                             }
 
                             // EVENT_NOTRUNNING
                             else if (cond.getOptionType() == DialogOptions.type.EVENT_NOTRUNNING) {
-                                if (!single.isRunning())
-                                    conditionResults.add(true);
-                                else
-                                    conditionResults.add(false);
+                                if (single.isRunning()) {
+                                    mFound = false;
+                                    break;
+                                }
+//                                    conditionResults.add(true);
+//                                else
+//                                    conditionResults.add(false);
                             }
 
                             // since we found one, we can break the loop
-                            break;
+                            //break;
 
 
                         }
                     }
 
                     // if we didn't find anything, we return false
-                    if (!mFound)
-                        conditionResults.add(false);
+                    //if (mFound)
+                    conditionResults.add(mFound);
+
 
 
                     break;
@@ -675,19 +682,19 @@ public class Event implements Comparable<Event> {
                         "Full"
 
                      */
-                    if (cond.getSetting("BATTERY_STATUS").equals("Charging") &&
+                    if (cond.getSetting("BATTERY_STATUS").equals(context.getString(R.string.battery_charging)) &&
                             status == 2)
                         conditionResults.add(true);
 
-                    else if (cond.getSetting("BATTERY_STATUS").equals("Discharging") &&
+                    else if (cond.getSetting("BATTERY_STATUS").equals(context.getString(R.string.battery_discharging)) &&
                             status == 3)
                         conditionResults.add(true);
 
-                    else if (cond.getSetting("BATTERY_STATUS").equals("Not Charging") &&
+                    else if (cond.getSetting("BATTERY_STATUS").equals(context.getString(R.string.battery_not_charging)) &&
                             status == 4)
                         conditionResults.add(true);
 
-                    else if (cond.getSetting("BATTERY_STATUS").equals("Full") &&
+                    else if (cond.getSetting("BATTERY_STATUS").equals(context.getString(R.string.battery_full)) &&
                         status == 5)
                         conditionResults.add(true);
 
@@ -968,7 +975,12 @@ public class Event implements Comparable<Event> {
 
     public List<String> getPriorityList() {
 
-        return Arrays.asList("Low", "Bah", "Normal", "Beee!", "High");
+        return Arrays.asList(
+                Main.getInstance().getString(R.string.priority_1),
+                Main.getInstance().getString(R.string.priority_2),
+                Main.getInstance().getString(R.string.priority_3),
+                Main.getInstance().getString(R.string.priority_4),
+                Main.getInstance().getString(R.string.priority_5));
 
     }
 

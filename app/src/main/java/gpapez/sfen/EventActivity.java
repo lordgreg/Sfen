@@ -76,7 +76,7 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optConditions, "Pick condition");
+                BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optConditions, getString(R.string.pick_condition));
             }
         });
 
@@ -96,7 +96,7 @@ public class EventActivity extends Activity {
             public void onClick(View view) {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
                 Util.actionFrom = Util.ACTION_FROM.EVENT;
-                Util.openDialog(sInstance, DialogOptions.optActions, "Pick action");
+                Util.openDialog(sInstance, DialogOptions.optActions, getString(R.string.pick_action));
             }
         });
 
@@ -114,7 +114,7 @@ public class EventActivity extends Activity {
             updatedActions = new ArrayList<DialogOptions>();
             profile = event.getProfile();
 
-            getActionBar().setTitle("Editing " + event.getName());
+            getActionBar().setTitle(getString(R.string.editing_event, event.getName()));
             //getActionBar().
 
             //Log.e("EVENT FROM OBJ", event.getName() + " with " + event.getConditions().size() + " conditions- key from all events: " + updateKey);
@@ -143,8 +143,8 @@ public class EventActivity extends Activity {
             final ViewGroup newProfile = (ViewGroup) LayoutInflater.from(this).inflate(
                     R.layout.dialog_pick_single, mContainerProfile, false);
 
-            ((TextView) newProfile.findViewById(android.R.id.text1)).setText("Profile");
-            ((TextView) newProfile.findViewById(android.R.id.text2)).setText("Click here to select profile");
+            ((TextView) newProfile.findViewById(android.R.id.text1)).setText(getString(R.string.profile));
+            ((TextView) newProfile.findViewById(android.R.id.text2)).setText(getString(R.string.profile_select));
             ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
                     .setImageDrawable(getResources().getDrawable(R.drawable.ic_profile));
 
@@ -228,7 +228,7 @@ public class EventActivity extends Activity {
 
         // do we have event name?
         if (((TextView) findViewById(R.id.event_name)).getText().length() == 0) {
-            Util.showMessageBox("And you think you can get away without entering Event name?", true);
+            Util.showMessageBox(getString(R.string.enter_event_name), true);
             return false;
         }
 
@@ -251,7 +251,7 @@ public class EventActivity extends Activity {
          * did we select profile OR action?
          */
         if (profile.getUniqueID() == -1 && actions.size() == 0) {
-            Util.showMessageBox("You must select Event profile OR at least one action!", true);
+            Util.showMessageBox(getString(R.string.select_profile_or_action), true);
 
             return false;
         }
@@ -357,7 +357,7 @@ public class EventActivity extends Activity {
 
             ((TextView) newProfile.findViewById(android.R.id.text1)).setText(event.getProfile().getName());
             ((TextView) newProfile.findViewById(android.R.id.text2)).setText(
-                    (event.getProfile().isActive() ? "Active" : "Ready")
+                    (event.getProfile().isActive() ? getString(R.string.active) : getString(R.string.ready))
             );
             ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
                     .setImageDrawable(getResources().getDrawable(event.getProfile().getIcon()));
@@ -397,7 +397,7 @@ public class EventActivity extends Activity {
             eventName.setText(((TextView) findViewById(R.id.event_name)).getText());
             //((TextView) findViewById(R.id.event_name)).setText(event.getName());
         } else {
-            eventName.setText("Enter event name");
+            eventName.setText(getString(R.string.enter_event_name));
         }
 
         // select all text in edittext
@@ -410,10 +410,10 @@ public class EventActivity extends Activity {
         builder
                 .setView(promptView)
                 .setIcon(R.drawable.ic_launcher)
-                .setTitle("Pick name")
+                .setTitle(getString(R.string.event_pick_name))
 
                         //.setView(findViewById())
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // just close the dialog if we didn't select the days
@@ -426,7 +426,7 @@ public class EventActivity extends Activity {
 
                     }
                 })
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         // close dialog
@@ -440,7 +440,7 @@ public class EventActivity extends Activity {
                             //if (isUpdating)
                             isChanged = true;
                         } else {
-                            Util.showMessageBox("Event name cannot be empty.", false);
+                            Util.showMessageBox(getString(R.string.event_name_cannot_be_empty), false);
                         }
 
                         // close the keyboard if any
@@ -507,8 +507,8 @@ public class EventActivity extends Activity {
         final int[] selected = new int[1];
 
         builder
-                .setTitle("Priority")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.priority))
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -521,7 +521,7 @@ public class EventActivity extends Activity {
                         //System.out.println("Priority set is: "+ event.getPriority());
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -548,7 +548,7 @@ public class EventActivity extends Activity {
          * NO PROFILES???
          */
         if (BackgroundService.getInstance().profiles.size() == 0) {
-            Util.showMessageBox("There are no profiles! Go create one now!", true);
+            Util.showMessageBox(getString(R.string.no_profiles), true);
 
 
             return;
@@ -571,7 +571,7 @@ public class EventActivity extends Activity {
                 .setView(dialogView)
                 .setIcon(this.getResources().getDrawable(R.drawable.ic_launcher))
                         //.setTitle("Pick Profile")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // canceling main dialog
@@ -585,7 +585,7 @@ public class EventActivity extends Activity {
 
         Profile pTemp = new Profile();
         pTemp.setUniqueID(-1);
-        pTemp.setName("No profile selected");
+        pTemp.setName(getString(R.string.no_profile_selected));
         pTemp.setIcon(R.drawable.ic_profile);
         pTemp.setActive(false);
 
@@ -605,7 +605,7 @@ public class EventActivity extends Activity {
             // if we're adding real profile show its state.
             if (single.getUniqueID() != -1) {
                 ((TextView) newRow.findViewById(android.R.id.text2)).setText(
-                        (single.isActive() ? "Active" : "Ready")
+                        (single.isActive() ? getString(R.string.active) : getString(R.string.ready))
                 );
             }
             // show subtext if dummy profile
@@ -646,7 +646,7 @@ public class EventActivity extends Activity {
 
                     ((TextView) newProfile.findViewById(android.R.id.text1)).setText(single.getName());
                     ((TextView) newProfile.findViewById(android.R.id.text2)).setText(
-                            single.isActive() ? "Active" : "Ready"
+                            single.isActive() ? getString(R.string.active) : getString(R.string.ready)
                     );
                     ((ImageButton) newProfile.findViewById(R.id.dialog_icon))
                             .setImageDrawable(getResources().getDrawable(single.getIcon()));
@@ -656,8 +656,8 @@ public class EventActivity extends Activity {
                      * if we picked NONE, we have to update settings
                      */
                     if (single.getUniqueID() == -1) {
-                        ((TextView) newProfile.findViewById(android.R.id.text1)).setText("Profile");
-                        ((TextView) newProfile.findViewById(android.R.id.text2)).setText("Click here to select profile");
+                        ((TextView) newProfile.findViewById(android.R.id.text1)).setText(getString(R.string.profile));
+                        ((TextView) newProfile.findViewById(android.R.id.text2)).setText(getString(R.string.profile_select));
                     }
 
 
@@ -716,15 +716,15 @@ public class EventActivity extends Activity {
             final TextView info2 = new TextView(sInstance);
             final CheckBox checkBox1 = new CheckBox(sInstance);
 
-            info.setText("Number of minutes:");
+            info.setText(getString(R.string.number_of_minutes));
             info.setPadding(15, 15, 15, 5);
             info2.setPadding(15, 5, 15, 15);
-            info2.setText("If conditions after the delay are not met, the Event won't trigger actions.");
+            info2.setText(getString(R.string.delay_event_description));
             input.setInputType(InputType.TYPE_CLASS_NUMBER);
 
             input.setText(String.valueOf(event.getDelayMinutes()));
             checkBox1.setChecked(event.isDelayRecheckConditions());
-            checkBox1.setText("Recheck conditions after?");
+            checkBox1.setText(getString(R.string.delay_event_recheck));
 
             LinearLayout newView = new LinearLayout(sInstance);
             LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
@@ -740,15 +740,15 @@ public class EventActivity extends Activity {
 
             builder
                     .setIcon(R.drawable.ic_time)
-                    .setTitle("Delay options")
+                    .setTitle(getString(R.string.delay_options))
                     .setView(newView)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
 
                             if (input.getText().equals("") || input.getText().equals("0")) {
-                                Util.showMessageBox("Insert minutes next time and all is going to be okay.", true);
+                                Util.showMessageBox(getString(R.string.delay_enter_minutes), true);
                                 checkBox.setChecked(false);
 
                                 return;
@@ -760,7 +760,7 @@ public class EventActivity extends Activity {
                             event.setDelayEnable(Integer.parseInt(input.getText().toString()), checkBox1.isChecked());
                         }
                     })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
@@ -803,7 +803,7 @@ public class EventActivity extends Activity {
                 /**
                  * shortcut created. save it.
                  */
-                final DialogOptions cond = new DialogOptions("Shortcut", name,
+                final DialogOptions cond = new DialogOptions(getString(R.string.shortcut), name,
                         R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT);
 
                 cond.setSetting("intent_uri", intent.toUri(Intent.URI_INTENT_SCHEME));

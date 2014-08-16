@@ -86,7 +86,7 @@ public class Cell implements Comparable<Cell> {
 
         final EditText input = new EditText(context);
         final TextView info = new TextView(context);
-        info.setText("Number of minutes to store cell tower ID's:");
+        info.setText(context.getString(R.string.number_of_minutes_store_cell));
         info.setPadding(10, 10, 10, 10);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
 
@@ -130,7 +130,7 @@ public class Cell implements Comparable<Cell> {
         if (calendarUntil != null) {
             //System.out.println("current saved preference? " + calendarUntil.getTime().toString());
             final TextView infoCalendar = new TextView(context);
-            infoCalendar.setText("Already recording until: "+ Util.getDateLong(calendarUntil,context));
+            infoCalendar.setText(context.getString(R.string.already_recording_until, Util.getDateLong(calendarUntil,context)));
             infoCalendar.setPadding(10, 15, 10, 10);
 
             newView.addView(infoCalendar, 2);
@@ -141,7 +141,7 @@ public class Cell implements Comparable<Cell> {
          * add another checkbox for permanent recording
          */
         final CheckBox checkPermanent = new CheckBox(context);
-        checkPermanent.setText("Record cell tower ID's as long as Sfen is running?");
+        checkPermanent.setText(context.getString(R.string.record_as_long_as_sfen_running));
         checkPermanent.setPadding(10, 10, 10, 10);
 
         checkPermanent.setOnClickListener(new View.OnClickListener() {
@@ -178,8 +178,8 @@ public class Cell implements Comparable<Cell> {
         builder
                 .setView(newView)
                 .setIcon(R.drawable.ic_launcher)
-                .setTitle("Cell tower ID's")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(context.getString(R.string.cell_tower_ids))
+                .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -190,7 +190,7 @@ public class Cell implements Comparable<Cell> {
                         if (input.getText().toString().equals("") ||
                                 input.getText().toString().equals("0")) {
 
-                            Util.showMessageBox("Next time, add more minutes, okay?", false);
+                            Util.showMessageBox(context.getString(R.string.cell_add_more_minutes), false);
 
                         }
 
@@ -223,11 +223,9 @@ public class Cell implements Comparable<Cell> {
                                     Integer.parseInt(input.getText().toString())).apply();
 
                             if (!checkPermanent.isChecked())
-                                Util.showMessageBox("New cells will be added to the list for the next " +
-                                    minutes +" minutes.", false);
+                                Util.showMessageBox(context.getString(R.string.cells_new_added_for_next_minutes, minutes), false);
                             else
-                                Util.showMessageBox("New cells will be added to the list for the whole " +
-                                        "time of Sfen running.", false);
+                                Util.showMessageBox(context.getString(R.string.cells_running_until_sfen_running), false);
 
                         }
 
@@ -235,7 +233,7 @@ public class Cell implements Comparable<Cell> {
                     }
                 })
                         //.set
-                .setNegativeButton("Clear & Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(context.getString(R.string.clear_and_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -293,7 +291,7 @@ public class Cell implements Comparable<Cell> {
 
         if (cells.size() == 0) {
 
-            Util.showMessageBox("No cells to show. Try to record few first", false);
+            Util.showMessageBox(context.getString(R.string.cells_no_cells_to_show), false);
             return ;
 
         }
@@ -310,13 +308,13 @@ public class Cell implements Comparable<Cell> {
         builder
                 .setIcon(R.drawable.ic_cell)
                 .setView(dialogView)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -324,7 +322,7 @@ public class Cell implements Comparable<Cell> {
                 })
 
 
-                .setTitle("Cell tower history");
+                .setTitle(context.getString(R.string.cell_tower_history));
 
         /**
          * create dialog

@@ -21,25 +21,17 @@
         android:showAsAction="always" />
 
     <item android:id="@+id/action_exit"
-        android:title="Exit"
+        android:title="@string/exit"
         />
     <item android:id="@+id/action_export"
-        android:title="Export settings"
+        android:title="@string/export_settings"
         />
     <item android:id="@+id/action_import"
-        android:title="Import settings"
+        android:title="@string/import_settings"
         />
 
-    <!--<item android:id="@+id/action_advanced"-->
-        <!--android:title="Advanced">-->
-        <!--&lt;!&ndash; Sub menu &ndash;&gt;-->
-        <!--<menu>-->
-            <!--<item android:id="@+id/action_celltowers" android:title="Cell Tower History" />-->
-        <!--</menu>-->
-    <!--</item>-->
-
     <item android:id="@+id/action_preferences"
-        android:title="Preferences" />
+        android:title="@string/preferences" />
 
 
 </menu>

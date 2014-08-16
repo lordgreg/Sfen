@@ -29,8 +29,7 @@ public class PreferencesActivity extends PreferenceActivity
 
         addPreferencesFromResource(R.xml.preferences);
 
-        // TODO: disable non-working preferences
-        findPreference("launchAtBoot").setEnabled(false);
+//        findPreference("launchAtBoot").setEnabled(false);
 
 
         /**
@@ -69,25 +68,41 @@ public class PreferencesActivity extends PreferenceActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // handle the preference change here
         System.out.println("preference "+ key +" was changed.");
+
+        /**
+         * if we pressed rootEnable and is now SELECTED..
+         */
+        if (key.equals("rootEnable") &&
+                Preferences.getSharedPreferences().getBoolean("rootEnable", false)) {
+
+            /**
+             * invoke root requirement for Sfen
+             */
+            Sudo sudo = new Sudo();
+            sudo.isRootEnabled();
+
+
+        }
+
     }
 
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        // Set up a listener whenever a key changes
-//        getPreferenceScreen().getSharedPreferences()
-//                .registerOnSharedPreferenceChangeListener(this);
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        // Unregister the listener whenever a key changes
-//        getPreferenceScreen().getSharedPreferences()
-//                .unregisterOnSharedPreferenceChangeListener(this);
-//    }
-//
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Set up a listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Unregister the listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
 
 
 

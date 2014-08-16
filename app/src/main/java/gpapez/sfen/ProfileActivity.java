@@ -109,7 +109,7 @@ public class ProfileActivity extends Activity {
             public void onClick(View view) {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
                 Util.actionFrom = Util.ACTION_FROM.PROFILE;
-                Util.openDialog(sInstance, DialogOptions.optActions, "Pick action");
+                Util.openDialog(sInstance, DialogOptions.optActions, getString(R.string.action_pick));
             }
         });
         mContainerAction.addView(newAction);
@@ -146,7 +146,7 @@ public class ProfileActivity extends Activity {
 
 
 
-            getActionBar().setTitle("Editing "+ profile.getName());
+            getActionBar().setTitle(getString(R.string.editing_profile, profile.getName()));
 
             refreshView();
         }
@@ -225,7 +225,7 @@ public class ProfileActivity extends Activity {
 
         // do we have event name?
         if (((TextView) findViewById(R.id.profile_name)).getText().length() == 0) {
-            Util.showMessageBox("And you think you can get away without entering Event name?", true);
+            Util.showMessageBox(getString(R.string.enter_profile_name), true);
             return false;
         }
 
@@ -377,19 +377,19 @@ public class ProfileActivity extends Activity {
                 ((TextView) newRow.findViewById(android.R.id.text1)).setText(
                         (
                                 (callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.CONTACT) ?
-                                "Contact" :
+                                getString(R.string.contact) :
                                         ((callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.GROUP) ?
-                                        "Group" :
-                                                "Phone number")
+                                        getString(R.string.group) :
+                                                getString(R.string.phone_number))
                         )
                 );
                 ((TextView) newRow.findViewById(android.R.id.text2)).setText(
                         (
                                 (callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.CONTACT) ?
-                                        "Number of contacts: "+ callAllowDeny.get(i).getContactId().size() :
+                                        getString(R.string.number_of_contacts, callAllowDeny.get(i).getContactId().size()) :
                                         ((callAllowDeny.get(i).getEntryType() == CallAllowDeny.ENTRY_TYPE.GROUP) ?
-                                                "Number of groups: "+ callAllowDeny.get(i).getGroupId().size() :
-                                                "Phone number: "+ callAllowDeny.get(i).getPhoneNumber())
+                                                getString(R.string.number_of_groups, callAllowDeny.get(i).getGroupId().size()) :
+                                                getString(R.string.phone_number_description, callAllowDeny.get(i).getPhoneNumber()))
                         )
                 );
 
@@ -519,7 +519,7 @@ public class ProfileActivity extends Activity {
         newRow.findViewById(R.id.condition_single_container).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: clicking our newly added condition
+
                 int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
                 Util util = new Util();
                 util.openSubDialog(context, entry, index);
@@ -628,14 +628,14 @@ public class ProfileActivity extends Activity {
         builder
                 .setView(newView)
                 .setIcon(R.drawable.ic_launcher)
-                .setTitle("Enter Profile name")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.enter_profile_name))
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
 
                         if (input.getText().toString().equals("")) {
-                            Util.showMessageBox("You must enter profile name!", false);
+                            Util.showMessageBox(getString(R.string.profile_name_empty), false);
                             return;
                         } else {
 
@@ -650,7 +650,7 @@ public class ProfileActivity extends Activity {
 
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // just close the dialog if we didn't select the days
@@ -704,14 +704,14 @@ public class ProfileActivity extends Activity {
 
         builder
                 .setView(newView)
-                .setTitle("Select Icon")
+                .setTitle(getString(R.string.select_icon))
 //                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 //                    @Override
 //                    public void onClick(DialogInterface dialogInterface, int i) {
 //                        dialogInterface.dismiss();
 //                    }
 //                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
@@ -777,8 +777,8 @@ public class ProfileActivity extends Activity {
 
         builder
                 .setView(dialogView)
-                .setTitle("Volumes")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.volumes))
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -844,8 +844,6 @@ public class ProfileActivity extends Activity {
         ringtone.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
 
-        // TODO: add selected ringtone when opening!) RingtoneManager.EXTRA_RINGTONE_PICKED_URI
-
         startActivityForResult(ringtone, REQUEST_RINGTONE_RESULT);
 
 
@@ -892,7 +890,7 @@ public class ProfileActivity extends Activity {
         seekBar.setMax(255); // MAX VALUE = SCREEN_BRIGHTNESS
         seekBar.setProgress(255 / 2);
 
-        checkBox.setText("Automagically adjust brightness");
+        checkBox.setText(getString(R.string.auto_adjust_brightness));
 
         /**
          * checking automode disables seekbar
@@ -950,7 +948,7 @@ public class ProfileActivity extends Activity {
                     seekBar.setEnabled(!checkDefault.isChecked());
             }
         });
-        checkDefault.setText("Use default system settings");
+        checkDefault.setText(getString(R.string.use_default_system_settings));
         newView.addView(checkDefault, 2);
 
 
@@ -959,8 +957,8 @@ public class ProfileActivity extends Activity {
 
         builder
                 .setView(newView)
-                .setTitle("Brightness")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.brightness))
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -976,7 +974,7 @@ public class ProfileActivity extends Activity {
 
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -1016,7 +1014,7 @@ public class ProfileActivity extends Activity {
                 /**
                  * shortcut created. save it.
                  */
-                final DialogOptions cond = new DialogOptions("Shortcut", name,
+                final DialogOptions cond = new DialogOptions(getString(R.string.shortcut), name,
                         R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT);
 
                 cond.setSetting("intent_uri", intent.toUri(Intent.URI_INTENT_SCHEME));

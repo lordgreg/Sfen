@@ -2,9 +2,6 @@ package gpapez.sfen;
 
 import android.app.AlarmManager;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -155,7 +152,6 @@ public class Receiver extends BroadcastReceiver {
 ////                Calendar calendar = Calendar.getInstance();
 ////                calendar.add(Calendar.MILLISECOND, (int)WAKELOCK_TIMER);
 //
-//// TODO: TRY EVERYTHING WITHOUT WAKELOCK ON SLEEP!
 ////                mAlarmWakeLock.CreateInexactAlarmRepeating(calendar,
 ////                        WAKELOCK_TIMER
 ////                );
@@ -182,7 +178,6 @@ public class Receiver extends BroadcastReceiver {
         if (action.equals(getClass().getPackage().getName() +".ALARM_TRIGGER")) {
 //
 //            // EXTRA ALARM HERE
-            // TODO: if it starts with EVENTDELAYED_ it means we're running delayed event
             // full eventdelayed string: EVENTDELAYED_BOOL_ID (bool = recheck conditions,
             // ID = event id.
             // remember to set mCallBroadcast to false!
