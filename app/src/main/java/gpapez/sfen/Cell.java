@@ -130,7 +130,7 @@ public class Cell implements Comparable<Cell> {
         if (calendarUntil != null) {
             //System.out.println("current saved preference? " + calendarUntil.getTime().toString());
             final TextView infoCalendar = new TextView(context);
-            infoCalendar.setText("Already recording until: "+ Util.getDateLong(calendarUntil));
+            infoCalendar.setText("Already recording until: "+ Util.getDateLong(calendarUntil,context));
             infoCalendar.setPadding(10, 15, 10, 10);
 
             newView.addView(infoCalendar, 2);
@@ -341,7 +341,7 @@ public class Cell implements Comparable<Cell> {
 
             ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId());
             ((TextView) newRow.findViewById(android.R.id.text2))
-                    .setText(Util.getDateLong(single.getStoreDate()));
+                    .setText(Util.getDateLong(single.getStoreDate(),context));
 
             ImageView imageView = (ImageView)newRow.findViewById(R.id.cellid_delete);
 

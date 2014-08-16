@@ -41,7 +41,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -460,16 +459,11 @@ public class Util extends Activity {
 
                 final TimePicker timeFrom = (TimePicker) timerangeView.findViewById(R.id.time_from);
                 final TimePicker timeTo = (TimePicker) timerangeView.findViewById(R.id.time_to);
+                boolean is24hour = android.text.format.DateFormat.is24HourFormat((Context) context);
+                timeFrom.setIs24HourView(is24hour);
+                timeTo.setIs24HourView(is24hour);
 
-                final DateFormat dateFormat;
-                if (isTime24()) {
-                    dateFormat = new SimpleDateFormat("HH:mm");
-                    timeFrom.setIs24HourView(true);
-                    timeTo.setIs24HourView(true);
-                }
-                else {
-                    dateFormat = new SimpleDateFormat("h:mm a");
-                }
+                final DateFormat dateFormat = android.text.format.DateFormat.getTimeFormat((Context) context);//DateFormat.getTimeInstance();
 
                 // editing?
                 ArrayList<Integer> mTimeFromSettings = null;
@@ -542,12 +536,8 @@ public class Util extends Activity {
 
                 // create dialog parts
                 final TimePicker timePicker = new TimePicker(context);
-//                timePicker.setIs24HourView(true);
-
-                if (isTime24())
-                      timePicker.setIs24HourView(true);
-
-
+                is24hour = android.text.format.DateFormat.is24HourFormat((Context) context);
+                timePicker.setIs24HourView(is24hour);
 
                 // we're editing option, get stored time out of settings
                 if (isEditing) {
@@ -992,7 +982,7 @@ public class Util extends Activity {
 
                     ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId());
                     ((TextView) newRow.findViewById(android.R.id.text2))
-                            .setText(Util.getDateLong(single.getStoreDate()));
+                            .setText(Util.getDateLong(single.getStoreDate(), context));
 
 
                     /**
@@ -2059,43 +2049,7 @@ public class Util extends Activity {
         return rText;
     }
 
-    protected static String getDate(Calendar cal) {
-
-        String dateFormat = Preferences
-                .getSharedPreferences().getString("dateFormat", null);
-
-
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-
-        return sdf.format(cal.getTime());
-
+    protected static String getDateLong(Calendar cal, Context context) {
+        return android.text.format.DateFormat.getDateFormat(context).format(cal.getTime()) + " " + android.text.format.DateFormat.getTimeFormat(context).format(cal.getTime());
     }
-
-    protected static String getDateLong(Calendar cal) {
-
-        String dateFormat = Preferences
-                .getSharedPreferences().getString("dateFormat", null);
-
-
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat +" "+ getTimeFormat());
-
-        return sdf.format(cal.getTime());
-
-    }
-
-    protected static String getTimeFormat() {
-
-        if (isTime24())
-            return "HH:mm";
-        else
-            return "h:mm a";
-
-    }
-
-    protected static boolean isTime24() {
-        return Preferences
-                .getSharedPreferences().getBoolean("date24hour", false);
-    }
-
-
 }
