@@ -306,4 +306,8 @@ Are you sure?</string>
     <string name="export_settings">Export settings</string>
     <string name="import_settings">Import settings</string>
     <string name="preferences">Preferences</string>
+    <string name="no_logs_available">No logs available at the moment</string>
+    <string name="logs">Logs</string>
+    <string name="logs_nothing_to_delete">Nothing to delete. No logs available yet.</string>
+    <string name="logs_delete_confirm">Are you sure you want to delete logs?</string>
 </resources>

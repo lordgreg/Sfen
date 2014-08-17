@@ -33,5 +33,8 @@
     <item android:id="@+id/action_preferences"
         android:title="@string/preferences" />
 
+    <item android:id="@+id/action_logs"
+        android:title="@string/logs" />
+
 
 </menu>

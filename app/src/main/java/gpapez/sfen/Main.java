@@ -441,6 +441,12 @@ public class Main extends Activity {
 
         }
 
+        if (id == R.id.action_logs) {
+
+            startActivity(new Intent(this, Logs.class));
+
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

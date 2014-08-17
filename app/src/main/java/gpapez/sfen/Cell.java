@@ -3,15 +3,14 @@ package gpapez.sfen;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -84,11 +83,17 @@ public class Cell implements Comparable<Cell> {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        final EditText input = new EditText(context);
+        //final EditText input = new EditText(context);
+
+        final NumberPicker numberPicker = new NumberPicker(context);
+        numberPicker.setMinValue(5); // 5 minutes
+        numberPicker.setMaxValue(1440); // 24 hours
+        numberPicker.getValue();
+
         final TextView info = new TextView(context);
         info.setText(context.getString(R.string.number_of_minutes_store_cell));
         info.setPadding(10, 10, 10, 10);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        //input.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         // get number of minutes from preferences
         int recordMinutes = 10;
@@ -97,7 +102,8 @@ public class Cell implements Comparable<Cell> {
                     .getSharedPreferences().getInt("CellRecordMinutes", 10);
         } catch (Exception e) {}
 
-        input.setText(String.valueOf(recordMinutes));
+        //input.setText(String.valueOf(recordMinutes));
+        numberPicker.setValue(recordMinutes);
 
         LinearLayout newView = new LinearLayout(Main.getInstance());
         LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
@@ -106,8 +112,9 @@ public class Cell implements Comparable<Cell> {
         newView.setLayoutParams(parms);
         newView.setOrientation(LinearLayout.VERTICAL);
         newView.setPadding(15, 15, 15, 15);
-        newView.addView(info, 0);
-        newView.addView(input, 1);
+        newView.addView(info);
+        newView.addView(numberPicker);
+        //newView.addView(input);
 
         /**
          * if time stored, lets show info until when are we recording this
@@ -148,9 +155,9 @@ public class Cell implements Comparable<Cell> {
             @Override
             public void onClick(View v) {
                 if (checkPermanent.isChecked())
-                    input.setEnabled(false);
+                    numberPicker.setEnabled(false);
                 else
-                    input.setEnabled(true);
+                    numberPicker.setEnabled(true);
             }
         });
 
@@ -166,7 +173,7 @@ public class Cell implements Comparable<Cell> {
         if (isRecordingPermanent) {
             checkPermanent.setChecked(isRecordingPermanent);
 
-            input.setEnabled(false);
+            numberPicker.setEnabled(false);
         }
 
 
@@ -187,19 +194,20 @@ public class Cell implements Comparable<Cell> {
                         /**
                          * no input or entered 0?
                          */
-                        if (input.getText().toString().equals("") ||
-                                input.getText().toString().equals("0")) {
-
-                            Util.showMessageBox(context.getString(R.string.cell_add_more_minutes), false);
-
-                        }
+//                        if (input.getText().toString().equals("") ||
+//                                input.getText().toString().equals("0")) {
+//
+//                            Util.showMessageBox(context.getString(R.string.cell_add_more_minutes), false);
+//
+//                        }
 
                         /**
                          * store current date + X minutes to preferences
                          */
-                        else {
+//                        else {
 
-                            int minutes = Integer.parseInt(input.getText().toString());
+//                            int minutes = Integer.parseInt(input.getText().toString());
+                        int minutes = numberPicker.getValue();
 
                             Calendar calendar = Calendar.getInstance();
                             calendar.add(Calendar.MINUTE, minutes);
@@ -220,14 +228,14 @@ public class Cell implements Comparable<Cell> {
                             // input setting
                             Preferences.getSharedPreferences().edit().putInt(
                                     "CellRecordMinutes",
-                                    Integer.parseInt(input.getText().toString())).apply();
+                                    minutes).apply();
 
                             if (!checkPermanent.isChecked())
                                 Util.showMessageBox(context.getString(R.string.cells_new_added_for_next_minutes, minutes), false);
                             else
                                 Util.showMessageBox(context.getString(R.string.cells_running_until_sfen_running), false);
 
-                        }
+//                        }
 
 
                     }

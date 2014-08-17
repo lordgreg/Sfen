@@ -1,8 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="gpapez.sfen.Logs" >
-    <item android:id="@+id/action_settings"
+    <item android:id="@+id/action_cancel"
+        android:icon="@android:drawable/ic_menu_revert"
         android:title="@string/action_settings"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="always" />
+
+    <item android:id="@+id/action_delete"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="@string/action_settings"
+        android:orderInCategory="200"
+        android:showAsAction="always" />
 </menu>

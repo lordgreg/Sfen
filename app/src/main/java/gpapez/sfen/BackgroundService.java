@@ -403,7 +403,6 @@ public class BackgroundService extends Service {
                     // we trigger actions!
                     runEvent(context, intent, e);
 
-                    // TODO: store action to log.
                 }
                 // conditions aren't met; switch event to not running (if maybe they were)
                 else {
@@ -994,6 +993,14 @@ public class BackgroundService extends Service {
 
             return ;
         }
+
+
+        /**
+         *
+         * store to log
+         *
+         */
+        Logs.addToLog(e, Calendar.getInstance(), intent.getAction());
 
 
         /**
