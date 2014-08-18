@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -1227,70 +1228,125 @@ public class Util extends Activity {
              */
             case BATTERY_LEVEL:
 
-                final String[] mBatteryLevels = new String[] {
-                        "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"
-                };
-
-
                 /**
-                 * set which level is going to be checked by default
-                 *
-                 * (100% aka. last item in array)
+                 * battery level will be ranged with 2 seekbars
                  */
-                int mCheckedBattery = mBatteryLevels.length;
+                SeekBar batteryFrom = new SeekBar(context);
+                SeekBar batteryTo = new SeekBar(context);
+                batteryFrom.setMax(100);
+                batteryTo.setMax(100);
+                batteryFrom.setProgress(10);
+                batteryTo.setProgress(90);
 
-                if (isEditing) {
-                    /**
-                     * since our battery setting is saved as 10, 20, 30,...
-                     * we have to get the key of it. divide by 10 and subtract 1
-                     */
-                    mCheckedBattery =
-                            (
-                                    Integer.parseInt(opt.getSetting("BATTERY_LEVEL")) / 10
-                            ) - 1;
-                }
+                TextView infoFrom = new TextView(context);
+                TextView infoTo = new TextView(context);
+                infoFrom.setText(context.getString(R.string.from));
+                infoTo.setText(context.getString(R.string.to));
 
+                // here comes the super fun stuff!
+//                batteryFrom.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                    @Override
+//                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+//                        batteryTo.set
+//                    }
+//
+//                    @Override
+//                    public void onStartTrackingTouch(SeekBar seekBar) {}
+//                    @Override
+//                    public void onStopTrackingTouch(SeekBar seekBar) {}
+//                });
+
+
+                ScrollView scrollView = new ScrollView(context);
+                LinearLayout newView = new LinearLayout(context);
+                LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                newView.setLayoutParams(parms);
+                newView.setOrientation(LinearLayout.VERTICAL);
+                newView.setPadding(15, 15, 15, 15);
+                newView.addView(infoFrom);
+                newView.addView(batteryFrom);
+                newView.addView(infoTo);
+                newView.addView(batteryTo);
+
+                scrollView.addView(newView);
 
                 builder
-                        //.setView(timerangeView)
-                        .setSingleChoiceItems(mBatteryLevels, mCheckedBattery, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-
-                                // add new condition
-                                final DialogOptions cond = new DialogOptions(opt.getTitle(),
-                                        opt.getDescription(), opt.getIcon(), opt.getOptionType());
-
-                                cond.setSetting("text1", context.getString(R.string.battery_level));
-                                cond.setSetting("text2", context.getString(R.string.battery_at, mBatteryLevels[which]));
-
-                                /**
-                                 * create setting with battery level without percentage
-                                 */
-                                cond.setSetting("BATTERY_LEVEL",
-                                        mBatteryLevels[which].replace("%", "")
-                                        );
-
-                                // editing.
-                                if (isEditing)
-                                    removeConditionOrAction(index, opt);
-
-                                addNewConditionOrAction(context, cond, index);
-
-                            }
-                        })
+                        .setView(scrollView)
                         .setIcon(R.drawable.ic_battery)
+                        .setTitle(context.getString(R.string.battery_level_description))
 
-                        .setTitle(context.getString(R.string.pick_battery_level))
-                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
+                        .show();
 
-                builder.show();
+
+
+
+//
+//                final String[] mBatteryLevels = new String[] {
+//                        "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"
+//                };
+//
+//
+//                /**
+//                 * set which level is going to be checked by default
+//                 *
+//                 * (100% aka. last item in array)
+//                 */
+//                int mCheckedBattery = mBatteryLevels.length;
+//
+//                if (isEditing) {
+//                    /**
+//                     * since our battery setting is saved as 10, 20, 30,...
+//                     * we have to get the key of it. divide by 10 and subtract 1
+//                     */
+//                    mCheckedBattery =
+//                            (
+//                                    Integer.parseInt(opt.getSetting("BATTERY_LEVEL")) / 10
+//                            ) - 1;
+//                }
+//
+//
+//                builder
+//                        //.setView(timerangeView)
+//                        .setSingleChoiceItems(mBatteryLevels, mCheckedBattery, new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                dialog.dismiss();
+//
+//                                // add new condition
+//                                final DialogOptions cond = new DialogOptions(opt.getTitle(),
+//                                        opt.getDescription(), opt.getIcon(), opt.getOptionType());
+//
+//                                cond.setSetting("text1", context.getString(R.string.battery_level));
+//                                cond.setSetting("text2", context.getString(R.string.battery_at, mBatteryLevels[which]));
+//
+//                                /**
+//                                 * create setting with battery level without percentage
+//                                 */
+//                                cond.setSetting("BATTERY_LEVEL",
+//                                        mBatteryLevels[which].replace("%", "")
+//                                        );
+//
+//                                // editing.
+//                                if (isEditing)
+//                                    removeConditionOrAction(index, opt);
+//
+//                                addNewConditionOrAction(context, cond, index);
+//
+//                            }
+//                        })
+//                        .setIcon(R.drawable.ic_battery)
+//
+//                        .setTitle(context.getString(R.string.pick_battery_level))
+//                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                dialog.dismiss();
+//                            }
+//                        });
+//
+//                builder.show();
 
                 break;
 
@@ -1558,8 +1614,9 @@ public class Util extends Activity {
                     input.setText(context.getString(R.string.input_text_default_string));
                 }
 
-                LinearLayout newView = new LinearLayout(context);
-                LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
+                scrollView = new ScrollView(context);
+                newView = new LinearLayout(context);
+                parms = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
                 newView.setLayoutParams(parms);
@@ -1569,9 +1626,10 @@ public class Util extends Activity {
                 newView.addView(input, 1);
 
 
+                scrollView.addView(newView);
 
                 builder
-                        .setView(newView)
+                        .setView(scrollView)
                         .setIcon(R.drawable.ic_launcher)
                         .setTitle("Sfen!")
                         .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {

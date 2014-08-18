@@ -128,7 +128,7 @@
     <string name="editing_event">Editing %s</string>
     <string name="profile">Profile</string>
     <string name="profile_select">Click here to select profile</string>
-    <string name="enter_event_name">And you think you can get away without entering Event name?</string>
+    <string name="enter_event_name">Enter event name</string>
     <string name="select_profile_or_action">You must select Event profile OR at least one action!</string>
     <string name="active">Active</string>
     <string name="ready">Ready</string>
