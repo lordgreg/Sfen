@@ -66,62 +66,10 @@ public class Main extends Activity {
 
 
         /**
-         * set tab position
+         * create fragment
          */
-        try {
-            mSavedTabPosition = savedInstanceState.getInt("TAB_POSITION", 0);
-            mTabPosition = mSavedTabPosition;
-        }
-        catch (Exception e) {}
-
-        System.out.println("*** TAB POSITION: "+ mSavedTabPosition);
-
-
-
-        /**
-         * create fragment Event
-         */
-        if (savedInstanceState != null && mSavedTabPosition == 0) {
-
-            // event fragment
-            fragmentEvent = (FragmentEvent) getFragmentManager().getFragment(
-                    savedInstanceState, FragmentEvent.class.getName());
-
-            if (fragmentEvent == null)
-                System.out.println("wait, fragment event is null.");
-
-            FragmentEvent.class.getName();
-
-            System.out.println("event fragment was stored. get it.");
-        }
-
-        else {
-            fragmentEvent = new FragmentEvent();
-            System.out.println("creating new fragment event.");
-        }
-
-
-        /**
-         * create fragment Profile
-         */
-        if (savedInstanceState != null && mSavedTabPosition == 1) {
-            // profile fragment
-            fragmentProfile = (FragmentProfile) getFragmentManager().getFragment(
-                    savedInstanceState, FragmentProfile.class.getName());
-
-            if (fragmentProfile == null)
-                System.out.println("wait, fragment profile is null.");
-
-            FragmentProfile.class.getName();
-
-            System.out.println("profile fragment was stored. get it.");
-        }
-
-        else {
-            fragmentProfile = new FragmentProfile();
-
-            System.out.println("creating new fragment profile.");
-        }
+        fragmentEvent = new FragmentEvent();
+        fragmentProfile = new FragmentProfile();
 
 
         // Set up the action bar to show tabs.
@@ -137,6 +85,25 @@ public class Main extends Activity {
                 .setTabListener(new MainTabListener(fragmentProfile)));
 //        actionBar.addTab(actionBar.newTab().setText("Whitelists")
 //                .setTabListener(this));
+
+
+
+
+
+        /**
+         * set tab position
+         */
+        try {
+            mSavedTabPosition = savedInstanceState.getInt("TAB_POSITION", 0);
+            mTabPosition = mSavedTabPosition;
+        }
+        catch (Exception e) {}
+
+//        System.out.println("*** TAB POSITION: "+ mSavedTabPosition);
+
+
+        actionBar.setSelectedNavigationItem(mSavedTabPosition);
+
 
         /**
          * Find our service in the list of all running services
@@ -189,13 +156,13 @@ public class Main extends Activity {
         /**
          * save fragments
          */
-        if (mTabPosition == 0)
-            getFragmentManager()
-                    .putFragment(outState, FragmentEvent.class.getName(), fragmentEvent);
-
-        if (mTabPosition == 1)
-            getFragmentManager()
-                    .putFragment(outState, FragmentProfile.class.getName(), fragmentProfile);
+//        if (mTabPosition == 0)
+//            getFragmentManager()
+//                    .putFragment(outState, FragmentEvent.class.getName(), fragmentEvent);
+//
+//        if (mTabPosition == 1)
+//            getFragmentManager()
+//                    .putFragment(outState, FragmentProfile.class.getName(), fragmentProfile);
 
     }
 
@@ -209,7 +176,7 @@ public class Main extends Activity {
         /**
          * set tab position
          */
-        mTabPosition = mSavedTabPosition;
+        //mTabPosition = mSavedTabPosition;
 
         refreshCurrentView();
 

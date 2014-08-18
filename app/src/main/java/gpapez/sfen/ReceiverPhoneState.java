@@ -8,6 +8,7 @@ import android.os.Vibrator;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -196,7 +197,7 @@ public class ReceiverPhoneState extends PhoneStateListener {
             cellId = cellInfo.getCellId();
 
 
-//        Log.d("sfen", "Got mobile cell: "+ cellInfo.getCellId());
+        Log.d("sfen", "Got mobile cell: " + cellInfo.getCellId());
 
         // when we change cells, we have to wake up to send broadcast
         PowerManager pm = (PowerManager) BackgroundService.getInstance()

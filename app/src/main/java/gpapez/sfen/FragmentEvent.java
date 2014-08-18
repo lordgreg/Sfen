@@ -49,10 +49,7 @@ public class FragmentEvent extends Fragment {
      * CONSTRUCTOR
      */
     public FragmentEvent() {
-        /**
-         * set singleton
-         */
-        sInstance = this;
+
 
     }
 
@@ -73,7 +70,10 @@ public class FragmentEvent extends Fragment {
     //@Nullable
     //@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+        /**
+         * set singleton
+         */
+        sInstance = this;
 
         /**
          * set View

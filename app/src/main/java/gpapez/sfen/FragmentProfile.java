@@ -38,10 +38,7 @@ public class FragmentProfile extends Fragment {
      * CONSTRUCTOR
      */
     public FragmentProfile() {
-        /**
-         * set singleton
-         */
-        sInstance = this;
+
 
     }
 
@@ -49,6 +46,10 @@ public class FragmentProfile extends Fragment {
     //@Nullable
     //@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        /**
+         * set singleton
+         */
+        sInstance = this;
 
         /**
          * set View

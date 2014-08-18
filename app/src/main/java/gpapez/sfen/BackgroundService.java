@@ -169,11 +169,11 @@ public class BackgroundService extends Service {
 
             // first time run, set events to not running
             else {
-//                for (int i = 0; i < events.size(); i++) {
-//                    //System.out.println("set event as not running.");
-//                    events.get(i).setRunning(false);
-//                    events.get(i).setHasRun(false);
-//                }
+                for (int i = 0; i < events.size(); i++) {
+                    //System.out.println("set event as not running.");
+                    events.get(i).setRunning(false);
+                    events.get(i).setHasRun(false);
+                }
 
             }
 
@@ -453,9 +453,10 @@ public class BackgroundService extends Service {
 
                     }
 
-                    eventToRun = null;
-
                 }
+
+
+                eventToRun = null;
             }
 
         }
@@ -890,7 +891,7 @@ public class BackgroundService extends Service {
         /**
          * RINGTONE SOUNDS
          */
-        if (p.getRingtone() != null && p.getRingtone().toString().length() > 0) {
+        if (!p.isDefaultRingtone() && p.getRingtone() != null && p.getRingtone().toString().length() > 0) {
 
             RingtoneManager.setActualDefaultRingtoneUri(this,
                     RingtoneManager.TYPE_RINGTONE,
@@ -901,20 +902,13 @@ public class BackgroundService extends Service {
         /**
          * NOTIFICATION SOUNDS
          */
-        if (p.getNotification() != null && p.getNotification().toString().length() > 0) {
+        if (!p.isDefaultNotification() && p.getNotification() != null && p.getNotification().toString().length() > 0) {
 
             RingtoneManager.setActualDefaultRingtoneUri(this,
                     RingtoneManager.TYPE_NOTIFICATION,
                     p.getNotification());
 
         }
-
-
-        /**
-         * split notification and ringtone volume
-         */
-//        Settings.System.putInt(getContentResolver(), "NOTIFICATIONS_USE_RING_VOLUME", 1);
-
 
 
         /**
@@ -997,34 +991,57 @@ public class BackgroundService extends Service {
 
         /**
          *
-         * store to log
+         * last check before running- do we have any ACTIVE event with higher priority?
+         *
+         * if yes, don't run!
          *
          */
-        Logs.addToLog(e, Calendar.getInstance(), intent.getAction());
+        if (Event.hasAnyRunningEventHigherPriority(e)) {
 
-
-        /**
-         *
-         * IF WE HAVE EVENT ACTIONS
-         *
-         */
-        if (e.getActions().size() > 0) {
-
-            // add all actions & profile to eventToRun
-            //eventToRun.addActions(e.getActions());
-            addActionsToEventToRun(e.getActions());
+            Log.d("sfen", "Higher priority event is already running. Execution of "+ e.getName() +
+                " stopped.");
 
         }
 
-
         /**
-         *
-         * IF WE HAVE PROFILE SELECTED
-         *
+         * THERE IS NO HIGHER PRIORITY running events. execute profile & actions
          */
-        if (e.getProfile() != null) {
+        else {
 
-            eventToRun.setProfile(e.getProfile());
+
+            /**
+             *
+             * store to log
+             *
+             */
+            Logs.addToLog(e, Calendar.getInstance(), intent.getAction());
+
+
+            /**
+             *
+             * IF WE HAVE EVENT ACTIONS
+             *
+             */
+            if (e.getActions().size() > 0) {
+
+                // add all actions & profile to eventToRun
+                //eventToRun.addActions(e.getActions());
+                addActionsToEventToRun(e.getActions());
+
+            }
+
+
+            /**
+             *
+             * IF WE HAVE PROFILE SELECTED
+             *
+             */
+            if (e.getProfile() != null) {
+
+                eventToRun.setProfile(e.getProfile());
+
+            }
+
 
         }
 

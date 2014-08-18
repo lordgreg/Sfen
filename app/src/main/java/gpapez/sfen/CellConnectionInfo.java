@@ -10,7 +10,6 @@ import android.telephony.CellInfoLte;
 import android.telephony.CellInfoWcdma;
 import android.telephony.CellLocation;
 import android.telephony.TelephonyManager;
-
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
@@ -22,7 +21,7 @@ import java.util.List;
  */
 public class CellConnectionInfo {
     private TelephonyManager telephonyManager;
-    private String cellId;
+    private String cellId = "";
     private String cellType;
     private boolean isError;
     private String errorString;
@@ -49,6 +48,7 @@ public class CellConnectionInfo {
                     CellInfo cell = cellInfos.get(0);
 
                     setCellType(cell);
+
 
                     //this.cellId = cellId;
                     //Log.d("CELL ID (tostring)", cell.toString());
@@ -80,6 +80,20 @@ public class CellConnectionInfo {
     }
 
     public boolean isError() {
+        /**
+         * LAST error check
+         *
+         * IF our cellID includes -1, there's something wrong with cell and it isn't
+         * correct cellID meaning its an corrupted catch
+         */
+        if (cellId != null || cellId.equals("")) {
+            if (cellId.contains("-1")) {
+                isError = true;
+                errorString = sActivity.getString(R.string.cell_wrong_cell_report, cellId);
+                Log.e("sfen", errorString);
+            }
+        }
+
         return isError;
     }
 

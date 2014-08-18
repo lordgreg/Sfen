@@ -310,4 +310,5 @@ Are you sure?</string>
     <string name="logs">Logs</string>
     <string name="logs_nothing_to_delete">Nothing to delete. No logs available yet.</string>
     <string name="logs_delete_confirm">Are you sure you want to delete logs?</string>
+    <string name="cell_wrong_cell_report">Wrong cell report (%s)</string>
 </resources>

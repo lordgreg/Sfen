@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -105,6 +106,7 @@ public class Cell implements Comparable<Cell> {
         //input.setText(String.valueOf(recordMinutes));
         numberPicker.setValue(recordMinutes);
 
+        ScrollView scrollView = new ScrollView(Main.getInstance());
         LinearLayout newView = new LinearLayout(Main.getInstance());
         LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -181,9 +183,10 @@ public class Cell implements Comparable<Cell> {
         newView.addView(checkPermanent);
 
         //SharedPreferences msp = BackgroundService.getInstance().mPreferences.getSharedPreferencesObject();
+        scrollView.addView(newView);
 
         builder
-                .setView(newView)
+                .setView(scrollView)
                 .setIcon(R.drawable.ic_launcher)
                 .setTitle(context.getString(R.string.cell_tower_ids))
                 .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {

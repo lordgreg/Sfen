@@ -1,145 +1,155 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="10dp">
+    android:overScrollMode="always"
+    android:isScrollContainer="true"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
+    android:scrollbarStyle="outsideInset"
+    android:scrollbars="vertical">
 
-
-    <!-- RINGTONE -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ringtone"
-        android:textColor="?android:textColorHint"
-        android:id="@+id/textView" />
-
-    <LinearLayout
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="?android:listPreferredItemHeight"
-        android:gravity="center"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+        android:layout_height="fill_parent"
+        android:padding="10dp">
 
-        <ImageButton
-            android:layout_width="48dp"
-            android:layout_height="fill_parent"
-            android:src="@drawable/ic_phone"
-            android:background="?android:selectableItemBackground"
-            android:layout_marginRight="10dp"
-            />
 
-        <SeekBar
+        <!-- RINGTONE -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/seekbar_ringtone"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:max="100"
-            android:progress="80" />
-    </LinearLayout>
+            android:text="@string/ringtone"
+            android:textColor="?android:textColorHint"
+            android:id="@+id/textView" />
 
-    <!-- NOTIFICATION -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/notification"
-        android:textColor="?android:textColorHint"
-        android:id="@+id/textView2" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="?android:listPreferredItemHeight"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="?android:listPreferredItemHeight"
-        android:gravity="center"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="fill_parent"
+                android:src="@drawable/ic_phone"
+                android:background="?android:selectableItemBackground"
+                android:layout_marginRight="10dp"
+                />
 
-        <ImageButton
-            android:layout_width="48dp"
-            android:layout_height="fill_parent"
-            android:src="@drawable/ic_notification"
-            android:background="?android:selectableItemBackground"
-            android:layout_marginRight="10dp"
-            />
+            <SeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/seekbar_ringtone"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="80" />
+        </LinearLayout>
 
-        <SeekBar
+        <!-- NOTIFICATION -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/seekbar_notification"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:max="100"
-            android:progress="80"/>
-    </LinearLayout>
+            android:text="@string/notification"
+            android:textColor="?android:textColorHint"
+            android:id="@+id/textView2" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="?android:listPreferredItemHeight"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="fill_parent"
+                android:src="@drawable/ic_notification"
+                android:background="?android:selectableItemBackground"
+                android:layout_marginRight="10dp"
+                />
+
+            <SeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/seekbar_notification"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="80"/>
+        </LinearLayout>
 
 
-    <!-- MUSIC -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/music_video_games_and_other_media"
-        android:textColor="?android:textColorHint"
-        android:id="@+id/textView3" />
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="?android:listPreferredItemHeight"
-        android:gravity="center"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:layout_width="48dp"
-            android:layout_height="fill_parent"
-            android:src="@drawable/ic_sound"
-            android:background="?android:selectableItemBackground"
-            android:layout_marginRight="10dp"
-            />
-
-        <SeekBar
+        <!-- MUSIC -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/seekbar_music"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:max="100"
-            android:progress="80"/>
-    </LinearLayout>
+            android:text="@string/music_video_games_and_other_media"
+            android:textColor="?android:textColorHint"
+            android:id="@+id/textView3" />
 
-    <!-- ALARM -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/alarm"
-        android:textColor="?android:textColorHint"
-        android:id="@+id/textView4" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="?android:listPreferredItemHeight"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="?android:listPreferredItemHeight"
-        android:gravity="center"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="fill_parent"
+                android:src="@drawable/ic_sound"
+                android:background="?android:selectableItemBackground"
+                android:layout_marginRight="10dp"
+                />
 
-        <ImageButton
-            android:layout_width="48dp"
-            android:layout_height="fill_parent"
-            android:src="@drawable/ic_alarm"
-            android:background="?android:selectableItemBackground"
-            android:layout_marginRight="10dp"
-            />
+            <SeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/seekbar_music"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="80"/>
+        </LinearLayout>
 
-        <SeekBar
+        <!-- ALARM -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/seekbar_alarm"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:max="100"
-            android:progress="80"/>
+            android:text="@string/alarm"
+            android:textColor="?android:textColorHint"
+            android:id="@+id/textView4" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="?android:listPreferredItemHeight"
+            android:gravity="center"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="fill_parent"
+                android:src="@drawable/ic_alarm"
+                android:background="?android:selectableItemBackground"
+                android:layout_marginRight="10dp"
+                />
+
+            <SeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/seekbar_alarm"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="80"/>
+        </LinearLayout>
+
+
+
     </LinearLayout>
 
-
-
-</LinearLayout>
+</ScrollView>

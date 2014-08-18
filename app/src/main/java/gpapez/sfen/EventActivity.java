@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -738,10 +739,13 @@ public class EventActivity extends Activity {
             newView.addView(checkBox1, 2);
             newView.addView(info2, 3);
 
+            ScrollView scrollView = new ScrollView(Main.getInstance());
+            scrollView.addView(newView);
+
             builder
                     .setIcon(R.drawable.ic_time)
                     .setTitle(getString(R.string.delay_options))
-                    .setView(newView)
+                    .setView(scrollView)
                     .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

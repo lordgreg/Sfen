@@ -628,7 +628,7 @@ public class ProfileActivity extends Activity {
         builder
                 .setView(newView)
                 .setIcon(R.drawable.ic_launcher)
-                .setTitle(getString(R.string.enter_profile_name))
+                .setTitle(getString(R.string.profile_name))
                 .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1047,6 +1047,16 @@ public class ProfileActivity extends Activity {
 //                System.out.println(ringtone.hashCode() +" vs "+ ringtoneDefault.hashCode());
 //                System.out.println(uri +" vs "+ ringtoneDefaultUri);
                 //ImageButton imageButton = (ImageButton) findViewById(R.id.profile_icon);
+
+
+                if (uri.equals("content://settings/system/ringtone"))
+                    profile.setDefaultRingtone(true);
+
+                else
+                    profile.setDefaultRingtone(false);
+
+
+
                 TextView textView = (TextView) findViewById(R.id.ringtone_name);
                 textView.setText(ringtone.getTitle(sInstance));
 
@@ -1073,13 +1083,21 @@ public class ProfileActivity extends Activity {
 
                 uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
                 ringtone = RingtoneManager.getRingtone(this, uri);
-                // Get your title here `ringtone.getTitle(this)`
-                //System.out.println("picked ringtone "+ ringtone.getTitle(sInstance));
-//                Uri ringtoneDefaultUri = RingtoneManager.getActualDefaultRingtoneUri(sInstance, RingtoneManager.TYPE_RINGTONE);
+
+//                // Get your title here `ringtone.getTitle(this)`
+//                System.out.println("picked ringtone "+ ringtone.getTitle(sInstance));
+//                Uri ringtoneDefaultUri = RingtoneManager.getActualDefaultRingtoneUri(sInstance, RingtoneManager.TYPE_NOTIFICATION);
 //                Ringtone ringtoneDefault = RingtoneManager.getRingtone(sInstance, ringtoneDefaultUri);
 //
 //                System.out.println(ringtone.getTitle(sInstance) +" vs "+ ringtoneDefault.getTitle(sInstance));
 //                System.out.println(ringtone.hashCode() +" vs "+ ringtoneDefault.hashCode());
+
+                if (uri.equals("content://settings/system/notification_sound"))
+                    profile.setDefaultNotification(true);
+
+                else
+                    profile.setDefaultNotification(false);
+
 //                System.out.println(uri +" vs "+ ringtoneDefaultUri);
                 //ImageButton imageButton = (ImageButton) findViewById(R.id.profile_icon);
                 textView = (TextView) findViewById(R.id.notification_name);

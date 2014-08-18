@@ -948,6 +948,35 @@ public class Event implements Comparable<Event> {
         return -1;
     }
 
+
+    /**
+     * return boolean if ANY running event has higher priority than current event
+     */
+    public static boolean hasAnyRunningEventHigherPriority(Event e) {
+
+        /**
+         * loop through all running events
+         */
+        for (Event single : BackgroundService.getInstance().events) {
+
+            if (single.isRunning() && single.getPriority() > e.getPriority())
+                return true;
+
+
+        }
+
+
+
+
+
+        return false;
+
+    }
+
+
+
+
+
     /**
      * resets unique id
      * (used when importing events and profiles)

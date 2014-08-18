@@ -28,10 +28,12 @@ public class Profile {
      */
     private boolean isVibrate;
     private boolean brightnessDefault = true;
+    private boolean defaultRingtone = true;
+    private boolean defaultNotification = true;
     private int brightnessValue = 80;
     private boolean brightnessAuto = true;
-    private String ringtone = "";
-    private String notification = "";
+    private String ringtone = "content://settings/system/ringtone";
+    private String notification = "content://settings/system/notification_sound";
     private int volumeRingtone = 80;
     private int volumeNotification = 80;
     private int volumeMusic = 80;
@@ -294,6 +296,21 @@ public class Profile {
         this.volumeRingtone = volumeRingtone;
     }
 
+    public boolean isDefaultRingtone() {
+        return defaultRingtone;
+    }
+
+    public void setDefaultRingtone(boolean defaultRingtone) {
+        this.defaultRingtone = defaultRingtone;
+    }
+
+    public boolean isDefaultNotification() {
+        return defaultNotification;
+    }
+
+    public void setDefaultNotification(boolean defaultNotification) {
+        this.defaultNotification = defaultNotification;
+    }
 
     /**
      * resets unique id
