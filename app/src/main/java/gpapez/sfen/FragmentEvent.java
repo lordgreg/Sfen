@@ -56,9 +56,24 @@ public class FragmentEvent extends Fragment {
 
     }
 
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        /**
+//         * save fragment state!
+//         */
+//        getFragmentManager()
+//                .putFragment(outState, FragmentEvent.class.getName(),
+//                        sInstance);
+//
+//
+//    }
+
     //@Nullable
     //@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
 
         /**
          * set View
@@ -73,7 +88,7 @@ public class FragmentEvent extends Fragment {
          *
          * if bgService is already running, don't touch anything!
          */
-          refreshEventsView();
+        refreshEventsView();
 
 
         /**

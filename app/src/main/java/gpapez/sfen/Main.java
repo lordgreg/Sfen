@@ -42,6 +42,7 @@ public class Main extends Activity {
 
     // position of current tab
     protected int mTabPosition = 0;
+    private int mSavedTabPosition = 0;
 
     // tab fragment
     // create fragments
@@ -63,11 +64,64 @@ public class Main extends Activity {
         // tag
         TAG = sInstance.getClass().getPackage().getName();
 
+
         /**
-         * create fragment objects
+         * set tab position
          */
-        fragmentEvent = new FragmentEvent();
-        fragmentProfile = new FragmentProfile();
+        try {
+            mSavedTabPosition = savedInstanceState.getInt("TAB_POSITION", 0);
+            mTabPosition = mSavedTabPosition;
+        }
+        catch (Exception e) {}
+
+        System.out.println("*** TAB POSITION: "+ mSavedTabPosition);
+
+
+
+        /**
+         * create fragment Event
+         */
+        if (savedInstanceState != null && mSavedTabPosition == 0) {
+
+            // event fragment
+            fragmentEvent = (FragmentEvent) getFragmentManager().getFragment(
+                    savedInstanceState, FragmentEvent.class.getName());
+
+            if (fragmentEvent == null)
+                System.out.println("wait, fragment event is null.");
+
+            FragmentEvent.class.getName();
+
+            System.out.println("event fragment was stored. get it.");
+        }
+
+        else {
+            fragmentEvent = new FragmentEvent();
+            System.out.println("creating new fragment event.");
+        }
+
+
+        /**
+         * create fragment Profile
+         */
+        if (savedInstanceState != null && mSavedTabPosition == 1) {
+            // profile fragment
+            fragmentProfile = (FragmentProfile) getFragmentManager().getFragment(
+                    savedInstanceState, FragmentProfile.class.getName());
+
+            if (fragmentProfile == null)
+                System.out.println("wait, fragment profile is null.");
+
+            FragmentProfile.class.getName();
+
+            System.out.println("profile fragment was stored. get it.");
+        }
+
+        else {
+            fragmentProfile = new FragmentProfile();
+
+            System.out.println("creating new fragment profile.");
+        }
 
 
         // Set up the action bar to show tabs.
@@ -122,7 +176,28 @@ public class Main extends Activity {
     }
 
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        /**
+         * save current position of tab here
+         */
+        outState.putInt("TAB_POSITION", mTabPosition);
+
+
+        /**
+         * save fragments
+         */
+        if (mTabPosition == 0)
+            getFragmentManager()
+                    .putFragment(outState, FragmentEvent.class.getName(), fragmentEvent);
+
+        if (mTabPosition == 1)
+            getFragmentManager()
+                    .putFragment(outState, FragmentProfile.class.getName(), fragmentProfile);
+
+    }
 
     @Override
     protected void onResume() {
@@ -130,6 +205,11 @@ public class Main extends Activity {
 
         // set to visible
         isVisible = true;
+
+        /**
+         * set tab position
+         */
+        mTabPosition = mSavedTabPosition;
 
         refreshCurrentView();
 
