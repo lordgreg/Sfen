@@ -26,7 +26,6 @@ import android.widget.TextView;
 import com.google.android.gms.location.Geofence;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -795,16 +794,19 @@ public class BackgroundService extends Service {
                     System.out.println("Running file "+ fileToRun);
 
                     try {
-                        String[] cmd = new String[]{"/system/bin/sh", "-c", "ls "+ fileToRun};
-                        //String cmd = fileToRun;
+                        //String[] cmd = new String[]{"/system/bin/sh", "-c", "ls "+ fileToRun};
+                        // command above just returns:  /storage/emulated/0/Download/test.sh
+
+                        String[] cmd = new String[]{"/system/bin/sh", "-c", fileToRun};
+
                         Process process = Runtime.getRuntime().exec(cmd);
                         int exitValue = process.waitFor();
 
-                        System.out.println("exit value: " + exitValue);
+                        Log.d("sfen", "Script exit value: " + exitValue);
                         BufferedReader buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
                         String line = "";
                         while ((line = buf.readLine()) != null) {
-                            System.out.println("exec response: " + line);
+                            Log.d("sfen", "Script response: " + line);
                         }
 
                     }
@@ -1144,7 +1146,7 @@ public class BackgroundService extends Service {
         calendar.add(Calendar.MINUTE, e.getDelayMinutes());
 
 
-        Alarm delayedAlarm = new Alarm(context);
+        Alarm delayedAlarm = new Alarm(context, e.getUniqueID());
 
         delayedAlarm.setmAlarmID(e.getUniqueID());
         delayedAlarm.mIntentExtra = "EVENTDELAYED_"+ e.isDelayRecheckConditions() +"_"+ e.getUniqueID();

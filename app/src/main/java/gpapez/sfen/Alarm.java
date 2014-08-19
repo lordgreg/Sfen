@@ -38,9 +38,9 @@ public class Alarm {
         //mIntent = intent;
     }
 
-    public Alarm(Context context, int conditionId) {
+    public Alarm(Context context, int uniqueId) {
         mContext = context;
-        mConditionID = conditionId;
+        mAlarmID = uniqueId;
 
     }
 

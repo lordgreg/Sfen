@@ -433,31 +433,45 @@ public class Cell implements Comparable<Cell> {
         }
 
         /**
-         * if cellid already exists, skip adding
+         * if cellid already exists, update it & skip adding
          */
+        boolean cellAlreadyExist = false;
         for (Cell single : cells) {
 
             if (single.getCellId().equals(cellId)) {
-                Log.d("sfen", "Cellid "+ cellId +" already exists in array.");
-                return;
+                Log.d("sfen", "CellId "+ cellId +" already exists in array. Updating.");
+                single.setStoreDate(Calendar.getInstance());
+
+                cells.set(
+                        cells.indexOf(single),
+                        single
+                );
+
+                cellAlreadyExist = true;
+
+                Log.d("sfen", "Updating Cell "+ cellId +" in history array.");
+
+                break;
             }
         }
 
         /**
          * update cells array with new entry
          */
-        cells.add(
-                new Cell(
-                        cellId,
-                        Calendar.getInstance()
-                        )
-        );
+        if (!cellAlreadyExist) {
+            cells.add(
+                    new Cell(
+                            cellId,
+                            Calendar.getInstance()
+                    )
+            );
+
+            Log.d("sfen", "Storing Cell "+ cellId +" into history array.");
+        }
 
         /**
          * set new preferences
          */
-        Log.d("sfen", "Storing Cell "+ cellId +" into history array.");
-
         BackgroundService.getInstance().mPreferences.setPreferences(
                 "cells", cells
         );
