@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class EventActivity extends Activity {
@@ -52,6 +54,7 @@ public class EventActivity extends Activity {
     // on activity result
     final int REQUEST_PICK_SHORTCUT = 0x100;
     final int REQUEST_CREATE_SHORTCUT = 0x200;
+    final int REQUEST_FILEMANAGER_SHORTCUT = 101;
 
 
     @Override
@@ -820,6 +823,46 @@ public class EventActivity extends Activity {
                  * add new action
                  */
                 Util.addNewConditionOrAction(sInstance, cond, 0);
+
+                break;
+
+
+            case REQUEST_FILEMANAGER_SHORTCUT:
+
+                String path = data.getData().getPath();
+                /**
+                 * file retrieved. save it.
+                 */
+                File f = new File(path);
+
+                /**
+                 * is it even bash file?
+                 */
+                if (!f.getName().endsWith(".sh")) {
+
+                    Util.showMessageBox(
+                            getString(R.string.file_not_bash, f.getName()),
+                            false);
+
+                    break;
+
+                }
+
+                final DialogOptions condFile = new DialogOptions(getString(R.string.shortcut), path,
+                        R.drawable.ic_dialog, DialogOptions.type.ACT_RUNSCRIPT);
+
+                condFile.setSetting("FILE", path);
+//
+                condFile.setSetting("text1", sInstance.getString(R.string.run_script) +" "+
+                        f.getName());
+                condFile.setSetting("text2", path);
+
+
+                /**
+                 * add new action
+                 */
+                Util.addNewConditionOrAction(sInstance, condFile, 0);
+
 
                 break;
 

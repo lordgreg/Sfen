@@ -233,7 +233,7 @@ Are you sure?</string>
     <string name="events_selected">Events selected: %1$d</string>
     <string name="when_events_running">When events running</string>
     <string name="when_events_not_running">When events not running</string>
-    <string name="battery_at">Battery at %s</string>
+    <string name="battery_at">Battery between %1$s and %2$s</string>
     <string name="pick_battery_level">Pick battery level</string>
     <string name="battery_charging">Charging</string>
     <string name="battery_discharging">Discharging</string>
@@ -311,4 +311,9 @@ Are you sure?</string>
     <string name="logs_nothing_to_delete">Nothing to delete. No logs available yet.</string>
     <string name="logs_delete_confirm">Are you sure you want to delete logs?</string>
     <string name="cell_wrong_cell_report">Wrong cell report (%s)</string>
+    <string name="battery_from_cannot_be_higher_than_to">Battery From cannot be higher than battery to.</string>
+    <string name="run_script">Run script</string>
+    <string name="run_script_description">Bash script will run. Extreme caution!</string>
+    <string name="file_not_bash">File %s is not bash file!</string>
+    <string name="runscript_cannot_edit">You cannot edit action Run Script. You can only remove it.</string>
 </resources>

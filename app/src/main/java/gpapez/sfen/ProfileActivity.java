@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -67,7 +68,7 @@ public class ProfileActivity extends Activity {
     final int REQUEST_CREATE_SHORTCUT = 0x200;
     final int REQUEST_RINGTONE_RESULT = 3;
     final int REQUEST_NOTIFICATION_RESULT = 4;
-//    final int REQUEST_CONTACT_RESULT = 5;
+    final int REQUEST_FILEMANAGER_SHORTCUT = 101;
 
     // options hashmap
 
@@ -1116,6 +1117,46 @@ public class ProfileActivity extends Activity {
 //                CallAllowDeny.openSubDialogWithSettings(contactData);
 //
 //                break;
+
+
+            case REQUEST_FILEMANAGER_SHORTCUT:
+
+                String path = data.getData().getPath();
+                /**
+                 * file retrieved. save it.
+                 */
+                File f = new File(path);
+
+                /**
+                 * is it even bash file?
+                 */
+                if (!f.getName().endsWith(".sh")) {
+
+                    Util.showMessageBox(
+                            getString(R.string.file_not_bash, f.getName()),
+                            false);
+
+                    break;
+
+                }
+
+                final DialogOptions condFile = new DialogOptions(getString(R.string.shortcut), path,
+                        R.drawable.ic_dialog, DialogOptions.type.ACT_RUNSCRIPT);
+
+                condFile.setSetting("FILE", path);
+//
+                condFile.setSetting("text1", sInstance.getString(R.string.run_script) +" "+
+                        f.getName());
+                condFile.setSetting("text2", path);
+
+
+                /**
+                 * add new action
+                 */
+                Util.addNewConditionOrAction(sInstance, condFile, 0);
+
+
+                break;
 
         }
 

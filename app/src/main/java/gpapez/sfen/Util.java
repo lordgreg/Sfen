@@ -1,5 +1,6 @@
 package gpapez.sfen;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -1231,30 +1232,66 @@ public class Util extends Activity {
                 /**
                  * battery level will be ranged with 2 seekbars
                  */
-                SeekBar batteryFrom = new SeekBar(context);
-                SeekBar batteryTo = new SeekBar(context);
+                final SeekBar batteryFrom = new SeekBar(context);
+                final SeekBar batteryTo = new SeekBar(context);
                 batteryFrom.setMax(100);
+                batteryFrom.setMinimumWidth(50);
                 batteryTo.setMax(100);
                 batteryFrom.setProgress(10);
                 batteryTo.setProgress(90);
 
-                TextView infoFrom = new TextView(context);
-                TextView infoTo = new TextView(context);
-                infoFrom.setText(context.getString(R.string.from));
-                infoTo.setText(context.getString(R.string.to));
+                final TextView infoFrom = new TextView(context);
+                final TextView infoTo = new TextView(context);
+
+                /**
+                 * if updating, import the seekbar entries
+                 */
+                if (isEditing) {
+
+                    batteryFrom.setProgress(
+                            Integer.parseInt(opt.getSetting("BATTERY_LEVEL_FROM"))
+                    );
+
+                    batteryTo.setProgress(
+                            Integer.parseInt(opt.getSetting("BATTERY_LEVEL_TO"))
+                    );
+
+                }
+
+                // update from & to text
+                infoFrom.setText(context.getString(R.string.from) +
+                        " ("+ batteryFrom.getProgress() +"%)");
+                infoTo.setText(context.getString(R.string.to) +
+                        " ("+ batteryTo.getProgress() +"%)");
+
 
                 // here comes the super fun stuff!
-//                batteryFrom.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//                    @Override
-//                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-//                        batteryTo.set
-//                    }
-//
-//                    @Override
-//                    public void onStartTrackingTouch(SeekBar seekBar) {}
-//                    @Override
-//                    public void onStopTrackingTouch(SeekBar seekBar) {}
-//                });
+                batteryTo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        infoTo.setText(context.getString(R.string.to) +
+                                " ("+ batteryTo.getProgress() +"%)");
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
+
+                batteryFrom.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                        infoFrom.setText(context.getString(R.string.from) +
+                                " ("+ batteryFrom.getProgress() +"%)");
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {}
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
 
 
                 ScrollView scrollView = new ScrollView(context);
@@ -1265,6 +1302,7 @@ public class Util extends Activity {
                 newView.setLayoutParams(parms);
                 newView.setOrientation(LinearLayout.VERTICAL);
                 newView.setPadding(15, 15, 15, 15);
+
                 newView.addView(infoFrom);
                 newView.addView(batteryFrom);
                 newView.addView(infoTo);
@@ -1276,6 +1314,76 @@ public class Util extends Activity {
                         .setView(scrollView)
                         .setIcon(R.drawable.ic_battery)
                         .setTitle(context.getString(R.string.battery_level_description))
+                        .setNegativeButton(context.getString(R.string.cancel),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+
+                        .setPositiveButton(context.getString(R.string.ok),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        dialog.dismiss();
+
+
+                                        /**
+                                         * from>to?
+                                         */
+                                        if (batteryFrom.getProgress() > batteryTo.getProgress()) {
+
+                                            showMessageBox(
+                                                    context.getString(R.string.battery_from_cannot_be_higher_than_to),
+                                                    false);
+
+                                        }
+
+
+                                        /**
+                                         * store new entries here
+                                         */
+                                        else {
+
+
+                                            // add new condition
+                                            final DialogOptions cond = new DialogOptions(opt.getTitle(),
+                                                    opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                            cond.setSetting("text1", context.getString(R.string.battery_level));
+                                            cond.setSetting("text2",
+                                                    context.getString(R.string.battery_at,
+                                                            batteryFrom.getProgress() +"%",
+                                                            batteryTo.getProgress() +"%"
+                                                    )
+                                            );
+
+                                            /**
+                                             * create setting with battery level without percentage
+                                             */
+                                            cond.setSetting("BATTERY_LEVEL_FROM",
+                                                    String.valueOf(batteryFrom.getProgress())
+                                            );
+
+                                            cond.setSetting("BATTERY_LEVEL_TO",
+                                                    String.valueOf(batteryTo.getProgress())
+                                            );
+
+
+                                            // editing.
+                                            if (isEditing)
+                                                removeConditionOrAction(index, opt);
+
+                                            addNewConditionOrAction(context, cond, index);
+
+
+                                        }
+
+
+                                    }
+                                })
 
                         .show();
 
@@ -1917,7 +2025,34 @@ public class Util extends Activity {
                         })
                         .show();
 
+                break;
 
+
+
+            case ACT_RUNSCRIPT:
+
+                if (isEditing) {
+                    showMessageBox(context.getString(R.string.runscript_cannot_edit), true);
+                    return ;
+                }
+
+
+                /**
+                 * open default file manager
+                 */
+                final Intent intentFileManager = new Intent();
+                intentFileManager.setAction(Intent.ACTION_GET_CONTENT);
+                intentFileManager.setType("file/*");
+                //context.startActivityForResult(intentFileManager);
+                final int REQUEST_FILEMANAGER_SHORTCUT = 101;
+
+                if (actionFrom == ACTION_FROM.PROFILE)
+                    ProfileActivity.getInstance().startActivityForResult(intentFileManager,
+                            REQUEST_FILEMANAGER_SHORTCUT);
+
+                if (actionFrom == ACTION_FROM.EVENT)
+                    EventActivity.getInstance().startActivityForResult(intentFileManager,
+                            REQUEST_FILEMANAGER_SHORTCUT);
 
 
 

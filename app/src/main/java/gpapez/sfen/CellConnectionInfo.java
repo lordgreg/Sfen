@@ -86,13 +86,13 @@ public class CellConnectionInfo {
          * IF our cellID includes -1, there's something wrong with cell and it isn't
          * correct cellID meaning its an corrupted catch
          */
-        if (cellId != null || cellId.equals("")) {
-            if (cellId.contains("-1")) {
-                isError = true;
-                errorString = sActivity.getString(R.string.cell_wrong_cell_report, cellId);
-                Log.e("sfen", errorString);
-            }
-        }
+//        if (cellId != null || cellId.equals("")) {
+//            if (cellId.contains("-1")) {
+//                isError = true;
+//                errorString = sActivity.getString(R.string.cell_wrong_cell_report, cellId);
+//                Log.e("sfen", errorString);
+//            }
+//        }
 
         return isError;
     }

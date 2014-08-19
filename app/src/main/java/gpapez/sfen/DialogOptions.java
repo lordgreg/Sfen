@@ -59,6 +59,7 @@ public class DialogOptions {
         add(new DialogOptions(Main.getInstance().getString(R.string.open_application), Main.getInstance().getString(R.string.open_application_description), R.drawable.ic_dialog, DialogOptions.type.ACT_OPENAPPLICATION));
         add(new DialogOptions(Main.getInstance().getString(R.string.open_shortcut), Main.getInstance().getString(R.string.open_shortcut_description), R.drawable.ic_dialog, DialogOptions.type.ACT_OPENSHORTCUT));
         add(new DialogOptions(Main.getInstance().getString(R.string.run_event), Main.getInstance().getString(R.string.run_event_description), R.drawable.ic_event, DialogOptions.type.ACT_RUNEVENT));
+        add(new DialogOptions(Main.getInstance().getString(R.string.run_script), Main.getInstance().getString(R.string.run_script_description), R.drawable.ic_dialog, type.ACT_RUNSCRIPT));
     }};
 
 
@@ -73,7 +74,7 @@ public class DialogOptions {
         ACT_NOTIFICATION, ACT_PLAYSFEN, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT,
         ACT_WIFIENABLE, ACT_WIFIDISABLE, ACT_MOBILEENABLE, ACT_MOBILEDISABLE,
         ACT_VIBRATE, ACT_LOCKSCREENDISABLE, ACT_LOCKSCREENENABLE, ACT_OPENSHORTCUT,
-        ACT_RUNEVENT
+        ACT_RUNEVENT, ACT_RUNSCRIPT
     };
     private type optionType;
     private int maxNumber;

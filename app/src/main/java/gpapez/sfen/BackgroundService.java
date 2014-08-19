@@ -25,6 +25,10 @@ import android.widget.TextView;
 
 import com.google.android.gms.location.Geofence;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -646,6 +650,8 @@ public class BackgroundService extends Service {
 
                     break;
 
+                case ACT_PLAYSOUND:
+                    break;
                 case ACT_OPENAPPLICATION:
 
                     String packageName = act.getSetting("packagename");
@@ -777,6 +783,41 @@ public class BackgroundService extends Service {
 
 
                     break;
+
+
+                case ACT_RUNSCRIPT:
+
+                    /**
+                     * THIS IS YOUR OWN FAULT IF YOU SCREW THIS UP...
+                     */
+                    String fileToRun = act.getSetting("FILE");
+
+                    System.out.println("Running file "+ fileToRun);
+
+                    try {
+                        String[] cmd = new String[]{"/system/bin/sh", "-c", "ls "+ fileToRun};
+                        //String cmd = fileToRun;
+                        Process process = Runtime.getRuntime().exec(cmd);
+                        int exitValue = process.waitFor();
+
+                        System.out.println("exit value: " + exitValue);
+                        BufferedReader buf = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                        String line = "";
+                        while ((line = buf.readLine()) != null) {
+                            System.out.println("exec response: " + line);
+                        }
+
+                    }
+                    catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+
+
+                    break;
+
 
                 default:
                     Log.d("sfen", "No case match ("+ act.getOptionType() +" in runActions).");
@@ -996,7 +1037,8 @@ public class BackgroundService extends Service {
          * if yes, don't run!
          *
          */
-        if (Event.hasAnyRunningEventHigherPriority(e)) {
+        boolean isHigherPriorityEventRunning = false;
+        if (isHigherPriorityEventRunning) {
 
             Log.d("sfen", "Higher priority event is already running. Execution of "+ e.getName() +
                 " stopped.");
@@ -1005,9 +1047,11 @@ public class BackgroundService extends Service {
 
         /**
          * THERE IS NO HIGHER PRIORITY running events. execute profile & actions
+         * but if it is and our event is forcerunning, let it pass
          */
-        else {
-
+        if (!isHigherPriorityEventRunning  ||
+                (isHigherPriorityEventRunning && e.isForceRun())
+                ) {
 
             /**
              *
@@ -1619,6 +1663,7 @@ public class BackgroundService extends Service {
      * START SINGLE EVENT
      */
     protected void startSingleEvent(Event e) {
+
 
         /**
          * IF WE HAVE ACTIONS

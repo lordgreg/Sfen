@@ -721,12 +721,13 @@ public class Event implements Comparable<Event> {
 //                    System.out.println("current battery level: "+ batteryPct);
 //                    System.out.println("level: "+ level +", scale: "+ scale);
 
-                    int saveLevel = Integer.parseInt(cond.getSetting("BATTERY_LEVEL"));
+                    int savedLevelFrom = Integer.parseInt(cond.getSetting("BATTERY_LEVEL_FROM"));
+                    int savedLevelTo = Integer.parseInt(cond.getSetting("BATTERY_LEVEL_TO"));
 
                     /**
                      * return true only in case of same battery level
                      */
-                    if (level == saveLevel)
+                    if (level >= savedLevelFrom && level <= savedLevelTo)
                         conditionResults.add(true);
 
                     else

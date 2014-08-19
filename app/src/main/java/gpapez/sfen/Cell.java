@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 /**
  * Created by Gregor on 11.8.2014.
@@ -292,6 +293,11 @@ public class Cell implements Comparable<Cell> {
             cells = new ArrayList<Cell>();
         }
 
+        /**
+         * sort the array
+         */
+        Collections.sort(cells, Collections.reverseOrder());
+
 //        // dummy
 //        cells.add(
 //                new Cell(
@@ -359,19 +365,19 @@ public class Cell implements Comparable<Cell> {
             /**
              * clicking single row
              */
-            newRow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (newRow.isSelected()) {
-                        selectedCells.add(single);
-                        newRow.setSelected(false);
-                    }
-                    else {
-                        selectedCells.remove(single);
-                        newRow.setSelected(true);
-                    }
-                }
-            });
+//            newRow.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (newRow.isSelected()) {
+//                        selectedCells.add(single);
+//                        newRow.setSelected(false);
+//                    }
+//                    else {
+//                        selectedCells.remove(single);
+//                        newRow.setSelected(true);
+//                    }
+//                }
+//            });
 
             /**
              * clicking trash bin, deletes stored cell
