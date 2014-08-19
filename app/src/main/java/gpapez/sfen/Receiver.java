@@ -1,7 +1,7 @@
 package gpapez.sfen;
 
 import android.app.AlarmManager;
-import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -66,7 +66,9 @@ public class Receiver extends BroadcastReceiver {
         add(LocationManager.MODE_CHANGED_ACTION);       // gps on/off
         add(Intent.ACTION_BATTERY_CHANGED);             // battery status
         add(WifiManager.NETWORK_STATE_CHANGED_ACTION);   // wifi toggle
-        add(BluetoothAdapter.ACTION_STATE_CHANGED);     // bluetooth toggle
+        //add(BluetoothAdapter.ACTION_STATE_CHANGED);     // bluetooth toggle
+        add(BluetoothDevice.ACTION_ACL_CONNECTED);
+        add(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         add(Intent.ACTION_HEADSET_PLUG);                // headset toggle
 
     }};
@@ -132,6 +134,70 @@ public class Receiver extends BroadcastReceiver {
 
 
         }
+
+//        /**
+//         * bluetooth device connected/disconnected
+//         */
+//        if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
+//            /**
+//             * add device to connected devices in our settings
+//             */
+//            Gson gson = new Gson();
+//
+//            ArrayList<String> connectedBtDevices =
+//                    gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
+//                            new TypeToken<List<String>>() {
+//                            }.getType());
+//
+//            if (connectedBtDevices == null)
+//                connectedBtDevices = new ArrayList<String>();
+//
+//
+//            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//
+//            if (!connectedBtDevices.contains(device.getAddress()))
+//                connectedBtDevices.add(device.getAddress());
+//
+//
+//            /**
+//             * store back to preferences
+//             */
+//            Preferences.getSharedPreferences().edit().putString(
+//                    "BT_CONNECTED_DEVICES",
+//                    new Gson().toJson(connectedBtDevices)).apply();
+//
+//
+//        }
+//
+//        if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
+//            /**
+//             * remove device from our connected list
+//             */
+//            Gson gson = new Gson();
+//
+//            ArrayList<String> connectedBtDevices =
+//                    gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
+//                            new TypeToken<List<String>>() {
+//                            }.getType());
+//
+//            if (connectedBtDevices == null)
+//                connectedBtDevices = new ArrayList<String>();
+//
+//
+//            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//
+//            if (connectedBtDevices.contains(device.getAddress()))
+//                connectedBtDevices.remove(device.getAddress());
+//
+//
+//            /**
+//             * store back to preferences
+//             */
+//            Preferences.getSharedPreferences().edit().putString(
+//                    "BT_CONNECTED_DEVICES",
+//                    new Gson().toJson(connectedBtDevices)).apply();
+//
+//        }
 
         /**
          * screen off will create alarm that will wake up the phone every now and then to

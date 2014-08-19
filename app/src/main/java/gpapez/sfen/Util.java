@@ -1,6 +1,5 @@
 package gpapez.sfen;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -8,6 +7,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -44,10 +45,12 @@ import com.google.gson.reflect.TypeToken;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Gregor on 11.7.2014.
@@ -779,27 +782,165 @@ public class Util extends Activity {
             case BLUETOOTH_ON:
             case BLUETOOTH_OFF:
 
-                if (isEditing) {
-                    showMessageBox(context.getString(R.string.cannot_edit_bluetooth), true);
+                /**
+                 * get devices
+                 */
+                BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+                /**
+                 * none -.-
+                 */
+                if (pairedDevices.size() == 0) {
+
+                    showMessageBox(context.getString(R.string.bluetooth_no_devices_exist), false);
+
                     return ;
+
                 }
 
-                // save action & create new row
-                final DialogOptions condBt = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
 
-                condBt.setSetting("text1", opt.getTitle());
-                condBt.setSetting("text2",
+                boolean[] btDevicesChecked = new boolean[pairedDevices.size()];
+                ArrayList<String> btDevices = new ArrayList<String>();
+                final ArrayList<String> btDevicesAddress = new ArrayList<String>();
+                final ArrayList<String> btDevicesSelected = new ArrayList<String>();
 
-                        context.getString(R.string.bluetooth_state,
-                                ((opt.getOptionType() == DialogOptions.type.BLUETOOTH_ON) ?
-                                        context.getString(R.string.on) :
-                                        context.getString(R.string.off))
+                /**
+                 * editing preferences
+                 */
+                ArrayList<String> btFromSettings = new ArrayList<String>();
+                if (isEditing) {
+
+                    btFromSettings = gson.fromJson(opt.getSetting("BLUETOOTH_DEVICES"),
+                            new TypeToken<List<String>>(){}.getType());
+
+                    // add all from settings to lists
+                    if (btFromSettings.size() > 0) {
+
+                        btDevicesAddress.addAll(btFromSettings);
+                        btDevicesSelected.addAll(btFromSettings);
+                        Arrays.fill(btDevicesChecked, true);
+
+                    }
+
+                }
 
 
-                                )
-                );
+                int btCurrent = 0;
+                for(BluetoothDevice bt : pairedDevices) {
+                    //btDevicesString.add(bt.getName());
+                    //btDevices.put(bt.getAddress(), bt.getName());
 
-                addNewConditionOrAction(context, condBt, 0);
+                    // device is allready stored (from settings)
+                    if (btDevicesAddress.contains(bt.getAddress())) {
+                        btDevices.add(bt.getName());
+                    }
+                    else {
+                        btDevices.add(bt.getName());
+                        btDevicesAddress.add(bt.getAddress());
+                        //btDevicesSelected.add(bt.getAddress());
+                    }
+
+//                    System.out.println("BLUETOOTH DEVICE: "+ bt.getName() +", "+ bt.getAddress());
+
+
+                    btCurrent++;
+                }
+
+
+                // create array of strings from arraylist
+                final String[] btDevicesStrings = btDevices.toArray(new String[btDevices.size()]);
+
+
+                builder
+                        .setTitle(context.getString(R.string.bluetooth_devices))
+                        .setIcon(R.drawable.ic_bluetooth)
+                        .setMultiChoiceItems(btDevicesStrings, btDevicesChecked, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                                // if checked, add them to selected array, otherwise remove
+                                if (b)
+                                    btDevicesSelected.add( btDevicesAddress.get(i) );
+                                else
+                                    btDevicesSelected.remove(
+                                            btDevicesAddress.indexOf(btDevicesAddress.get(i)) );
+                            }
+                        })
+
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+
+                                /**
+                                 * got any selected?
+                                 */
+                                if (btDevicesSelected.size() == 0) {
+
+                                    Util.showMessageBox(context.getString(R.string.bluetooth_no_devices_selected), false);
+
+                                    return ;
+
+                                }
+
+
+                                /**
+                                 *
+                                 * create settings
+                                 *
+                                 */
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("BLUETOOTH_DEVICES", (new Gson().toJson(btDevicesSelected)));
+                                cond.setSetting("text1", opt.getTitle());
+                                cond.setSetting("text2",
+                                        context.getString(R.string.bluetooth_devices_selected, btDevicesSelected.size()));
+
+                                // if we are editing in sub-dialog, clear previous entry
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+                                addNewConditionOrAction(context, cond, index);
+
+
+                            }
+                        })
+
+                        .show();
+
+                //setListAdapter(new ArrayAdapter<String>(this, R.layout.list, s));
+
+
+
+
+
+//                if (isEditing) {
+//                    showMessageBox(context.getString(R.string.cannot_edit_bluetooth), true);
+//                    return ;
+//                }
+//
+//                // save action & create new row
+//                final DialogOptions condBt = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+//
+//                condBt.setSetting("text1", opt.getTitle());
+//                condBt.setSetting("text2",
+//
+//                        context.getString(R.string.bluetooth_state,
+//                                ((opt.getOptionType() == DialogOptions.type.BLUETOOTH_ON) ?
+//                                        context.getString(R.string.on) :
+//                                        context.getString(R.string.off))
+//
+//
+//                                )
+//                );
+//
+//                addNewConditionOrAction(context, condBt, 0);
 
                 break;
 

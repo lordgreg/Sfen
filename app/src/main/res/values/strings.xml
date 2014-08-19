@@ -316,4 +316,8 @@ Are you sure?</string>
     <string name="run_script_description">Bash script will run. Extreme caution!</string>
     <string name="file_not_bash">File %s is not bash file!</string>
     <string name="runscript_cannot_edit">You cannot edit action Run Script. You can only remove it.</string>
+    <string name="bluetooth_no_devices_exist">No paired devices exist.</string>
+    <string name="bluetooth_devices">Bluetooth devices</string>
+    <string name="bluetooth_no_devices_selected">Select at least one device to continue.</string>
+    <string name="bluetooth_devices_selected">Selected devices: %1$d</string>
 </resources>

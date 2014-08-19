@@ -1,6 +1,7 @@
 package gpapez.sfen;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -138,28 +139,57 @@ public class Event implements Comparable<Event> {
                     int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
                             BluetoothAdapter.ERROR);
 
-                    /**
-                     * if state == on
-                     */
-                    if (state == BluetoothAdapter.STATE_ON) {
+                    System.out.println("current action: "+ action);
 
-                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_ON)
+                    /**
+                     * info from settings
+                     */
+                    gson = new Gson();
+                    final ArrayList<String> btFromSettings = gson.fromJson(cond.getSetting("BLUETOOTH_DEVICES"),
+                            new TypeToken<List<String>>(){}.getType());
+
+
+                    /**
+                     * get current device
+                     */
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                    /**
+                     * get current connected devices
+                     */
+                    ArrayList<String> connectedBtDevices =
+                            gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
+                                    new TypeToken<List<String>>() {
+                                    }.getType());
+
+
+                    /**
+                     * if state == connected
+                     */
+                    if (action.contains("android.bluetooth.device.action.ACL_CONNECTED")) {
+
+                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_ON &&
+                                btFromSettings.contains(device.getAddress()))
                             conditionResults.add(true);
                         else
                             conditionResults.add(false);
 
                     }
                     /**
-                     * if state == off
+                     * if state == disconnected
                      */
-                    else {
+                    if (action.contains("android.bluetooth.device.action.ACL_DISCONNECTED")) {
 
-                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_OFF)
+                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_OFF &&
+                                btFromSettings.contains(device.getAddress()))
                             conditionResults.add(true);
                         else
                             conditionResults.add(false);
 
                     }
+
+//                    else
+//                        conditionResults.add(false);
 
                     break;
 
