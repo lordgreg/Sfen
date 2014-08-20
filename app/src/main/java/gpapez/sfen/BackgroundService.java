@@ -1039,7 +1039,8 @@ public class BackgroundService extends Service {
          * if yes, don't run!
          *
          */
-        boolean isHigherPriorityEventRunning = false;
+        boolean isHigherPriorityEventRunning =
+                Event.hasAnyRunningEventHigherPriority(e);
         if (isHigherPriorityEventRunning) {
 
             Log.d("sfen", "Higher priority event is already running. Execution of "+ e.getName() +
@@ -1259,7 +1260,7 @@ public class BackgroundService extends Service {
                             timeStart.set(Calendar.SECOND, 0);
 
 
-                            mAlarm = new Alarm(sInstance, single.getUniqueID());
+                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 0);
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
@@ -1284,7 +1285,7 @@ public class BackgroundService extends Service {
                                 timeEnd.add(Calendar.DATE, 1);
 
 
-                            mAlarm = new Alarm(sInstance, single.getUniqueID());
+                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 1);
                             mAlarm.mIntentExtra = "FORCE_RUN";
                             mAlarm.CreateAlarmRepeating(timeEnd, interval);
                             mActiveAlarms.add(mAlarm);
@@ -1325,7 +1326,7 @@ public class BackgroundService extends Service {
                             timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("minute")));
                             timeStart.set(Calendar.SECOND, 0);
 
-                            mAlarm = new Alarm(sInstance, single.getUniqueID());
+                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 0);
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
@@ -1334,7 +1335,7 @@ public class BackgroundService extends Service {
                             // that's why i've implemented
                             timeStart.add(Calendar.MINUTE, 10);
 
-                            mAlarm = new Alarm(sInstance, single.getUniqueID());
+                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 1);
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
