@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.google.android.gms.location.Geofence;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -790,16 +791,28 @@ public class BackgroundService extends Service {
                      * THIS IS YOUR OWN FAULT IF YOU SCREW THIS UP...
                      */
                     String fileToRun = act.getSetting("FILE");
-
-                    System.out.println("Running file "+ fileToRun);
+                    File f = new File(fileToRun);
 
                     try {
                         //String[] cmd = new String[]{"/system/bin/sh", "-c", "ls "+ fileToRun};
                         // command above just returns:  /storage/emulated/0/Download/test.sh
 
-                        String[] cmd = new String[]{"/system/bin/sh", "-c", fileToRun};
+//                        System.out.println("bash script path: "+ f.getAbsolutePath());
 
-                        Process process = Runtime.getRuntime().exec(cmd);
+
+                        //Log.d("sfen", "Running command /system/bin/sh "+ fileToRun);
+
+                        // working command
+                        String[] cmd = new String[]{"/system/bin/sh", "-c", fileToRun};
+                        //String[] cmd = new String[]{fileToRun};
+
+                        /**
+                         * set running directory to *.sh directory
+                         */
+                        Process process = Runtime.getRuntime().exec(cmd, null,
+                                f.getParentFile()
+                        );
+
                         int exitValue = process.waitFor();
 
                         Log.d("sfen", "Script exit value: " + exitValue);
