@@ -1546,6 +1546,8 @@ public class BackgroundService extends Service {
          * add filters to array of allowables
          * then clear array
          */
+//        mReceiverFilters.add("android.intent.action.MEDIA_BUTTON");
+
         mReceiver.addFiltersToAllowable(mReceiverFilters);
         mReceiverFilters.clear();
 
@@ -1699,6 +1701,30 @@ public class BackgroundService extends Service {
          *
          */
         if (e.getProfile() != null) {
+
+            /**
+             * check if current active profile is locked, if so,
+             * check until when
+             */
+            if (Profile.getActiveProfile() != null &&
+                    Profile.getActiveProfile().isLocked()) {
+
+                Calendar calendar = Calendar.getInstance();
+
+                // if active profile lock time is still in action
+                if (calendar.before(Profile.getActiveProfile().getIsLockedUntil())) {
+                    Log.i("sfen", "Profile "+ e.getProfile().getName() +" won't run. Active profile is locked!");
+                    return ;
+
+                }
+                // else, just disable lock
+                else {
+                    Profile.getActiveProfile().setLocked(false);
+                }
+
+
+            }
+
 
             /**
              * set new as active

@@ -45,7 +45,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -786,6 +785,13 @@ public class Util extends Activity {
                  * get devices
                  */
                 BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+                if (mBluetoothAdapter == null) {
+                    showMessageBox(context.getString(R.string.bluetooth_adapter_not_connected), false);
+                    return ;
+
+                }
+
                 Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
                 /**
@@ -800,10 +806,10 @@ public class Util extends Activity {
                 }
 
 
-                boolean[] btDevicesChecked = new boolean[pairedDevices.size()];
                 ArrayList<String> btDevices = new ArrayList<String>();
                 final ArrayList<String> btDevicesAddress = new ArrayList<String>();
                 final ArrayList<String> btDevicesSelected = new ArrayList<String>();
+                boolean[] btDevicesChecked = new boolean[pairedDevices.size()];
 
                 /**
                  * editing preferences
@@ -819,7 +825,7 @@ public class Util extends Activity {
 
                         btDevicesAddress.addAll(btFromSettings);
                         btDevicesSelected.addAll(btFromSettings);
-                        Arrays.fill(btDevicesChecked, true);
+                        //Arrays.fill(btDevicesChecked, true);
 
                     }
 

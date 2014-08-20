@@ -3,6 +3,7 @@ package gpapez.sfen;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Random;
 
 /**
@@ -19,6 +20,11 @@ public class Profile {
     private String icon;
     private int uniqueID;
     private boolean isActive;
+
+    private boolean isLocked = false;
+    private Calendar isLockedUntil;
+
+    private boolean isVolumeButtonsDisable = false;
 
     private ArrayList<DialogOptions> actions = new ArrayList<DialogOptions>();
     private ArrayList<CallAllowDeny> callAllowDenies = new ArrayList<CallAllowDeny>();
@@ -216,6 +222,30 @@ public class Profile {
 
     public void setUniqueID(int uniqueID) {
         this.uniqueID = uniqueID;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean isLocked) {
+        this.isLocked = isLocked;
+    }
+
+    public Calendar getIsLockedUntil() {
+        return isLockedUntil;
+    }
+
+    public void setIsLockedUntil(Calendar isLockedUntil) {
+        this.isLockedUntil = isLockedUntil;
+    }
+
+    public boolean isVolumeButtonsDisable() {
+        return isVolumeButtonsDisable;
+    }
+
+    public void setVolumeButtonsDisable(boolean isVolumeButtonsDisable) {
+        this.isVolumeButtonsDisable = isVolumeButtonsDisable;
     }
 
     public int getBrightnessValue() {

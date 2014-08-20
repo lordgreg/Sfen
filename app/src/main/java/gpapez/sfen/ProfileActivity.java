@@ -25,6 +25,8 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -32,6 +34,7 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 /**
@@ -322,6 +325,7 @@ public class ProfileActivity extends Activity {
     public void refreshView() {
         ((TextView) findViewById(R.id.profile_name)).setText(profile.getName());
         ((CheckBox) findViewById(R.id.profile_vibrate)).setChecked(profile.isVibrate());
+        ((CheckBox) findViewById(R.id.profile_locked)).setChecked(profile.isLocked());
 
         //Uri uri = profile.getRingtone();
         //Ringtone ring = RingtoneManager.getRingtone(sInstance, profile.get);
@@ -985,6 +989,121 @@ public class ProfileActivity extends Activity {
 
     }
 
+
+    /**
+     * ONCLICK: Profile Locked!
+     */
+    public void onClickProfileLocked(View v) {
+
+        final CheckBox checkBox = (CheckBox) findViewById(R.id.profile_locked);
+
+        /**
+         * DISABLING LOCK
+         */
+        if (checkBox.isChecked()) {
+            checkBox.setChecked(false);
+
+            profile.setLocked(false);
+
+        }
+
+        /**
+         * ENABLING LOCK
+         */
+        else {
+
+
+            checkBox.setChecked(true);
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            final TextView info = new TextView(sInstance);
+            final NumberPicker numberPicker = new NumberPicker(sInstance);
+            numberPicker.setMinValue(1);
+            numberPicker.setMaxValue(360);
+
+            info.setText(getString(R.string.profile_pick_number_of_minutes_for_lock));
+            info.setPadding(15, 15, 15, 5);
+
+            LinearLayout newView = new LinearLayout(sInstance);
+            LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            newView.setLayoutParams(parms);
+            newView.setOrientation(LinearLayout.VERTICAL);
+            newView.setPadding(15, 15, 15, 15);
+            newView.addView(info);
+            newView.addView(numberPicker);
+
+            ScrollView scrollView = new ScrollView(Main.getInstance());
+            scrollView.addView(newView);
+
+            builder
+                    .setIcon(R.drawable.ic_time)
+                    .setTitle(getString(R.string.delay_options))
+                    .setView(scrollView)
+                    .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+
+                            /**
+                             * enable profile lock!
+                             */
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.add(Calendar.MINUTE, numberPicker.getValue());
+
+                            Util.showMessageBox(getString(
+                                    R.string.profile_locked_until, Util.getDateLong(calendar, sInstance)),
+                                    true
+                            );
+
+                            profile.setLocked(true);
+                            profile.setIsLockedUntil(calendar);
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            checkBox.setChecked(false);
+                            profile.setLocked(false);
+                            profile.setIsLockedUntil(null);
+                        }
+                    })
+                    .show();
+
+
+
+
+        }
+
+
+    }
+
+
+//    /**
+//     * ON CLICK: Disable Volume buttons
+//     */
+//    public void onClickProfileDisableVolumeButtons(View v) {
+//
+//        /**
+//         * http://stackoverflow.com/questions/10537184/capture-media-button-on-android-4-0-works-on-2-3
+//         */
+//
+//        final CheckBox checkBox = (CheckBox) findViewById(R.id.profile_disablevolumebuttons);
+//
+//        /**
+//         * DISABLING LOCK
+//         */
+//        if (checkBox.isChecked()) {
+//            checkBox.setChecked(false);
+//
+//            profile.setLocked(false);
+//
+//        }
+//
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

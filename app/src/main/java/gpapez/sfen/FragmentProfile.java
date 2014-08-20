@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.util.Calendar;
+
 /**
  * Profile Window
  */
@@ -282,6 +284,30 @@ public class FragmentProfile extends Fragment {
      *
      */
     protected void activateProfile(Profile p) {
+
+        /**
+         * check if current active profile is locked, if so,
+         * check until when
+         */
+        if (Profile.getActiveProfile() != null &&
+                Profile.getActiveProfile().isLocked()) {
+
+            Calendar calendar = Calendar.getInstance();
+
+            // if active profile lock time is still in action
+            if (calendar.before(Profile.getActiveProfile().getIsLockedUntil())) {
+                Log.i("sfen", "Profile "+ p.getName() +" won't run. Active profile is locked!");
+                return ;
+
+            }
+            // else, just disable lock
+            else {
+                Profile.getActiveProfile().setLocked(false);
+            }
+
+
+        }
+
 
         /**
          * update list of profiles with active flags

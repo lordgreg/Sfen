@@ -1,6 +1,5 @@
 package gpapez.sfen;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
@@ -136,10 +135,10 @@ public class Event implements Comparable<Event> {
                 case BLUETOOTH_ON:
                 case BLUETOOTH_OFF:
 
-                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                            BluetoothAdapter.ERROR);
+//                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+//                            BluetoothAdapter.ERROR);
 
-                    System.out.println("current action: "+ action);
+//                    System.out.println("current action: "+ action);
 
                     /**
                      * info from settings
@@ -178,7 +177,7 @@ public class Event implements Comparable<Event> {
                     /**
                      * if state == disconnected
                      */
-                    if (action.contains("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+                    else if (action.contains("android.bluetooth.device.action.ACL_DISCONNECTED")) {
 
                         if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_OFF &&
                                 btFromSettings.contains(device.getAddress()))
@@ -188,8 +187,8 @@ public class Event implements Comparable<Event> {
 
                     }
 
-//                    else
-//                        conditionResults.add(false);
+                    else
+                        conditionResults.add(false);
 
                     break;
 
@@ -197,7 +196,7 @@ public class Event implements Comparable<Event> {
                 case HEADSET_CONNECTED:
                 case HEADSET_DISCONNECTED:
 
-                    state = intent.getIntExtra("state", -1);
+                    int state = intent.getIntExtra("state", -1);
 
                     /**
                      * if state == on (plugged in)

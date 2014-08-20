@@ -12,6 +12,7 @@ import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import java.util.ArrayList;
 
@@ -70,6 +71,7 @@ public class Receiver extends BroadcastReceiver {
         add(BluetoothDevice.ACTION_ACL_CONNECTED);
         add(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         add(Intent.ACTION_HEADSET_PLUG);                // headset toggle
+//        add(Intent.ACTION_MEDIA_BUTTON);                // key press
 
     }};
 
@@ -117,6 +119,23 @@ public class Receiver extends BroadcastReceiver {
         PowerManager.WakeLock mWakeLock = null;
 
 
+        /**
+         * key pressed
+         */
+        if (action.equals("Intent.ACTION_MEDIA_BUTTON")) {
+//            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP){
+//
+//                System.out.println("Key up pressed.");
+//
+//
+//                //return true;
+//            }
+            KeyEvent keyEvent = (KeyEvent)intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+
+            System.out.println("pressed: "+ keyEvent.toString());
+
+
+        }
 
 
         /**

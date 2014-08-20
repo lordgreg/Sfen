@@ -320,4 +320,7 @@ Are you sure?</string>
     <string name="bluetooth_devices">Bluetooth devices</string>
     <string name="bluetooth_no_devices_selected">Select at least one device to continue.</string>
     <string name="bluetooth_devices_selected">Selected devices: %1$d</string>
+    <string name="profile_pick_number_of_minutes_for_lock">Pick number of minutes for how long Profile is going to be locked</string>
+    <string name="profile_locked_until">Profile locked until %s</string>
+    <string name="bluetooth_adapter_not_connected">Bluetooth adapter not connected</string>
 </resources>
