@@ -701,8 +701,8 @@ public class Util extends Activity {
                                     cond.setSetting("selectedWifi", (new Gson().toJson(mSelectedSSID)));
                                     //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.WIFI_CONNECT) ?
-                                            context.getString(R.string.wifi_connecting_to) :
-                                            context.getString(R.string.wifi_disconnecting_from)) +
+                                            context.getString(R.string.wifi_connected_to) :
+                                            context.getString(R.string.wifi_disconnected_from)) +
                                             context.getString(R.string.wifi_info_suffix));
                                     cond.setSetting("text2", allDays);
 
@@ -778,15 +778,15 @@ public class Util extends Activity {
             /**
              * CONDITION: bluetooth on/off
              */
-            case BLUETOOTH_ON:
-            case BLUETOOTH_OFF:
+            case BLUETOOTH_CONNECTED:
+            case BLUETOOTH_DISCONNECTED:
 
                 /**
                  * get devices
                  */
                 BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-                if (mBluetoothAdapter == null) {
+                if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
                     showMessageBox(context.getString(R.string.bluetooth_adapter_not_connected), false);
                     return ;
 
@@ -820,15 +820,6 @@ public class Util extends Activity {
                     btFromSettings = gson.fromJson(opt.getSetting("BLUETOOTH_DEVICES"),
                             new TypeToken<List<String>>(){}.getType());
 
-                    // add all from settings to lists
-                    if (btFromSettings.size() > 0) {
-
-                        btDevicesAddress.addAll(btFromSettings);
-                        btDevicesSelected.addAll(btFromSettings);
-                        //Arrays.fill(btDevicesChecked, true);
-
-                    }
-
                 }
 
 
@@ -838,14 +829,18 @@ public class Util extends Activity {
                     //btDevices.put(bt.getAddress(), bt.getName());
 
                     // device is allready stored (from settings)
-                    if (btDevicesAddress.contains(bt.getAddress())) {
-                        btDevices.add(bt.getName());
+                    if (btFromSettings.contains(bt.getAddress())) {
+                        btDevicesChecked[btCurrent] = true;
+                        btDevicesSelected.add(bt.getAddress());
                     }
                     else {
-                        btDevices.add(bt.getName());
-                        btDevicesAddress.add(bt.getAddress());
+
+
                         //btDevicesSelected.add(bt.getAddress());
                     }
+
+                    btDevicesAddress.add(bt.getAddress());
+                    btDevices.add(bt.getName());
 
 //                    System.out.println("BLUETOOTH DEVICE: "+ bt.getName() +", "+ bt.getAddress());
 
@@ -861,15 +856,16 @@ public class Util extends Activity {
                 builder
                         .setTitle(context.getString(R.string.bluetooth_devices))
                         .setIcon(R.drawable.ic_bluetooth)
+
                         .setMultiChoiceItems(btDevicesStrings, btDevicesChecked, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i, boolean b) {
                                 // if checked, add them to selected array, otherwise remove
                                 if (b)
-                                    btDevicesSelected.add( btDevicesAddress.get(i) );
+                                    btDevicesSelected.add(btDevicesAddress.get(i));
                                 else
                                     btDevicesSelected.remove(
-                                            btDevicesAddress.indexOf(btDevicesAddress.get(i)) );
+                                            btDevicesSelected.indexOf(btDevicesAddress.get(i)));
                             }
                         })
 
@@ -938,7 +934,7 @@ public class Util extends Activity {
 //                condBt.setSetting("text2",
 //
 //                        context.getString(R.string.bluetooth_state,
-//                                ((opt.getOptionType() == DialogOptions.type.BLUETOOTH_ON) ?
+//                                ((opt.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED) ?
 //                                        context.getString(R.string.on) :
 //                                        context.getString(R.string.off))
 //

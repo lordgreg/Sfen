@@ -132,8 +132,8 @@ public class Event implements Comparable<Event> {
 
                     break;
 
-                case BLUETOOTH_ON:
-                case BLUETOOTH_OFF:
+                case BLUETOOTH_CONNECTED:
+                case BLUETOOTH_DISCONNECTED:
 
 //                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
 //                            BluetoothAdapter.ERROR);
@@ -167,7 +167,7 @@ public class Event implements Comparable<Event> {
                      */
                     if (action.contains("android.bluetooth.device.action.ACL_CONNECTED")) {
 
-                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_ON &&
+                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED &&
                                 btFromSettings.contains(device.getAddress()))
                             conditionResults.add(true);
                         else
@@ -179,7 +179,7 @@ public class Event implements Comparable<Event> {
                      */
                     else if (action.contains("android.bluetooth.device.action.ACL_DISCONNECTED")) {
 
-                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_OFF &&
+                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED &&
                                 btFromSettings.contains(device.getAddress()))
                             conditionResults.add(true);
                         else

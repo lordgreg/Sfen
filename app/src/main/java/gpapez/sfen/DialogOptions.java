@@ -34,8 +34,8 @@ public class DialogOptions {
         add(new DialogOptions(Main.getInstance().getString(R.string.gps_disabled), Main.getInstance().getString(R.string.gps_disabled_description), R.drawable.ic_map, DialogOptions.type.GPS_DISABLED));
         add(new DialogOptions(Main.getInstance().getString(R.string.battery_level), Main.getInstance().getString(R.string.battery_level_description), R.drawable.ic_battery, DialogOptions.type.BATTERY_LEVEL));
         add(new DialogOptions(Main.getInstance().getString(R.string.battery_status), Main.getInstance().getString(R.string.battery_status_description), R.drawable.ic_battery, DialogOptions.type.BATTERY_STATUS));
-        add(new DialogOptions(Main.getInstance().getString(R.string.bluetooth_on), Main.getInstance().getString(R.string.bluetooth_on_description), R.drawable.ic_bluetooth, type.BLUETOOTH_ON));
-        add(new DialogOptions(Main.getInstance().getString(R.string.bluetooth_off), Main.getInstance().getString(R.string.bluetooth_off_description), R.drawable.ic_bluetooth, type.BLUETOOTH_OFF));
+        add(new DialogOptions(Main.getInstance().getString(R.string.bluetooth_connected), Main.getInstance().getString(R.string.bluetooth_connected_description), R.drawable.ic_bluetooth, type.BLUETOOTH_CONNECTED));
+        add(new DialogOptions(Main.getInstance().getString(R.string.bluetooth_disconnected), Main.getInstance().getString(R.string.bluetooth_disconnected_description), R.drawable.ic_bluetooth, type.BLUETOOTH_DISCONNECTED));
         add(new DialogOptions(Main.getInstance().getString(R.string.headset_connected), Main.getInstance().getString(R.string.headset_connected_description), R.drawable.ic_headset, type.HEADSET_CONNECTED));
         add(new DialogOptions(Main.getInstance().getString(R.string.headset_disconnected), Main.getInstance().getString(R.string.headset_disconnected_description), R.drawable.ic_headset, type.HEADSET_DISCONNECTED));
 
@@ -67,8 +67,8 @@ public class DialogOptions {
         // conditions
         LOCATION_ENTER, LOCATION_LEAVE, WIFI_CONNECT, WIFI_DISCONNECT, TIMERANGE, TIME, DAYSOFWEEK,
         SCREEN_ON, SCREEN_OFF, CELL_IN, CELL_OUT, EVENT_RUNNING, EVENT_NOTRUNNING,
-        GPS_ENABLED, GPS_DISABLED, BATTERY_LEVEL, BATTERY_STATUS, BLUETOOTH_ON, BLUETOOTH_OFF,
-        HEADSET_CONNECTED, HEADSET_DISCONNECTED,
+        GPS_ENABLED, GPS_DISABLED, BATTERY_LEVEL, BATTERY_STATUS, BLUETOOTH_CONNECTED,
+        BLUETOOTH_DISCONNECTED, HEADSET_CONNECTED, HEADSET_DISCONNECTED,
 
         // actions
         ACT_NOTIFICATION, ACT_PLAYSFEN, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT,

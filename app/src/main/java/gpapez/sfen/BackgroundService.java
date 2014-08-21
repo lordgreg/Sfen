@@ -1453,8 +1453,8 @@ public class BackgroundService extends Service {
 //                        mReceiverFilters.add(LocationManager.MODE_CHANGED_ACTION);
 //                        break;
 
-                    case BLUETOOTH_ON:
-                    case BLUETOOTH_OFF:
+                    case BLUETOOTH_CONNECTED:
+                    case BLUETOOTH_DISCONNECTED:
 
                         if (e.isEnabled()) {
                             mReceiverFilters.add("android.bluetooth.device.action.ACL_CONNECTED");
