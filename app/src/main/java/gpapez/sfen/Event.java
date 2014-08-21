@@ -672,6 +672,74 @@ public class Event implements Comparable<Event> {
                     break;
 
 
+
+                case EVENT_CONDITIONS_TRUE:
+                case EVENT_CONDITIONS_FALSE:
+
+                    // check if specified event has boolean status of running set to true/false
+
+                    // retrieve event ID's from settings
+                    mEventsToCheck = gson.fromJson(cond.getSetting("selectevents"),
+                            new TypeToken<List<Integer>>(){}.getType());
+
+
+                    // loop through all events,
+                    // find the one that is included in settings,
+                    // return true/false
+                    //int mCurrentID = cond.getUniqueID();
+                    mFound = false;
+                    for (Event single : BackgroundService.getInstance().events) {
+
+                        // match was found
+                        if (mEventsToCheck.contains(single.getUniqueID())) {
+
+                            /**
+                             * No loop-recursion!
+                             */
+                            if (!BackgroundService.getInstance().mEventLoopInProgress) {
+                                BackgroundService.getInstance().mEventLoopInProgress = true;
+
+
+                                // EVENT_CONDITIONS_TRUE
+                                if (cond.getOptionType() == DialogOptions.type.EVENT_CONDITIONS_TRUE) {
+                                    if (single.isMatchAllConditions())
+                                        mFound = true;
+                                }
+
+                                // EVENT_CONDITIONS_FALSE
+                                else if (cond.getOptionType() == DialogOptions.type.EVENT_CONDITIONS_FALSE) {
+                                    if (!single.isMatchAllConditions()) {
+                                        mFound = true;
+                                        //break;
+                                    }
+//                                    conditionResults.add(true);
+//                                else
+//                                    conditionResults.add(false);
+                                }
+
+
+
+                                BackgroundService.getInstance().mEventLoopInProgress = false;
+
+
+                            }
+
+                            // since we found one, we can break the loop
+                            //break;
+
+
+                        }
+                    }
+
+                    // if we didn't find anything, we return false
+                    //if (mFound)
+                    conditionResults.add(mFound);
+
+
+
+                    break;
+
+
                 /**
                  * battery status
                  */

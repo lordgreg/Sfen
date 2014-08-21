@@ -23,6 +23,7 @@ public class Profile {
 
     private boolean isLocked = false;
     private Calendar isLockedUntil;
+    private int isLockedFor = 0;
 
     private boolean isVolumeButtonsDisable = false;
 
@@ -238,6 +239,14 @@ public class Profile {
 
     public void setIsLockedUntil(Calendar isLockedUntil) {
         this.isLockedUntil = isLockedUntil;
+    }
+
+    public int getIsLockedFor() {
+        return isLockedFor;
+    }
+
+    public void setIsLockedFor(int isLockedFor) {
+        this.isLockedFor = isLockedFor;
     }
 
     public boolean isVolumeButtonsDisable() {

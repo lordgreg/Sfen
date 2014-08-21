@@ -242,6 +242,7 @@ public class Util extends Activity {
 
                 AndroidLocation loc;
                 loc = new AndroidLocation(context);
+
                 LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
 
                 // it is possible we cannot find current location. if so, allow user to continue anyways!
@@ -1092,6 +1093,16 @@ public class Util extends Activity {
                         mCellsToShow.add(tempCell);
 
                     }
+
+                    // if cells to show contains current cell, update its date
+                    else {
+
+                        mCellsToShow.set(
+                                mCellsToShow.indexOf(tempCell),
+                                tempCell
+                        );
+
+                    }
                 }
 
 
@@ -1365,6 +1376,142 @@ public class Util extends Activity {
 
 
                 break;
+
+
+            /**
+             * CONDITION: Event Conditions true/false
+             */
+            case EVENT_CONDITIONS_TRUE:
+            case EVENT_CONDITIONS_FALSE:
+
+                // array of selected items in dialog
+                final ArrayList<Integer> mSelectedEventsCond = new ArrayList<Integer>();
+
+                // array of cell towers we are showing in dialog
+                final ArrayList<String> mShownEventsCon = new ArrayList<String>();
+                final ArrayList<Integer> mShownEventsCondIDs = new ArrayList<Integer>();
+
+
+                // if editing, retrieve saved cells
+                mEventsFromSettings = null;
+                if (isEditing) {
+                    // we have ID's saved, not names!
+                    mEventsFromSettings = gson.fromJson(opt.getSetting("selectevents"),
+                            new TypeToken<List<Integer>>(){}.getType());
+
+                    if (mEventsFromSettings != null)
+                        mSelectedEventsCond.addAll(mEventsFromSettings);
+                }
+
+
+                // fill shown events array, but exclude current event (if editing!)
+
+                for (final Event e : BackgroundService.getInstance().events) {
+                    // if we're editing AND current event isn't the editing one OR
+                    // if we're not editing
+                    // put event to array
+                    if (EventActivity.getInstance().event != null &&
+                            (e.getUniqueID() != EventActivity.getInstance().event.getUniqueID()) ||
+                            EventActivity.getInstance().event == null) {
+                        mShownEventsCon.add(e.getName());
+                        mShownEventsCondIDs.add(e.getUniqueID());
+
+                        // also, fill the selected events array
+                        //mSelectedEvents.add(e.getUniqueID());
+                    }
+
+                }
+
+                // if there are no other events, we're screwed o_O
+                if (mShownEventsCon.size() == 0) {
+                    showMessageBox(context.getString(R.string.no_events_to_pick), true);
+                    return;
+                }
+
+                // create array of booleans
+                mEventsChecked = new boolean[mShownEventsCon.size()];
+
+
+                // if we're editing, update boolean array with positives
+                if (isEditing) {
+                    //System.out.println("events from settings: "+ mEventsFromSettings.toString());
+                    for (int i = 0; i < mShownEventsCon.size(); i++) {
+                        // is current event ID equal to saved ID
+                        if (mEventsFromSettings.contains(mShownEventsCondIDs.get(i))) {
+                            // it does; so update bool array
+                            mEventsChecked[i] = true;
+                        }
+                    }
+                }
+
+                // convert ArrayList<String> to String[]
+                mShownEventsString = new String[mShownEventsCon.size()];
+                mShownEventsString = mShownEventsCon.toArray(mShownEventsString);
+
+                // finally, open a dialog
+                builder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle(context.getString(R.string.pick_events))
+                        .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton(context.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+
+                                // we have to pick at least one
+                                if (mSelectedEventsCond.size() == 0) {
+                                    showMessageBox(context.getString(R.string.pick_at_least_one_event), true);
+                                    return ;
+                                }
+
+
+                                // save condition & create new row
+                                final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(), opt.getIcon(), opt.getOptionType());
+
+                                cond.setSetting("selectevents", (new Gson().toJson(mSelectedEventsCond)));
+                                //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
+                                cond.setSetting("text1",
+                                        ((opt.getOptionType() == DialogOptions.type.EVENT_CONDITIONS_TRUE) ?
+                                                context.getString(R.string.when_events_conditions_true) :
+                                                context.getString(R.string.when_events_conditions_false))
+
+                                );
+                                cond.setSetting("text2", context.getString(R.string.events_selected, mSelectedEventsCond.size()));
+
+
+                                // if we are editing in sub-dialog, clear previous entry
+                                if (isEditing)
+                                    removeConditionOrAction(index, opt);
+
+
+                                addNewConditionOrAction(context, cond, index);
+
+
+                            }
+                        })
+                        .setMultiChoiceItems(mShownEventsString, mEventsChecked, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                if (isChecked)
+                                    mSelectedEventsCond.add(mShownEventsCondIDs.get(which));
+                                else
+                                    mSelectedEventsCond.remove(mShownEventsCondIDs.get(which));
+
+                            }
+                        })
+                ;
+
+                builder.show();
+
+
+
+                break;
+
 
 
             /**

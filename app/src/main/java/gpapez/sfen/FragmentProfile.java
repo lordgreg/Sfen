@@ -288,25 +288,44 @@ public class FragmentProfile extends Fragment {
         /**
          * check if current active profile is locked, if so,
          * check until when
+         *
+         * if active profile == current profile, skip this step.
          */
-        if (Profile.getActiveProfile() != null &&
-                Profile.getActiveProfile().isLocked()) {
+        Profile activeProfile = Profile.getActiveProfile();
+        if (activeProfile != null &&
+                activeProfile.isLocked() &&
+                activeProfile != p) {
 
             Calendar calendar = Calendar.getInstance();
 
             // if active profile lock time is still in action
-            if (calendar.before(Profile.getActiveProfile().getIsLockedUntil())) {
+            if (calendar.before(activeProfile.getIsLockedUntil())) {
                 Log.i("sfen", "Profile "+ p.getName() +" won't run. Active profile is locked!");
                 return ;
 
             }
-            // else, just disable lock
-            else {
-                Profile.getActiveProfile().setLocked(false);
-            }
-
 
         }
+
+        /**
+         * there's no profile locked anymore, but if we set current profile to active
+         * and we set it to locked, get amount of minutes and create lock time
+         */
+        if (p.isLocked()) {
+
+            // create new calendar time
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, p.getIsLockedFor());
+
+            p.setIsLockedUntil(calendar);
+
+            Util.showMessageBox(getString(
+                            R.string.profile_locked_until, Util.getDateLong(calendar, Main.getInstance())),
+                    true
+            );
+
+        }
+
 
 
         /**

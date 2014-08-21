@@ -71,7 +71,7 @@ public class AndroidLocation extends Activity implements LocationListener {
                 //System.out.println("Provider " + provider + " has been selected.");
                 onLocationChanged(location);
             } else {
-                errorString = getString(R.string.location_not_available);
+                errorString = context.getString(R.string.location_not_available);
                 isError = true;
                 Log.e("sfen", errorString);
 

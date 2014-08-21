@@ -30,6 +30,8 @@ public class DialogOptions {
         add(new DialogOptions(Main.getInstance().getString(R.string.not_connected_to_cells), Main.getInstance().getString(R.string.not_connected_to_cells_description), R.drawable.ic_cell, DialogOptions.type.CELL_OUT));
         add(new DialogOptions(Main.getInstance().getString(R.string.event_running), Main.getInstance().getString(R.string.event_running_description), R.drawable.ic_launcher, DialogOptions.type.EVENT_RUNNING));
         add(new DialogOptions(Main.getInstance().getString(R.string.event_not_running), Main.getInstance().getString(R.string.event_not_running_description), R.drawable.ic_launcher, DialogOptions.type.EVENT_NOTRUNNING));
+        add(new DialogOptions(Main.getInstance().getString(R.string.event_conditions_true), Main.getInstance().getString(R.string.event_conditions_true_description), R.drawable.ic_launcher, DialogOptions.type.EVENT_CONDITIONS_TRUE));
+        add(new DialogOptions(Main.getInstance().getString(R.string.event_conditions_false), Main.getInstance().getString(R.string.event_conditions_false_description), R.drawable.ic_launcher, type.EVENT_CONDITIONS_FALSE));
         add(new DialogOptions(Main.getInstance().getString(R.string.gps_enabled), Main.getInstance().getString(R.string.gps_enabled_description), R.drawable.ic_map, DialogOptions.type.GPS_ENABLED));
         add(new DialogOptions(Main.getInstance().getString(R.string.gps_disabled), Main.getInstance().getString(R.string.gps_disabled_description), R.drawable.ic_map, DialogOptions.type.GPS_DISABLED));
         add(new DialogOptions(Main.getInstance().getString(R.string.battery_level), Main.getInstance().getString(R.string.battery_level_description), R.drawable.ic_battery, DialogOptions.type.BATTERY_LEVEL));
@@ -69,6 +71,7 @@ public class DialogOptions {
         SCREEN_ON, SCREEN_OFF, CELL_IN, CELL_OUT, EVENT_RUNNING, EVENT_NOTRUNNING,
         GPS_ENABLED, GPS_DISABLED, BATTERY_LEVEL, BATTERY_STATUS, BLUETOOTH_CONNECTED,
         BLUETOOTH_DISCONNECTED, HEADSET_CONNECTED, HEADSET_DISCONNECTED,
+        EVENT_CONDITIONS_TRUE, EVENT_CONDITIONS_FALSE,
 
         // actions
         ACT_NOTIFICATION, ACT_PLAYSFEN, ACT_PLAYSOUND, ACT_OPENAPPLICATION, ACT_DIALOGWITHTEXT,

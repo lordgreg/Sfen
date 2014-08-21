@@ -304,7 +304,7 @@ public class ProfileActivity extends Activity {
 
                     Log.d("sfen", "Updated event " +
                             BackgroundService.getInstance().events.get(i).getName() + "" +
-                            "with new profile.");
+                            " with new profile.");
 
                 }
             }
@@ -1053,13 +1053,10 @@ public class ProfileActivity extends Activity {
                             Calendar calendar = Calendar.getInstance();
                             calendar.add(Calendar.MINUTE, numberPicker.getValue());
 
-                            Util.showMessageBox(getString(
-                                    R.string.profile_locked_until, Util.getDateLong(calendar, sInstance)),
-                                    true
-                            );
-
                             profile.setLocked(true);
-                            profile.setIsLockedUntil(calendar);
+                            //profile.setIsLockedUntil(calendar);
+                            profile.setIsLockedFor(numberPicker.getValue());
+
                         }
                     })
                     .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {

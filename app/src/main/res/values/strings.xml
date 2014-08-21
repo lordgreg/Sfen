@@ -321,4 +321,10 @@ Are you sure?</string>
     <string name="profile_pick_number_of_minutes_for_lock">Pick number of minutes for how long Profile is going to be locked</string>
     <string name="profile_locked_until">Profile locked until %s</string>
     <string name="bluetooth_adapter_not_connected">Bluetooth adapter not connected</string>
+    <string name="event_conditions_true">Event Conditions True</string>
+    <string name="event_conditions_true_description">When event conditions true</string>
+    <string name="event_conditions_false">Event Conditions false</string>
+    <string name="event_conditions_false_description">When event conditions are false</string>
+    <string name="when_events_conditions_true">Events conditions true</string>
+    <string name="when_events_conditions_false">Event conditions false</string>
 </resources>

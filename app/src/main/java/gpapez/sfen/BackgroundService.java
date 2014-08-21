@@ -68,7 +68,7 @@ public class BackgroundService extends Service {
      * event loop variable for when we want to run event as action. if we get into an eventloop,
      * we're screwed.
      */
-    private boolean mEventLoopInProgress = false;
+    protected boolean mEventLoopInProgress = false;
 
     // mReceiver object which runs on start
     private Receiver mReceiver;
@@ -1700,30 +1700,51 @@ public class BackgroundService extends Service {
          * IF WE HAVE PROFILE SELECTED
          *
          */
-        if (e.getProfile() != null) {
+        Profile p = e.getProfile();
+        if (p != null) {
 
             /**
              * check if current active profile is locked, if so,
              * check until when
+             *
+             * if active profile == current profile, skip this step.
              */
-            if (Profile.getActiveProfile() != null &&
-                    Profile.getActiveProfile().isLocked()) {
+
+            Profile activeProfile = Profile.getActiveProfile();
+            if (activeProfile != null &&
+                    activeProfile.isLocked() &&
+                    activeProfile != p) {
 
                 Calendar calendar = Calendar.getInstance();
 
                 // if active profile lock time is still in action
-                if (calendar.before(Profile.getActiveProfile().getIsLockedUntil())) {
-                    Log.i("sfen", "Profile "+ e.getProfile().getName() +" won't run. Active profile is locked!");
+                if (calendar.before(activeProfile.getIsLockedUntil())) {
+                    Log.i("sfen", "Profile "+ p.getName() +" won't run. Active profile is locked!");
                     return ;
 
                 }
-                // else, just disable lock
-                else {
-                    Profile.getActiveProfile().setLocked(false);
-                }
-
 
             }
+
+            /**
+             * there's no profile locked anymore, but if we set current profile to active
+             * and we set it to locked, get amount of minutes and create lock time
+             */
+            if (p.isLocked()) {
+
+                // create new calendar time
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.MINUTE, p.getIsLockedFor());
+
+                p.setIsLockedUntil(calendar);
+
+                Log.d("sfen", "Profile "+ p.getName() +" locked until "+
+                        Util.getDateLong(calendar, Main.getInstance()));
+
+            }
+
+
+
 
 
             /**
