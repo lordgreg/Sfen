@@ -201,19 +201,16 @@ public class Main extends Activity {
         if (mTabPosition == 0) {
             menu.findItem(R.id.event_add_new).setVisible(true);
             menu.findItem(R.id.profile_add_new).setVisible(false);
-            menu.findItem(R.id.whitelist_add_new).setVisible(false);
         }
         // profiles
         else if (mTabPosition == 1) {
             menu.findItem(R.id.event_add_new).setVisible(false);
             menu.findItem(R.id.profile_add_new).setVisible(true);
-            menu.findItem(R.id.whitelist_add_new).setVisible(false);
         }
         // whitelist
         else if (mTabPosition == 2) {
             menu.findItem(R.id.event_add_new).setVisible(false);
             menu.findItem(R.id.profile_add_new).setVisible(false);
-            menu.findItem(R.id.whitelist_add_new).setVisible(true);
         }
 
         return true;

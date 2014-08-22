@@ -42,7 +42,6 @@
             android:textAllCaps="true"
             android:id="@+id/textView3"
             android:textColor="@android:color/white"
-            android:elegantTextHeight="false"
             android:autoText="false"
             android:layout_alignBottom="@+id/textView2"
             android:layout_centerHorizontal="true"
