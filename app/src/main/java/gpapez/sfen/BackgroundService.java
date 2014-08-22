@@ -1546,8 +1546,6 @@ public class BackgroundService extends Service {
          * add filters to array of allowables
          * then clear array
          */
-//        mReceiverFilters.add("android.intent.action.MEDIA_BUTTON");
-
         mReceiver.addFiltersToAllowable(mReceiverFilters);
         mReceiverFilters.clear();
 

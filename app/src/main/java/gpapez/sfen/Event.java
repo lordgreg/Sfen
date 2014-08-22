@@ -1,6 +1,8 @@
 package gpapez.sfen;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -135,60 +137,129 @@ public class Event implements Comparable<Event> {
                 case BLUETOOTH_CONNECTED:
                 case BLUETOOTH_DISCONNECTED:
 
-//                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-//                            BluetoothAdapter.ERROR);
-
-//                    System.out.println("current action: "+ action);
-
                     /**
-                     * info from settings
+                     * get array of connected devices (as managed by Receiver)
                      */
                     gson = new Gson();
-                    final ArrayList<String> btFromSettings = gson.fromJson(cond.getSetting("BLUETOOTH_DEVICES"),
-                            new TypeToken<List<String>>(){}.getType());
-
-
-                    /**
-                     * get current device
-                     */
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                    /**
-                     * get current connected devices
-                     */
-                    ArrayList<String> connectedBtDevices =
+                    ArrayList<String> btConnectedDevices =
                             gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
                                     new TypeToken<List<String>>() {
                                     }.getType());
 
 
-                    /**
-                     * if state == connected
-                     */
-                    if (action.contains("android.bluetooth.device.action.ACL_CONNECTED")) {
+                    // if there aren't any devices yet, just set new arraylist
+                    if (btConnectedDevices == null)
+                        btConnectedDevices = new ArrayList<String>();
 
-                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED &&
-                                btFromSettings.contains(device.getAddress()))
-                            conditionResults.add(true);
-                        else
-                            conditionResults.add(false);
+                    /**
+                     * if actions is BT CONNECTING OR DISCONNECTING
+                     */
+                    if (action.contains("android.bluetooth.device.action.ACL_CONNECTED") ||
+                            action.contains("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+
+                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                        /**
+                         * check current connected devices, return bool depending on our TYPE
+                         */
+                        boolean isBtDeviceConnected = btConnectedDevices.contains(device.getAddress());
+
+
+                        /**
+                         * if state == connected
+                         */
+
+                        if (isBtDeviceConnected) {
+
+                            if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED)
+                                conditionResults.add(true);
+                            else
+                                conditionResults.add(false);
+
+                        }
+
+                        /**
+                         * if state == disconnected
+                         */
+                        else {
+
+                            if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED)
+                                conditionResults.add(true);
+                            else
+                                conditionResults.add(false);
+
+                        }
 
                     }
-                    /**
-                     * if state == disconnected
-                     */
-                    else if (action.contains("android.bluetooth.device.action.ACL_DISCONNECTED")) {
 
-                        if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED &&
-                                btFromSettings.contains(device.getAddress()))
-                            conditionResults.add(true);
-                        else
-                            conditionResults.add(false);
+                    /**
+                     * current action is anything else than bluetooth action
+                     *
+                     * retrieve condition's device and check if it exists in array
+                     */
+                    else {
+
+                        ArrayList<String> btDevicesFromSettings =
+                                gson.fromJson(cond.getSetting("BLUETOOTH_DEVICES"),
+                                new TypeToken<List<String>>(){}.getType());
+
+                        /**
+                         * compare all devices from settings with all connected devices stored
+                         * by reciever.
+                         */
+                        for (String single : btDevicesFromSettings) {
+
+                            // there is device stored in connected array that we have in our
+                            // condition
+                            if (btConnectedDevices.contains(single)) {
+
+                                // checking for CONNECTED state?
+                                if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED) {
+
+                                    conditionResults.add(true);
+                                    break;
+
+                                }
+
+
+                                // checking for DISCONNECTED state?
+                                if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED) {
+
+                                    conditionResults.add(false);
+                                    break;
+
+                                }
+
+                            }
+
+                            // no, connected devices doesn't include current device
+                            else {
+
+                                if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED) {
+
+                                    conditionResults.add(false);
+                                    break;
+
+                                }
+
+                                if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED) {
+
+                                    conditionResults.add(true);
+                                    break;
+
+                                }
+
+
+                            }
+
+
+                        }
+
+
 
                     }
 
-                    else
-                        conditionResults.add(false);
+
 
                     break;
 

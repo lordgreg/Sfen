@@ -14,7 +14,11 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Gregor on 14.7.2014.
@@ -154,69 +158,69 @@ public class Receiver extends BroadcastReceiver {
 
         }
 
-//        /**
-//         * bluetooth device connected/disconnected
-//         */
-//        if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
-//            /**
-//             * add device to connected devices in our settings
-//             */
-//            Gson gson = new Gson();
-//
-//            ArrayList<String> connectedBtDevices =
-//                    gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
-//                            new TypeToken<List<String>>() {
-//                            }.getType());
-//
-//            if (connectedBtDevices == null)
-//                connectedBtDevices = new ArrayList<String>();
-//
-//
-//            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//
-//            if (!connectedBtDevices.contains(device.getAddress()))
-//                connectedBtDevices.add(device.getAddress());
-//
-//
-//            /**
-//             * store back to preferences
-//             */
-//            Preferences.getSharedPreferences().edit().putString(
-//                    "BT_CONNECTED_DEVICES",
-//                    new Gson().toJson(connectedBtDevices)).apply();
-//
-//
-//        }
-//
-//        if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
-//            /**
-//             * remove device from our connected list
-//             */
-//            Gson gson = new Gson();
-//
-//            ArrayList<String> connectedBtDevices =
-//                    gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
-//                            new TypeToken<List<String>>() {
-//                            }.getType());
-//
-//            if (connectedBtDevices == null)
-//                connectedBtDevices = new ArrayList<String>();
-//
-//
-//            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//
-//            if (connectedBtDevices.contains(device.getAddress()))
-//                connectedBtDevices.remove(device.getAddress());
-//
-//
-//            /**
-//             * store back to preferences
-//             */
-//            Preferences.getSharedPreferences().edit().putString(
-//                    "BT_CONNECTED_DEVICES",
-//                    new Gson().toJson(connectedBtDevices)).apply();
-//
-//        }
+        /**
+         * bluetooth device connected/disconnected
+         */
+        if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
+            /**
+             * add device to connected devices in our settings
+             */
+            Gson gson = new Gson();
+
+            ArrayList<String> connectedBtDevices =
+                    gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
+                            new TypeToken<List<String>>() {
+                            }.getType());
+
+            if (connectedBtDevices == null)
+                connectedBtDevices = new ArrayList<String>();
+
+
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            if (!connectedBtDevices.contains(device.getAddress()))
+                connectedBtDevices.add(device.getAddress());
+
+
+            /**
+             * store back to preferences
+             */
+            Preferences.getSharedPreferences().edit().putString(
+                    "BT_CONNECTED_DEVICES",
+                    new Gson().toJson(connectedBtDevices)).apply();
+
+
+        }
+
+        if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
+            /**
+             * remove device from our connected list
+             */
+            Gson gson = new Gson();
+
+            ArrayList<String> connectedBtDevices =
+                    gson.fromJson(Preferences.getSharedPreferences().getString("BT_CONNECTED_DEVICES", ""),
+                            new TypeToken<List<String>>() {
+                            }.getType());
+
+            if (connectedBtDevices == null)
+                connectedBtDevices = new ArrayList<String>();
+
+
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            if (connectedBtDevices.contains(device.getAddress()))
+                connectedBtDevices.remove(device.getAddress());
+
+
+            /**
+             * store back to preferences
+             */
+            Preferences.getSharedPreferences().edit().putString(
+                    "BT_CONNECTED_DEVICES",
+                    new Gson().toJson(connectedBtDevices)).apply();
+
+        }
 
         /**
          * screen off will create alarm that will wake up the phone every now and then to

@@ -4,7 +4,6 @@
     <string name="title_activity_main">Sfen</string>
     <string name="action_settings">Settings</string>
     <string name="add_new_event">Add new event above to get started!</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_event">Event</string>
     <string name="title_activity_profile">Profile</string>
     <string name="error_select_condition">You must select at least one condition!</string>
