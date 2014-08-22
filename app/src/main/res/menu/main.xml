@@ -13,16 +13,7 @@
         android:orderInCategory="100"
         android:visible="false"
         android:showAsAction="always" />
-    <item android:id="@+id/whitelist_add_new"
-        android:icon="@drawable/ic_whitelist"
-        android:title="add"
-        android:orderInCategory="100"
-        android:visible="false"
-        android:showAsAction="always" />
 
-    <item android:id="@+id/action_exit"
-        android:title="@string/exit"
-        />
     <item android:id="@+id/action_export"
         android:title="@string/export_settings"
         />
@@ -36,5 +27,12 @@
     <item android:id="@+id/action_logs"
         android:title="@string/logs" />
 
+    <item android:id="@+id/action_about"
+        android:title="@string/about"
+        />
+
+    <item android:id="@+id/action_exit"
+        android:title="@string/exit"
+        />
 
 </menu>

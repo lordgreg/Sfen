@@ -278,6 +278,12 @@ public class Main extends Activity {
 
         }
 
+        if (id == R.id.action_about) {
+
+            startActivity(new Intent(this, AboutActivity.class));
+
+        }
+
         // export settings
         if (id == R.id.action_export) {
             Gson gson = new Gson();

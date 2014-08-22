@@ -190,7 +190,7 @@ public class Util extends Activity {
 
                                     cond.setSetting("text1",
                                             ((opt.getOptionType() == DialogOptions.type.LOCATION_LEAVE) ?
-                                                    context.getString(R.string.outside) : context.getString(R.string.inside)) + context.getString(R.string.outside_inside_location)
+                                                    context.getString(R.string.outside) : context.getString(R.string.inside)) +" "+ context.getString(R.string.outside_inside_location)
                                     );
                                     cond.setSetting("text2", "Lat: " + String.format("%.2f", marker.getPosition().latitude) +
                                             ", Long: " + String.format("%.2f", marker.getPosition().longitude) +

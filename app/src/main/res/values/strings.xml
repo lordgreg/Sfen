@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Sfen</string>
     <string name="title_activity_main">Sfen</string>
     <string name="action_settings">Settings</string>
@@ -151,7 +152,8 @@
     <string name="activate">Activate</string>
     <string name="geofence_service_not_available">Geofence service is not available now. Typically this is because the user turned off location access in settings > location access (%1$d)</string>
     <string name="events">Events</string>
-    <string name="profiles">Profiles</string><string name="service_will_be_stopped">Service will be stopped and Events won\'t be triggered.
+    <string name="profiles">Profiles</string>
+    <string name="service_will_be_stopped">Service will be stopped and Events won\'t be triggered.
 
 Are you sure?</string>
     <string name="yes">Yes</string>
@@ -326,4 +328,8 @@ Are you sure?</string>
     <string name="event_conditions_false_description">When event conditions are false</string>
     <string name="when_events_conditions_true">Events conditions true</string>
     <string name="when_events_conditions_false">Event conditions false</string>
+    <string name="title_activity_about">About</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="about">About Sfen</string>
+
 </resources>

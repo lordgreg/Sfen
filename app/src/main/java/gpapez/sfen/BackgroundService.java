@@ -1459,6 +1459,7 @@ public class BackgroundService extends Service {
                         if (e.isEnabled()) {
                             mReceiverFilters.add("android.bluetooth.device.action.ACL_CONNECTED");
                             mReceiverFilters.add("android.bluetooth.device.action.ACL_DISCONNECTED");
+                            mReceiverFilters.add("android.bluetooth.device.action.ACL_DISCONNECT_REQUESTED");
                         }
 
                         break;

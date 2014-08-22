@@ -74,6 +74,7 @@ public class Receiver extends BroadcastReceiver {
         //add(BluetoothAdapter.ACTION_STATE_CHANGED);     // bluetooth toggle
         add(BluetoothDevice.ACTION_ACL_CONNECTED);
         add(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        add(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
         add(Intent.ACTION_HEADSET_PLUG);                // headset toggle
 //        add(Intent.ACTION_MEDIA_BUTTON);                // key press
 
@@ -192,7 +193,8 @@ public class Receiver extends BroadcastReceiver {
 
         }
 
-        if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
+        if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED) ||
+                action.equals(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED)) {
             /**
              * remove device from our connected list
              */

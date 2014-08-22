@@ -1,8 +1,6 @@
 package gpapez.sfen;
 
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -556,6 +554,8 @@ public class Event implements Comparable<Event> {
                             if (single.getRequestId().equals(hashCode)) {
                                 conditionResults.add(true);
                             }
+                            else
+                                conditionResults.add(false);
                         }
                     }
                     // if triggered geofences are empty, result is false
@@ -602,6 +602,8 @@ public class Event implements Comparable<Event> {
                             if (single.getRequestId().equals(hashCode)) {
                                 conditionResults.add(true);
                             }
+                            else
+                                conditionResults.add(false);
                         }
                     }
                     // if triggered geofences are empty, result is false
