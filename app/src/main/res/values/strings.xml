@@ -323,12 +323,18 @@ Are you sure?</string>
     <string name="bluetooth_adapter_not_connected">Bluetooth adapter not connected</string>
     <string name="event_conditions_true">Event Conditions True</string>
     <string name="event_conditions_true_description">When event conditions true</string>
-    <string name="event_conditions_false">Event Conditions false</string>
+    <string name="event_conditions_false">Event Conditions False</string>
     <string name="event_conditions_false_description">When event conditions are false</string>
     <string name="when_events_conditions_true">Events conditions true</string>
     <string name="when_events_conditions_false">Event conditions false</string>
     <string name="title_activity_about">About</string>
-    <string name="hello_world">Hello world!</string>
     <string name="about">About Sfen</string>
+    <string name="profile_locked">Profile locked</string>
+    <string name="profile_locked_description">No other profiles can get active in specified amount of time</string>
+    <string name="about_consider_donating">if you like Sfen, consider donating</string>
+    <string name="about_translators">Translators</string>
+    <string name="about_special_thanks">Special thanks</string>
+    <string name="profile_changed">Profile has changed. Save before leaving?</string>
+    <string name="event_changed">Event has changed. Save before leaving?</string>
 
 </resources>
