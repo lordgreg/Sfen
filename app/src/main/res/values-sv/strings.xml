@@ -140,8 +140,8 @@
     <string name="delay_options">Alternativ för fördröjning</string>
     <string name="delay_enter_minutes">Lägg in minuter nästa gång och allt kommer att bli okej.</string>
     <string name="shortcut">Genväg</string>
-    <string name="enabled">aktiverad</string>
-    <string name="disabled">inaktiverad</string>
+    <string name="enabled">Aktiverad</string>
+    <string name="disabled">Inaktiverad</string>
     <string name="edit">Ändra</string>
     <string name="disable">Inaktivera</string>
     <string name="enable">Aktivera</string>
@@ -160,7 +160,7 @@
     <string name="nothing_to_import">Inget att importera!</string>
     <string name="open_sfen">Öppna Sfen</string>
     <string name="profile_enter_name">Ange nytt profilnamn!</string>
-    <string name="action_pick">Välj action</string>
+    <string name="action_pick">Välj åtgärd</string>
     <string name="editing_profile">Ändra %s</string>
     <string name="enter_profile_name">Och du tror att du kan komma undan utan att ange profilnamn?</string>
     <string name="contact">Kontakta</string>
@@ -321,11 +321,17 @@
     <string name="bluetooth_adapter_not_connected">Bluetooth-adapter inte ansluten</string>
     <string name="event_conditions_true">Händelse-villkor sann</string>
     <string name="event_conditions_true_description">När händelse-villkor är sanna</string>
-    <string name="event_conditions_false">Händelse-villkor false</string>
+    <string name="event_conditions_false">Händelse-villkor falsk</string>
     <string name="event_conditions_false_description">När händelse-villkor är falska</string>
     <string name="when_events_conditions_true">Händelse-villkor sann</string>
     <string name="when_events_conditions_false">Händelse-villkor falsk</string>
     <string name="title_activity_about">Om</string>
-    <string name="hello_world">Hej världen!</string>
     <string name="about">Om Sfen</string>
+    <string name="about_consider_donating">Om du tycker om Sfen, överväg att donera</string>
+    <string name="about_special_thanks">Speciella tack</string>
+    <string name="about_translators">Översättare</string>
+    <string name="event_changed">Händelse har ändrats. Spara före du lämnar?</string>
+    <string name="profile_changed">Profil har ändrats. Spara före du ändrar?</string>
+    <string name="profile_locked">Profil låst</string>
+    <string name="profile_locked_description">Ingen annan profil kan aktiveras under specificerad tid</string>
 </resources>
