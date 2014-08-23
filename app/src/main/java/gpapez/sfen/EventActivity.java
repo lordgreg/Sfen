@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -185,8 +184,7 @@ public class EventActivity extends Activity {
         if (id == android.R.id.home ||
                 id == R.id.action_cancel) {
 
-            Main.getInstance().options.put("eventSave", "0");
-            finish();
+            onBackPressed();
             return true;
 
 
@@ -521,6 +519,8 @@ public class EventActivity extends Activity {
 
                         ((TextView) findViewById(R.id.priority)).setText(event.getPriorityString());
 
+                        isChanged = true;
+
 
                         //System.out.println("Priority set is: "+ event.getPriority());
                     }
@@ -684,6 +684,9 @@ public class EventActivity extends Activity {
                      */
                     profile = single;
 
+
+                    isChanged = true;
+
                 }
             });
 
@@ -765,6 +768,8 @@ public class EventActivity extends Activity {
                              * enable event delay actions
                              */
                             event.setDelayEnable(Integer.parseInt(input.getText().toString()), checkBox1.isChecked());
+
+                            isChanged = true;
                         }
                     })
                     .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -824,6 +829,8 @@ public class EventActivity extends Activity {
                  */
                 Util.addNewConditionOrAction(sInstance, cond, 0);
 
+                isChanged = true;
+
                 break;
 
 
@@ -863,6 +870,8 @@ public class EventActivity extends Activity {
                  */
                 Util.addNewConditionOrAction(sInstance, condFile, 0);
 
+                isChanged = true;
+
 
                 break;
 
@@ -871,4 +880,41 @@ public class EventActivity extends Activity {
 
     }
 
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+
+        if (isChanged) {
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder
+                    .setTitle(getString(R.string.error))
+                    .setIcon(R.drawable.ic_launcher)
+                    .setMessage(getString(R.string.event_changed))
+                    .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            dialogInterface.dismiss();
+                            saveEvent();
+
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            finish();
+                        }
+                    })
+
+                    .show();
+
+        }
+        else
+            super.onBackPressed();
+
+    }
 }

@@ -1,3 +1,11 @@
+23.8.2014
+
++ about page created
+* fixed toggling ringer mode when activating profile. (silent, vibrating, normal)
+* fixed timerange dialog - scrollable
++ added dialog when pressing back on event or profile window if user didn't saved it before.
+
+
 22.8.2014
 
 * fixed location enter/leave bug where 2 different locations could both be active at the same time (ty @ron_e)

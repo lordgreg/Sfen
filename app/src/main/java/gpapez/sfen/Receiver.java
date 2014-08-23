@@ -166,6 +166,7 @@ public class Receiver extends BroadcastReceiver {
             /**
              * add device to connected devices in our settings
              */
+
             Gson gson = new Gson();
 
             ArrayList<String> connectedBtDevices =
@@ -182,6 +183,8 @@ public class Receiver extends BroadcastReceiver {
             if (!connectedBtDevices.contains(device.getAddress()))
                 connectedBtDevices.add(device.getAddress());
 
+
+            Log.d("sfen", "Storing device "+ device.getName() +"("+ device.getAddress() +") to connected devices list ("+ connectedBtDevices.size() +").");
 
             /**
              * store back to preferences
@@ -214,6 +217,7 @@ public class Receiver extends BroadcastReceiver {
             if (connectedBtDevices.contains(device.getAddress()))
                 connectedBtDevices.remove(device.getAddress());
 
+            Log.d("sfen", "Removing device "+ device.getName() +"("+ device.getAddress() +") from connected devices list ("+ connectedBtDevices.size() +").");
 
             /**
              * store back to preferences

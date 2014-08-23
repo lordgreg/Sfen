@@ -1009,11 +1009,23 @@ public class BackgroundService extends Service {
         //System.out.println("max volume for ringing: "+ audioManager.getStreamMaxVolume(AudioManager.STREAM_RING) + );
 
         /**
-         * change sound mode
+         * change sound mode depending on the volume set and if vibration is checked
          */
-//        if (p.getVolumeRingtone() == 0) {
-//            audioManager.setMode(AudioManager.RINGER_MODE_NORMAL);
-//        }
+        if (p.getVolumeNotification() == 0 && !p.isVibrate()) {
+            //audioManager.setMode(AudioManager.RINGER_MODE_SILENT);
+            audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+        }
+
+        else if (p.getVolumeNotification() == 0 && p.isVibrate()) {
+            //audioManager.setMode(AudioManager.RINGER_MODE_VIBRATE);
+            audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+        }
+        else {
+            //audioManager.setMode(AudioManager.RINGER_MODE_NORMAL);
+            audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        }
+
+
 
     }
 
