@@ -326,6 +326,13 @@
     <string name="when_events_conditions_true">Händelse-villkor sann</string>
     <string name="when_events_conditions_false">Händelse-villkor falsk</string>
     <string name="title_activity_about">Om</string>
-    <string name="hello_world">Hej världen!</string>
     <string name="about">Om Sfen</string>
+    <string name="profile_locked">Profile locked</string>
+    <string name="profile_locked_description">No other profiles can get active in specified amount of time</string>
+    <string name="about_consider_donating">if you like Sfen, consider donating</string>
+    <string name="about_translators">Translators</string>
+    <string name="about_special_thanks">Special thanks</string>
+    <string name="profile_changed">Profile has changed. Save before leaving?</string>
+    <string name="event_changed">Event has changed. Save before leaving?</string>
+
 </resources>
