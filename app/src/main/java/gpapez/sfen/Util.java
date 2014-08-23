@@ -261,32 +261,33 @@ public class Util extends Activity {
                     //TBD
                     return;
                 }
-                    map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                        @Override
-                        public void onMapClick(LatLng latLng) {
-                            if (marker != null) {
-                                marker.remove();
-                            }
-                            if (circle != null) {
-                                circle.remove();
-                            }
-                            //System.out.println("text from raidus info: "+ ((TextView) dialogMap.findViewById(R.id.radius_info)).getText().toString());
-                            // redraw radius circle and marker
-                            marker = map.addMarker(new MarkerOptions().position(latLng));
-                            circle = map.addCircle(new CircleOptions()
-                                            .center(latLng)
-                                            .radius(Double.parseDouble(
-                                                    ((TextView) dialogMap.findViewById(R.id.radius_info)).getText().toString()
-                                            ))
-                                            .strokeWidth(2)
-                                            .strokeColor(0xff0099FF)
-                                            .fillColor(0x550099FF)
-                            );
 
-                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-
+                map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        if (marker != null) {
+                            marker.remove();
                         }
-                    });
+                        if (circle != null) {
+                            circle.remove();
+                        }
+                        //System.out.println("text from raidus info: "+ ((TextView) dialogMap.findViewById(R.id.radius_info)).getText().toString());
+                        // redraw radius circle and marker
+                        marker = map.addMarker(new MarkerOptions().position(latLng));
+                        circle = map.addCircle(new CircleOptions()
+                                        .center(latLng)
+                                        .radius(Double.parseDouble(
+                                                ((TextView) dialogMap.findViewById(R.id.radius_info)).getText().toString()
+                                        ))
+                                        .strokeWidth(2)
+                                        .strokeColor(0xff0099FF)
+                                        .fillColor(0x550099FF)
+                        );
+
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+                    }
+                });
 
 
                 map.setMyLocationEnabled(true);
