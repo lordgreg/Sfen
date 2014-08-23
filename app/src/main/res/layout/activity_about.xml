@@ -15,9 +15,10 @@
         android:layout_height="128dp"
         android:id="@+id/imageView"
         android:src="@drawable/ic_launcher"
-        android:layout_marginTop="27dp"
+        android:layout_marginTop="19dp"
         style="@style/AppTheme"
         android:scaleType="fitCenter"
+        android:onClick="onClickAboutSfen"
         android:adjustViewBounds="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
@@ -27,51 +28,38 @@
             android:layout_height="wrap_content"
             android:text="Sfen"
             android:id="@+id/textView2"
-            android:layout_marginTop="46dp"
             android:textColor="@android:color/white"
             android:typeface="sans"
             android:textStyle="bold"
             android:textSize="24dp"
-            android:layout_below="@+id/imageView"
-            android:layout_centerHorizontal="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="thank you for using"
-            android:textAllCaps="true"
-            android:id="@+id/textView3"
-            android:textColor="@android:color/white"
-            android:autoText="false"
-            android:layout_alignBottom="@+id/textView2"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="28dp"
-            android:singleLine="false"
-            android:typeface="normal"
-            android:textSize="10dp" />
+            android:layout_below="@+id/imageView" />
 
         <ImageView
+            android:onClick="onClickAboutFacebook"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/imageView2"
-            android:layout_marginTop="34dp"
             android:src="@drawable/ic_facebook"
             android:background="@android:color/background_light"
-            android:layout_below="@+id/textView2"
-            android:layout_alignLeft="@+id/textView2"
-            android:layout_alignStart="@+id/textView2" />
+            android:layout_centerVertical="true"
+            android:layout_alignRight="@+id/textView2"
+            android:layout_alignEnd="@+id/textView2"
+            android:layout_below="@+id/imageView5"/>
 
         <ImageView
+            android:onClick="onClickAboutGooglePlus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/imageView3"
-            android:layout_alignTop="@+id/imageView2"
-            android:layout_toLeftOf="@+id/imageView"
             android:layout_toStartOf="@+id/imageView"
             android:src="@drawable/ic_googleplus"
-            android:background="@android:color/white" />
+            android:background="@android:color/white"
+            android:layout_alignTop="@+id/imageView2"
+            android:layout_toLeftOf="@+id/imageView" />
 
         <ImageView
+            android:onClick="onClickAboutTwitter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/imageView4"
@@ -80,6 +68,83 @@
             android:layout_toEndOf="@+id/imageView"
             android:background="@android:color/white"
             android:src="@drawable/ic_twitter" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/imageView3"
+            android:divider="@android:color/white"
+            android:layout_margin="20dp"
+            android:paddingTop="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true">
+
+
+            <TextView
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_translators"
+                android:layout_margin="5dp"
+                android:id="@+id/textView"
+                android:enabled="false"
+                android:textStyle="bold" />
+
+            <TextView
+                android:textColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Arabic (Omar Bezrh), Dutch (Martin Coulon, Wim N), German (faulfels), Russian (gaich), Serbian (Nikola Stojanović), Slovenian (Jure Repnik), Spanish (Jose Loarca)"
+                android:layout_margin="5dp"
+                android:id="@+id/textView4" />
+
+            <TextView
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_special_thanks"
+                android:id="@+id/textView1"
+                android:layout_margin="5dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:textColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="imraro, gerhardol, ron_e for extended testing
+Neva for naming this app"
+                android:layout_margin="5dp"
+                android:id="@+id/textView5" />
+
+        </LinearLayout>
+
+        <TextView
+            android:textAllCaps="true"
+            android:textColor="@android:color/white"
+            android:alpha=".25"
+            android:textSize="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about_consider_donating"
+            android:id="@+id/textView6"
+            android:layout_marginTop="20dp"
+            android:layout_below="@+id/textView2"
+            android:layout_centerHorizontal="true" />
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:id="@+id/imageView5"
+            android:src="@drawable/ic_donate"
+            android:layout_toEndOf="@+id/imageView3"
+            android:layout_below="@+id/textView6"
+            android:onClick="onClickAboutDonate"
+            android:layout_alignRight="@+id/imageView"
+            android:layout_alignEnd="@+id/imageView" />
+
 
     </RelativeLayout>
 </ScrollView>

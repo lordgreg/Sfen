@@ -188,7 +188,7 @@ public class ProfileActivity extends Activity {
         if (id == android.R.id.home ||
                 id == R.id.action_cancel) {
 
-            finish();
+            onBackPressed();
             return true;
 
 
@@ -653,6 +653,9 @@ public class ProfileActivity extends Activity {
                             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                         }
 
+
+                        isChanged = true;
+
                     }
                 })
                 .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -737,6 +740,8 @@ public class ProfileActivity extends Activity {
                 imageButton.setTag(ImageAdapter.mThumbIds[position]);
                 //Toast.makeText(sInstance, "" + position, Toast.LENGTH_SHORT).show();
 
+                isChanged = true;
+
             }
         });
 
@@ -811,6 +816,15 @@ public class ProfileActivity extends Activity {
                                 ((SeekBar) dialogView.findViewById(R.id.seekbar_alarm)).getProgress()
                         );
 
+
+                        isChanged = true;
+
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
                     }
                 })
         .show();
@@ -831,6 +845,8 @@ public class ProfileActivity extends Activity {
             );
 
         }
+
+        isChanged = true;
     }
 
     /**
@@ -976,6 +992,8 @@ public class ProfileActivity extends Activity {
                         profile.setBrightnessAuto(checkBox.isChecked());
                         profile.setBrightnessDefault(checkDefault.isChecked());
 
+                        isChanged = true;
+
 
                     }
                 })
@@ -1056,6 +1074,8 @@ public class ProfileActivity extends Activity {
                             profile.setLocked(true);
                             //profile.setIsLockedUntil(calendar);
                             profile.setIsLockedFor(numberPicker.getValue());
+
+                            isChanged = true;
 
                         }
                     })
@@ -1145,6 +1165,8 @@ public class ProfileActivity extends Activity {
                  */
                 addNewAction(sInstance, cond, 0);
 
+                isChanged = true;
+
                 break;
 
 
@@ -1190,6 +1212,8 @@ public class ProfileActivity extends Activity {
 
                 profile.setRingtone(uri);
 
+                isChanged = true;
+
 
                 break;
 
@@ -1222,6 +1246,7 @@ public class ProfileActivity extends Activity {
 
                 profile.setNotification(uri);
 
+                isChanged = true;
 
                 break;
 
@@ -1272,12 +1297,52 @@ public class ProfileActivity extends Activity {
                 Util.addNewConditionOrAction(sInstance, condFile, 0);
 
 
+                isChanged = true;
+
                 break;
 
         }
 
+    }
 
+
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+
+        if (isChanged) {
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder
+                    .setTitle(getString(R.string.error))
+                    .setIcon(R.drawable.ic_launcher)
+                    .setMessage(getString(R.string.profile_changed))
+                    .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            dialogInterface.dismiss();
+                            saveProfile();
+
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                            finish();
+                        }
+                    })
+
+                    .show();
+
+        }
+        else
+            super.onBackPressed();
 
     }
+
 
 }

@@ -266,13 +266,13 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearance"
                 android:singleLine="true"
-                android:text="Profile locked" />
+                android:text="@string/profile_locked" />
 
             <TextView android:id="@android:id/text2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="No other profiles can get active in specified amount of time" />
+                android:text="@string/profile_locked_description" />
         </LinearLayout>
 
         <CheckBox

@@ -88,12 +88,23 @@ public class ReceiverPhoneState extends PhoneStateListener {
                  * since we're not on the phone anymore, change default sound volume to the one
                  * set at notification.
                 */
-                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-
                 audioManager.setStreamVolume(
                         AudioManager.STREAM_RING,
                         profile.getVolumeNotification(),
                         AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
+                /**
+                 * set ringer mode first, depending on our profile decisions
+                 */
+                if (profile.getVolumeRingtone() == 0 && !profile.isVibrate())
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+
+                else if (profile.getVolumeRingtone() == 0 && profile.isVibrate())
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+
+                else
+                    audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+
 
 
                 break;

@@ -150,43 +150,67 @@ public class Event implements Comparable<Event> {
                         btConnectedDevices = new ArrayList<String>();
 
                     /**
+                     * create bool for return result
+                     */
+                    boolean btResult = false;
+                    boolean btCheckSaved = true;
+
+                    /**
                      * if actions is BT CONNECTING OR DISCONNECTING
                      */
                     if (action.contains("android.bluetooth.device.action.ACL_CONNECTED") ||
-                            action.contains("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+                            action.contains("android.bluetooth.device.action.ACL_DISCONNECTED") ||
+                            action.contains("android.bluetooth.device.action.ACTION_ACL_DISCONNECT_REQUESTED")
+                            ) {
+
+                        // don't check saved yet
+                        btCheckSaved = false;
 
                         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                        /**
-                         * check current connected devices, return bool depending on our TYPE
-                         */
-                        boolean isBtDeviceConnected = btConnectedDevices.contains(device.getAddress());
+
+                        // devices from settings (Current condition)
+                        ArrayList<String> btDevicesFromSettings =
+                                gson.fromJson(cond.getSetting("BLUETOOTH_DEVICES"),
+                                        new TypeToken<List<String>>(){}.getType());
 
 
                         /**
-                         * if state == connected
+                         * check all devices from setting (Condition).
+                         *
+                         * if any of them has current device address, we found a match and return
+                         * result depending on type
                          */
+                        if (btDevicesFromSettings.contains(device.getAddress())) {
 
-                        if (isBtDeviceConnected) {
+                            // if current action is connected and condition type is connected,
+                            // return true
+                            if (action.contains("android.bluetooth.device.action.ACL_CONNECTED") &&
+                                    cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED)
+                                btResult = true;
 
-                            if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED)
-                                conditionResults.add(true);
+
+                            // if current action is disconnected and condition type is disconnected,
+                            // return false
+                            else if ((action.contains("android.bluetooth.device.action.ACL_DISCONNECTED") ||
+                                    action.contains("android.bluetooth.device.action.ACTION_ACL_DISCONNECT_REQUESTED"))
+                                    &&
+                                    cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED)
+                                btResult = true;
+
+
                             else
-                                conditionResults.add(false);
+                                btResult = false;
 
                         }
 
-                        /**
-                         * if state == disconnected
-                         */
+                        // current device isn't in current condition settings, don't return false,
+                        // but check further
                         else {
-
-                            if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED)
-                                conditionResults.add(true);
-                            else
-                                conditionResults.add(false);
-
+                            //btResult = false;
+                            btCheckSaved = true;
                         }
+
 
                     }
 
@@ -195,7 +219,7 @@ public class Event implements Comparable<Event> {
                      *
                      * retrieve condition's device and check if it exists in array
                      */
-                    else {
+                    if (btCheckSaved) {
 
                         ArrayList<String> btDevicesFromSettings =
                                 gson.fromJson(cond.getSetting("BLUETOOTH_DEVICES"),
@@ -207,15 +231,25 @@ public class Event implements Comparable<Event> {
                          */
                         for (String single : btDevicesFromSettings) {
 
+//                            System.out.println(">>>>>>>>>> Checking device "+ single +". type: "+ cond.getOptionType());
+
                             // there is device stored in connected array that we have in our
                             // condition
                             if (btConnectedDevices.contains(single)) {
 
+//                                System.out.println(">>>>>>>>>> Device "+ single +" is on connected list.");
+
                                 // checking for CONNECTED state?
                                 if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED) {
 
-                                    conditionResults.add(true);
-                                    break;
+                                    /**
+                                     * while looping through all devices and checking if they're
+                                     * connected, if option is BLUETOOTH_CONNECTED,
+                                     * - on true, continue loop,
+                                     * - on false, stop looping and return false
+                                     */
+                                    btResult = true;
+                                    //break;
 
                                 }
 
@@ -223,7 +257,12 @@ public class Event implements Comparable<Event> {
                                 // checking for DISCONNECTED state?
                                 if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED) {
 
-                                    conditionResults.add(false);
+                                    /**
+                                     * device we want to be DISCONNECTED is in connected list.
+                                     * break loop and return false;
+                                     */
+
+                                    btResult = false;
                                     break;
 
                                 }
@@ -233,17 +272,34 @@ public class Event implements Comparable<Event> {
                             // no, connected devices doesn't include current device
                             else {
 
+//                                System.out.println(">>>>>>>>>> Device "+ single +" is NOT on connected list.");
+
                                 if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_CONNECTED) {
 
-                                    conditionResults.add(false);
+                                    /**
+                                     * current connected device list is empty. we doing opposite here
+                                     *
+                                     * - if condition is CONNECTED, we stop looping and imediatelly
+                                     * return false
+                                     */
+
+                                    btResult = false;
                                     break;
 
                                 }
 
                                 if (cond.getOptionType() == DialogOptions.type.BLUETOOTH_DISCONNECTED) {
 
-                                    conditionResults.add(true);
-                                    break;
+                                    /**
+                                     * current bt device is not on connected devices list and
+                                     * type we're checking is DISCONNECTED; this is good, but don't
+                                     * stop checking other devices!
+                                     *
+                                     * (don't exit loop!)
+                                     */
+
+                                    btResult = true;
+                                    //break;
 
                                 }
 
@@ -256,6 +312,9 @@ public class Event implements Comparable<Event> {
 
 
                     }
+
+
+                    conditionResults.add(btResult);
 
 
 
