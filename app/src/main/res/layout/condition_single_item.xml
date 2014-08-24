@@ -17,7 +17,7 @@
         android:clickable="false"
         android:layout_height="match_parent"
         android:background="?android:selectableItemBackground"
-        android:contentDescription="Remove Item"
+        android:contentDescription="Edit Item"
         android:adjustViewBounds="false"
         android:cropToPadding="false" />
 

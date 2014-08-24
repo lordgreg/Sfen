@@ -257,6 +257,11 @@ public class Util extends Activity {
 
                 map = ((MapFragment) fm.findFragmentById(R.id.map)).getMap();
 
+                if (map == null) {
+                    //TBD
+                    return;
+                }
+
                 map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
                     public void onMapClick(LatLng latLng) {

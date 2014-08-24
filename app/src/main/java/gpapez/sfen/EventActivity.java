@@ -80,6 +80,7 @@ public class EventActivity extends Activity {
             @Override
             public void onClick(View view) {
                 BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optConditions, getString(R.string.pick_condition));
+                isChanged = true;
             }
         });
 
@@ -100,6 +101,7 @@ public class EventActivity extends Activity {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
                 Util.actionFrom = Util.ACTION_FROM.EVENT;
                 Util.openDialog(sInstance, DialogOptions.optActions, getString(R.string.pick_action));
+                isChanged = true;
             }
         });
 
@@ -521,7 +523,6 @@ public class EventActivity extends Activity {
 
                         isChanged = true;
 
-
                         //System.out.println("Priority set is: "+ event.getPriority());
                     }
                 })
@@ -684,7 +685,6 @@ public class EventActivity extends Activity {
                      */
                     profile = single;
 
-
                     isChanged = true;
 
                 }
@@ -708,7 +708,7 @@ public class EventActivity extends Activity {
             checkBox.setChecked(false);
 
             event.setDelayed(false);
-
+            isChanged = true;
         }
         /**
          * ENABLING DELAY (open dialog with options)
@@ -756,8 +756,9 @@ public class EventActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
+                            String delay = input.getText().toString();
 
-                            if (input.getText().equals("") || input.getText().equals("0")) {
+                            if (delay == null || "".equals(delay) || delay.equals("0")) {
                                 Util.showMessageBox(getString(R.string.delay_enter_minutes), true);
                                 checkBox.setChecked(false);
 
@@ -871,7 +872,6 @@ public class EventActivity extends Activity {
                 Util.addNewConditionOrAction(sInstance, condFile, 0);
 
                 isChanged = true;
-
 
                 break;
 

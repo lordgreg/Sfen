@@ -529,6 +529,7 @@ public class ProfileActivity extends Activity {
                 Util util = new Util();
                 util.openSubDialog(context, entry, index);
                 //showMessageBox("clicked " + entry.getTitle() + ", " + entry.getOptionType() +" type: "+ entry.isItemConditionOrAction() +" on index "+ index, false);
+                isChanged = true;
             }
         });
 
@@ -544,6 +545,7 @@ public class ProfileActivity extends Activity {
                 int index = ((ViewGroup) newRow.getParent()).indexOfChild(newRow);
 
                 removeAction(index, entry);
+                isChanged = true;
 
             }
         });
@@ -575,11 +577,6 @@ public class ProfileActivity extends Activity {
         if (isUpdating) {
 
             updatedActions.remove(updatedActions.indexOf(entry));
-
-            // we changed something, so set the changed boolean
-            isChanged = true;
-
-
         }
 
         // CREATING SINGLE profile!!!
@@ -588,6 +585,8 @@ public class ProfileActivity extends Activity {
             actions.remove(actions.indexOf(entry));
 
         }
+        // we changed something, so set the changed boolean
+        isChanged = true;
     }
 
 
