@@ -1,3 +1,11 @@
+24.8.2014
+
+* fixed adding new condition (Location) with Location disabled in system settings will trigger exception
+* fixed condition "event conditions FALSE".
+* fixed timerange condition. what if end time was smaller than start time. meaning end time is next day. but what if current time is after/before midnight?
+* about page is again scrollable
+
+
 23.8.2014
 
 + about page created

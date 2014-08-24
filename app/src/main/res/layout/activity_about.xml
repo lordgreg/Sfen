@@ -6,7 +6,7 @@
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:background="#3f51b5">
 
 
@@ -96,7 +96,7 @@
                 android:textColor="@android:color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Arabic (Omar Bezrh), Dutch (Martin Coulon, Wim N), German (faulfels), Russian (gaich), Serbian (Nikola Stojanović), Slovenian (Jure Repnik), Spanish (Jose Loarca)"
+                android:text="Arabic (Omar Bezrh), Dutch (Martin Coulon, Wim N), German (faulfels), Polish (Marcin Krasicki), Russian (gaich), Serbian (Nikola Stojanović), Slovenian (Jure Repnik), Spanish (Jose Loarca, Francisco Meléndez), Swedish (gerhardol)"
                 android:layout_margin="5dp"
                 android:id="@+id/textView4" />
 
@@ -124,7 +124,7 @@ Neva for naming this app"
         <TextView
             android:textAllCaps="true"
             android:textColor="@android:color/white"
-            android:alpha=".25"
+            android:alpha=".45"
             android:textSize="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

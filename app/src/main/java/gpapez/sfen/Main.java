@@ -124,7 +124,7 @@ public class Main extends Activity {
 
                 if (bgService != null) {
 
-                    System.out.println(bgService.toString());
+                    //System.out.println(bgService.toString());
                     mIsBackgroundServiceRunning = true;
                     sendBroadcast("EVENT_ENABLED");
                     break;
@@ -136,6 +136,14 @@ public class Main extends Activity {
             bgService = new Intent(this, BackgroundService.class);
             startService(bgService);
         }
+
+
+        /**
+         * if first time running show dialog with welcome to Sfen
+         */
+        runCountTrigger();
+
+
 
 
         // end of onCreate
@@ -560,6 +568,46 @@ public class Main extends Activity {
 
     }
 
+    /**
+     * depending on nth run, show or do something
+     */
+    protected void runCountTrigger() {
+
+        int runCount = Preferences.getSharedPreferences(this).getInt("RUN_COUNT", -1);
+
+
+        if (runCount == 0) {
+
+            /**
+             * show welcome dialog
+             */
+
+
+        }
+
+        else if (runCount == 5) {
+
+            /**
+             * show donate dialog
+             */
+
+
+        }
+
+
+//        else {
+//            System.out.println("sfen is running for the "+ runCount +" time.");
+//
+//        }
+
+        /**
+         * increase the value of run number
+         */
+
+        Preferences.getSharedPreferences(this).edit().putInt("RUN_COUNT", ++runCount).apply();
+
+
+    }
 
 
 

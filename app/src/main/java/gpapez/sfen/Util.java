@@ -243,6 +243,16 @@ public class Util extends Activity {
                 AndroidLocation loc;
                 loc = new AndroidLocation(context);
 
+//                if (loc == null) {
+//
+//                    showMessageBox(context.getString(R.string.location_not_available), false);
+//
+//                    return;
+//
+//                }
+
+
+
                 LatLng myLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
 
                 // it is possible we cannot find current location. if so, allow user to continue anyways!

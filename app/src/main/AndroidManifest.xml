@@ -115,8 +115,7 @@
         </activity>
         <activity
             android:name=".AboutActivity"
-            android:label="@string/title_activity_about"
-            android:theme="@android:style/Theme.NoTitleBar">
+            android:label="@string/title_activity_about">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

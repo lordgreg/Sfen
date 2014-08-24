@@ -119,4 +119,11 @@ public class Preferences {
 
     }
 
+    protected static SharedPreferences getSharedPreferences(Context context) {
+
+        return PreferenceManager
+                .getDefaultSharedPreferences(context);
+
+    }
+
 }

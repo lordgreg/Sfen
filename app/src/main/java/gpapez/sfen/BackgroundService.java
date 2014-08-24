@@ -1270,6 +1270,10 @@ public class BackgroundService extends Service {
                             // interval for both created alarms will be 24 hours
                             long interval = AlarmManager.INTERVAL_DAY;
 
+                            /**
+                             * current time
+                             */
+                            Calendar timeCurrent = Calendar.getInstance();
 
                             /*
                             Create starting time and start it on specific time.
@@ -1306,8 +1310,39 @@ public class BackgroundService extends Service {
                             // TIMES CHECK.
                             // if endTime is lower than startTime, it usually means endTime has to
                             // be tomorrow
-                            if (timeEnd.before(timeStart))
-                                timeEnd.add(Calendar.DATE, 1);
+                            if (timeEnd.before(timeStart)) {
+
+//                                System.out.println("----------------- "+ timeCurrent.get(Calendar.DATE) +" ~~~ "+ timeEnd.get(Calendar.DATE));
+//                                System.out.println("current date before end date? "+ timeCurrent.before(timeEnd));
+
+                                if (!timeCurrent.before(timeEnd))
+                                    timeEnd.add(Calendar.DATE, 1);
+
+//                                System.out.println("----------------- "+ timeCurrent.get(Calendar.DATE) +" ~~~ "+ timeEnd.get(Calendar.DATE));
+//                                System.out.println("current date before end date? "+ timeCurrent.before(timeEnd));
+
+//                                if (timeCurrent.get(Calendar.DATE) == (timeEnd.get(Calendar.DATE)-1)) {
+//
+//                                    System.out.println("+++++++++end day is the same as current day.");
+//
+//
+//                                }
+
+                            }
+
+
+//
+//                                timeEnd.add(Calendar.DATE, 1);
+//
+
+
+
+//                            if ( timeEnd.before(timeStart) && timeCurrent.DATE == timeEnd.DATE ) {
+//
+//                                timeEnd.add(Calendar.DATE, -1);
+//
+//                            }
+
 
 
                             mAlarm = new Alarm(sInstance, single.getUniqueID() + 1);

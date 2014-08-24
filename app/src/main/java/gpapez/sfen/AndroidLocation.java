@@ -57,9 +57,9 @@ public class AndroidLocation extends Activity implements LocationListener {
 //        }
 
         if (provider == null) {
-            errorString = getString(R.string.location_setting_enabled);
+            errorString = context.getString(R.string.location_setting_enabled);
             isError = true;
-            Log.e("sfen", getString(R.string.location_setting_enabled));
+            Log.e("sfen", errorString);
         }
         else {
             //provider = locationManager.getBestProvider(criteria, false);

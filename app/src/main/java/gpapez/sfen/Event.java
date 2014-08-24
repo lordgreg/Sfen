@@ -834,13 +834,13 @@ public class Event implements Comparable<Event> {
 
                                 // EVENT_CONDITIONS_TRUE
                                 if (cond.getOptionType() == DialogOptions.type.EVENT_CONDITIONS_TRUE) {
-                                    if (single.isMatchAllConditions())
+                                    if (single.areEventConditionsMet(context, intent, single))
                                         mFound = true;
                                 }
 
                                 // EVENT_CONDITIONS_FALSE
                                 else if (cond.getOptionType() == DialogOptions.type.EVENT_CONDITIONS_FALSE) {
-                                    if (!single.isMatchAllConditions()) {
+                                    if (!single.areEventConditionsMet(context, intent, single)) {
                                         mFound = true;
                                         //break;
                                     }
@@ -856,15 +856,13 @@ public class Event implements Comparable<Event> {
 
                             }
 
-                            // since we found one, we can break the loop
-                            //break;
-
 
                         }
                     }
 
-                    // if we didn't find anything, we return false
-                    //if (mFound)
+
+
+
                     conditionResults.add(mFound);
 
 
