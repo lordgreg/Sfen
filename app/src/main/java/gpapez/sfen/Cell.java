@@ -267,6 +267,15 @@ public class Cell implements Comparable<Cell> {
                                 10).apply();
 
 
+                        /**
+                         * clear cell history
+                         */
+                        BackgroundService.getInstance().mPreferences.setPreferences(
+                                "cells",
+                                new ArrayList<Cell>()
+                        );
+
+
                     }
                 });
 
