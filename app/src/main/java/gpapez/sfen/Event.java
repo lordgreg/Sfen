@@ -815,27 +815,36 @@ public class Event implements Comparable<Event> {
                             new TypeToken<List<Integer>>(){}.getType());
 
 
-                    // loop through all events,
-                    // find the one that is included in settings,
-                    // return true/false
-                    //int mCurrentID = cond.getUniqueID();
                     mFound = false;
-                    for (Event single : BackgroundService.getInstance().events) {
 
-                        // match was found
-                        if (mEventsToCheck.contains(single.getUniqueID())) {
+                    /**
+                     * No loop-recursion!
+                     */
+                    if (!BackgroundService.getInstance().mEventLoopInProgress) {
+                        BackgroundService.getInstance().mEventLoopInProgress = true;
 
-                            /**
-                             * No loop-recursion!
-                             */
-                            if (!BackgroundService.getInstance().mEventLoopInProgress) {
-                                BackgroundService.getInstance().mEventLoopInProgress = true;
+
+                        // loop through all events,
+                        // find the one that is included in settings,
+                        // return true/false
+                        //int mCurrentID = cond.getUniqueID();
+
+                        for (Event single : BackgroundService.getInstance().events) {
+
+                            // match was found
+                            if (mEventsToCheck.contains(single.getUniqueID())) {
+
+
 
 
                                 // EVENT_CONDITIONS_TRUE
                                 if (cond.getOptionType() == DialogOptions.type.EVENT_CONDITIONS_TRUE) {
                                     if (single.areEventConditionsMet(context, intent, single))
                                         mFound = true;
+                                    else {
+                                        mFound = false;
+                                        break;
+                                    }
                                 }
 
                                 // EVENT_CONDITIONS_FALSE
@@ -844,6 +853,10 @@ public class Event implements Comparable<Event> {
                                         mFound = true;
                                         //break;
                                     }
+                                    else {
+                                        mFound = false;
+                                        break;
+                                    }
 //                                    conditionResults.add(true);
 //                                else
 //                                    conditionResults.add(false);
@@ -851,16 +864,16 @@ public class Event implements Comparable<Event> {
 
 
 
-                                BackgroundService.getInstance().mEventLoopInProgress = false;
+
 
 
                             }
-
-
                         }
+
+                        BackgroundService.getInstance().mEventLoopInProgress = false;
+
+
                     }
-
-
 
 
                     conditionResults.add(mFound);
