@@ -3,6 +3,10 @@ package gpapez.sfen;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.telephony.CellIdentityCdma;
+import android.telephony.CellIdentityGsm;
+import android.telephony.CellIdentityLte;
+import android.telephony.CellIdentityWcdma;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -42,7 +46,7 @@ public class CellConnectionInfo {
 
                 List<CellInfo> cellInfos = (List<CellInfo>) telephonyManager.getAllCellInfo();
 
-
+                //Note: Only use first in list (assume it is best, last may be empty), we only add one Cell
                 if (cellInfos != null && cellInfos.size() > 0) {
                     gotCellInfo = true;
                     CellInfo cell = cellInfos.get(0);
@@ -86,13 +90,13 @@ public class CellConnectionInfo {
          * IF our cellID includes -1, there's something wrong with cell and it isn't
          * correct cellID meaning its an corrupted catch
          */
-//        if (cellId != null || cellId.equals("")) {
-//            if (cellId.contains("-1")) {
-//                isError = true;
-//                errorString = sActivity.getString(R.string.cell_wrong_cell_report, cellId);
-//                Log.e("sfen", errorString);
-//            }
-//        }
+        if (cellId != null || cellId.equals("")) {
+            if (cellId.contains("-1")) {
+                isError = true;
+                errorString = sActivity.getString(R.string.cell_wrong_cell_report, cellId);
+                Log.e("sfen", errorString);
+            }
+        }
 
         return isError;
     }
@@ -111,56 +115,69 @@ public class CellConnectionInfo {
     }
 
 
-    private void setCellType(CellInfo cell) {
-        cellType = cell.getClass().getSimpleName();
+    private void setCellError(String cellType) {
+        cellType = "";
+        cellId = "NULL";
+        isError = true;
+        errorString = sActivity.getString(R.string.unknown_cell_type, cellType);
+    }
 
+    private void setCellType(CellInfo cell) {
         // cell code ID using getAllCellInfo can be used on >=4.1 of
         // Android JELLY_BEAN
         //This is only called in JB
+        //identification and sectors:
+        //  http://people.csail.mit.edu/bkph/cellular_repeater_numerology.shtml, wikipedia cell-id
+        //Keep Lac before Cid for GSM, Wcdma as sector is encoded there
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-                if (cellType.compareTo("CellInfoLte") == 0) {
-                    CellInfoLte mCell = (CellInfoLte) cell;
+                if (cell instanceof CellInfoLte) {
+                    CellIdentityLte mCellId = ((CellInfoLte) cell).getCellIdentity();
                     cellType = "LTE";
-                    cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCi();
-                } else if (cellType.compareTo("CellInfoGsm") == 0) {
-                    CellInfoGsm mCell = (CellInfoGsm) cell;
+                    int ci = mCellId.getCi() / 256;
+                    //sector is not part of the base station, but the area it covers
+                    int sector = mCellId.getCi() % 256;
+                    //PCI is not part of the identification of the base station, sector is included in CI
+                    cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getTac() + ":" + ci + ":" + sector;
+                } else if (cell instanceof CellInfoGsm) {
+                    CellIdentityGsm mCellId = ((CellInfoGsm) cell).getCellIdentity();
                     cellType = "GSM";
-                    cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
-                } else if (cellType.compareTo("CellInfoCdma") == 0) {
-                    CellInfoCdma mCell = (CellInfoCdma) cell;
+                    cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getLac() + ":" + mCellId.getCid();
+                } else if (cell instanceof CellInfoCdma) {
+                    CellIdentityCdma mCellId = ((CellInfoCdma) cell).getCellIdentity();
                     cellType = "CDMA";
-                    cellId = "" + mCell.getCellIdentity().getBasestationId();
-                } else if (cellType.compareTo("CellInfoWcdma") == 0) {
-                    CellInfoWcdma mCell = (CellInfoWcdma) cell;
+                    cellId = "" + mCellId.getBasestationId();
+                } else if (cell instanceof CellInfoWcdma) {
+                    CellIdentityWcdma mCellId = ((CellInfoWcdma) cell).getCellIdentity();
                     cellType = "WCDMA";
-                    cellId = mCell.getCellIdentity().getMcc() + ":" + mCell.getCellIdentity().getMnc() + ":" + mCell.getCellIdentity().getCid();
+                    cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getLac() + ":" + mCellId.getCid();
                 } else {
-                    cellType = "";
-                    cellId = "NULL";
-                    isError = true;
-                    errorString = sActivity.getString(R.string.unknown_cell_type, cellType);
-                    Log.e("sfen", errorString);
+                    setCellError(cell.getClass().getSimpleName());
+                    Log.e("sfen", getError());
                 }
             }
     }
 
     private void setCellType(CellLocation cell) {
-        cellType = cell.getClass().getSimpleName();
-
-        if (cellType.compareTo("GsmCellLocation") == 0) {
+        //MNC/MCC (for GsmCellLocation/CdmaCellLocation) can be retrieved, ignore
+        //TelephonyManager phoneMgr = (TelephonyManager)mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        //String mccMnc = phoneMgr.getNetworkOperator();
+        //String mcc = "";
+        //String mnc = "";
+        //if (mccMnc != null && mccMnc.length() >= 5) {
+        //    mcc = mccMnc.substring(0, 3);
+        //    mnc = mccMnc.substring(3, 5);
+        //}
+        if (cell instanceof GsmCellLocation) {
             GsmCellLocation mCell = (GsmCellLocation) cell;
             cellType = "GSM";
-            cellId = mCell.getCid() + ":" + mCell.getLac() + ":" + mCell.getPsc();
-        } else if (cellType.compareTo("CdmaCellLocation") == 0) {
+            cellId = mCell.getLac() + ":" + mCell.getCid();
+        } else if (cell instanceof CdmaCellLocation) {
             CdmaCellLocation mCell = (CdmaCellLocation) cell;
             cellType = "CDMA";
             cellId = String.valueOf(mCell.getBaseStationId());
         } else {
-            cellType = "";
-            cellId = "NULL";
-            isError = true;
-            errorString = sActivity.getString(R.string.unknown_cell_type, cellType);
-            Log.e("sfen", errorString);
+            setCellError(cell.getClass().getSimpleName());
+            Log.e("sfen", getError());
         }
     }
 }
