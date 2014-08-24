@@ -337,5 +337,7 @@ Are you sure?</string>
     <string name="about_special_thanks">Special thanks</string>
     <string name="profile_changed">Profile has changed. Save before leaving?</string>
     <string name="event_changed">Event has changed. Save before leaving?</string>
+    <string name="welcome_to_sfen">Welcome to Sfen!</string>
+    <string name="prepare_simple_events_and_profiles">Do you want Sfen to prepare some simple events and profiles for you?</string>
 
 </resources>

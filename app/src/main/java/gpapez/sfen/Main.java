@@ -8,6 +8,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -573,7 +574,7 @@ public class Main extends Activity {
      */
     protected void runCountTrigger() {
 
-        int runCount = Preferences.getSharedPreferences(this).getInt("RUN_COUNT", -1);
+        int runCount = Preferences.getSharedPreferences(this).getInt("RUN_COUNT", 0);
 
 
         if (runCount == 0) {
@@ -581,7 +582,25 @@ public class Main extends Activity {
             /**
              * show welcome dialog
              */
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
+            builder
+                    .setIcon(R.drawable.ic_launcher)
+                    .setTitle(getString(R.string.welcome_to_sfen))
+                    .setMessage(getString(R.string.prepare_simple_events_and_profiles))
+                    .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
 
         }
 
@@ -590,6 +609,31 @@ public class Main extends Activity {
             /**
              * show donate dialog
              */
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder
+                    .setIcon(R.drawable.ic_launcher)
+                    .setTitle(getString(R.string.app_name))
+                    .setMessage("Sfen is open source and free application. Donations keep Sfen alive.\n\nDo you want to make a donation now?")
+                    .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+
+                            Intent browserIntent = new Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=gregorp%40gmail%2ecom&lc=SI&item_name=Sfen&item_number=sfen&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"));
+                            startActivity(browserIntent);
+
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
 
 
         }

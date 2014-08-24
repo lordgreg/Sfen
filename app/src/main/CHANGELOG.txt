@@ -4,7 +4,7 @@
 * 2x fixed condition "event conditions FALSE".
 * fixed timerange condition. what if end time was smaller than start time. meaning end time is next day. but what if current time is after/before midnight?
 * about page is again scrollable
-
+* created donation dialog (after 5th run). no other nagging windows will appear.
 
 23.8.2014
 
