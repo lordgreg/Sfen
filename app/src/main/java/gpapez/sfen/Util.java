@@ -718,8 +718,8 @@ public class Util extends Activity {
                                     //cond.setSetting("text1", "Days ("+ selectedWifi.size() +")");
                                     cond.setSetting("text1", ((opt.getOptionType() == DialogOptions.type.WIFI_CONNECT) ?
                                             context.getString(R.string.wifi_connected_to) :
-                                            context.getString(R.string.wifi_disconnected_from)) +
-                                            context.getString(R.string.wifi_info_suffix));
+                                            context.getString(R.string.wifi_disconnected_from))
+                                    );
                                     cond.setSetting("text2", allDays);
 
 
@@ -2636,4 +2636,112 @@ public class Util extends Activity {
                 " " +
                 android.text.format.DateFormat.getTimeFormat(context).format(cal.getTime());
     }
+
+
+    protected static void importSettings(String importString) {
+
+        if (importString.equals("") || importString == null || importString.length() == 0)
+            return ;
+
+
+        Gson gson = new Gson();
+
+        /**
+         * split string into events and profiles.
+         */
+        String sInput = importString.toString().trim();
+
+        String[] parts = sInput.split("<<>>");
+
+        /**
+         * 0 = events,
+         * 1 = profiles
+         */
+        String events = "";
+        if (parts[0].contains("<<EVENTS>>"))
+            events = parts[0].replace("<<EVENTS>>", "");
+
+        String profiles = "";
+        if (parts[1].contains("<<PROFILES>>"))
+            profiles = parts[1].replace("<<PROFILES>>", "");
+
+
+        /**
+         * start importing
+         */
+
+        // events
+        ArrayList<Event> mPastedEvents = new ArrayList<Event>();
+        if (!events.equals("")) {
+
+            mPastedEvents =
+                    gson.fromJson(events, new TypeToken<List<Event>>(){}.getType());
+
+            // set these imports as disabled & reset unique id!
+            for (int i = 0; i < mPastedEvents.size(); i++) {
+
+                mPastedEvents.get(i).setEnabled(false);
+                mPastedEvents.get(i).setRunning(false);
+                mPastedEvents.get(i).resetUniqueId();
+
+            }
+
+        }
+
+        // profiles
+        ArrayList<Profile> mPastedProfiles = new ArrayList<Profile>();
+        if (!profiles.equals("")) {
+
+            mPastedProfiles =
+                    gson.fromJson(profiles, new TypeToken<List<Profile>>(){}.getType());
+
+            // set these imports as disabled & reset unique id!
+            for (int i = 0; i < mPastedProfiles.size(); i++) {
+
+                mPastedProfiles.get(i).setActive(false);
+                int oldProfileUniqueId = mPastedProfiles.get(i).getUniqueID();
+
+                mPastedProfiles.get(i).resetUniqueId();
+
+                // before resetting profile ID, check if events had same profile
+                // ID's bind. if so, update their profile ID's too
+                for (int j = 0; j < mPastedEvents.size(); j++) {
+                    if (mPastedEvents.get(j).getProfileID() ==
+                            oldProfileUniqueId)
+                        mPastedEvents.get(j).setProfileID(
+                                mPastedProfiles.get(i).getUniqueID()
+                        );
+                }
+
+
+            }
+
+
+        }
+
+
+        /**
+         * add if new events & profiles > 0
+         */
+        if (mPastedEvents.size() > 0)
+            BackgroundService.getInstance().events.addAll(0, mPastedEvents);
+
+        if (mPastedProfiles.size() > 0)
+            BackgroundService.getInstance().profiles.addAll(0, mPastedProfiles);
+
+
+        //String json = input.getText().toString();
+
+//
+//                            //protected ArrayList<Event> events = new ArrayList<Event>();
+//                            ArrayList<Event> mPastedEvents = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
+//
+//                            // add to current EVENTS array
+//                            BackgroundService.getInstance().events.addAll(0, mPastedEvents);
+
+
+
+
+    }
+
 }

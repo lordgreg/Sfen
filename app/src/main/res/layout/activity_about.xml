@@ -80,6 +80,25 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true">
 
+            <TextView
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_special_thanks"
+                android:id="@+id/textView1"
+                android:layout_margin="5dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:textColor="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="imraro, gerhard, ron_e for extended testing
+Neva for creating the idea behind Sfen"
+                android:layout_margin="5dp"
+                android:id="@+id/textView5" />
+
 
             <TextView
                 android:textAllCaps="true"
@@ -96,35 +115,15 @@
                 android:textColor="@android:color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Arabic (Omar Bezrh), Dutch (Martin Coulon, Wim N), German (faulfels), Polish (Marcin Krasicki), Russian (gaich), Serbian (Nikola Stojanović), Slovenian (Jure Repnik), Spanish (Jose Loarca, Francisco Meléndez), Swedish (gerhardol)"
+                android:text="Arabic (Omar Bezrh), Dutch (Martin Coulon, Wim N), German (faulfels), Polish (Marcin Krasicki), Russian (gaich), Serbian (Nikola Stojanović), Slovenian (Jure Repnik), Spanish (Jose Loarca, Francisco Meléndez), Swedish (gerhard)"
                 android:layout_margin="5dp"
                 android:id="@+id/textView4" />
-
-            <TextView
-                android:textAllCaps="true"
-                android:textColor="@android:color/white"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/about_special_thanks"
-                android:id="@+id/textView1"
-                android:layout_margin="5dp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:textColor="@android:color/white"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="imraro, gerhardol, ron_e for extended testing
-Neva for naming this app"
-                android:layout_margin="5dp"
-                android:id="@+id/textView5" />
 
         </LinearLayout>
 
         <TextView
             android:textAllCaps="true"
             android:textColor="@android:color/white"
-            android:alpha=".45"
             android:textSize="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

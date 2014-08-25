@@ -364,101 +364,10 @@ public class Main extends Activity {
                                 return;
                             }
 
-                            Gson gson = new Gson();
-
                             /**
-                             * split string into events and profiles.
+                             * call the import command
                              */
-                            String sInput = input.getText().toString().trim();
-
-                            String[] parts = sInput.split("<<>>");
-
-                            /**
-                             * 0 = events,
-                             * 1 = profiles
-                             */
-                            String events = "";
-                            if (parts[0].contains("<<EVENTS>>"))
-                                events = parts[0].replace("<<EVENTS>>", "");
-
-                            String profiles = "";
-                            if (parts[1].contains("<<PROFILES>>"))
-                                profiles = parts[1].replace("<<PROFILES>>", "");
-
-
-                            /**
-                             * start importing
-                             */
-
-                            // events
-                            ArrayList<Event> mPastedEvents = new ArrayList<Event>();
-                            if (!events.equals("")) {
-
-                                mPastedEvents =
-                                        gson.fromJson(events, new TypeToken<List<Event>>(){}.getType());
-
-                                // set these imports as disabled & reset unique id!
-                                for (int i = 0; i < mPastedEvents.size(); i++) {
-
-                                    mPastedEvents.get(i).setEnabled(false);
-                                    mPastedEvents.get(i).setRunning(false);
-                                    mPastedEvents.get(i).resetUniqueId();
-
-                                }
-
-                            }
-
-                            // profiles
-                            ArrayList<Profile> mPastedProfiles = new ArrayList<Profile>();
-                            if (!profiles.equals("")) {
-
-                                mPastedProfiles =
-                                        gson.fromJson(profiles, new TypeToken<List<Profile>>(){}.getType());
-
-                                // set these imports as disabled & reset unique id!
-                                for (int i = 0; i < mPastedProfiles.size(); i++) {
-
-                                    mPastedProfiles.get(i).setActive(false);
-                                    int oldProfileUniqueId = mPastedProfiles.get(i).getUniqueID();
-
-                                    mPastedProfiles.get(i).resetUniqueId();
-
-                                    // before resetting profile ID, check if events had same profile
-                                    // ID's bind. if so, update their profile ID's too
-                                    for (int j = 0; j < mPastedEvents.size(); j++) {
-                                        if (mPastedEvents.get(j).getProfileID() ==
-                                                oldProfileUniqueId)
-                                            mPastedEvents.get(j).setProfileID(
-                                                    mPastedProfiles.get(i).getUniqueID()
-                                            );
-                                    }
-
-
-                                }
-
-
-                            }
-
-
-                            /**
-                             * add if new events & profiles > 0
-                             */
-                            if (mPastedEvents.size() > 0)
-                                BackgroundService.getInstance().events.addAll(0, mPastedEvents);
-
-                            if (mPastedProfiles.size() > 0)
-                                BackgroundService.getInstance().profiles.addAll(0, mPastedProfiles);
-
-
-                            //String json = input.getText().toString();
-
-//
-//                            //protected ArrayList<Event> events = new ArrayList<Event>();
-//                            ArrayList<Event> mPastedEvents = gson.fromJson(json, new TypeToken<List<Event>>(){}.getType());
-//
-//                            // add to current EVENTS array
-//                            BackgroundService.getInstance().events.addAll(0, mPastedEvents);
-
+                            Util.importSettings(input.getText().toString());
 
                             /**
                              * done, refresh view at the end
@@ -466,20 +375,6 @@ public class Main extends Activity {
                             refreshCurrentView();
 
 
-
-                            // save action & create new row
-                            /*
-                            final DialogOptions cond = new DialogOptions(opt.getTitle(), opt.getDescription(),
-                                    opt.getIcon(), opt.getOptionType());
-
-                            cond.setSetting("text1", opt.getTitle());
-                            cond.setSetting("text2", input.getText().toString());
-                            cond.setSetting("text", input.getText().toString());
-
-                            if (isEditing)
-                                removeConditionOrAction(index, opt);
-
-                            addNewConditionOrAction(context, cond, 0);*/
 
                         }
                     })
@@ -592,6 +487,15 @@ public class Main extends Activity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
+
+                            /**
+                             * string with prepared events & profiles
+                             */
+                            String preparedString = "<<EVENTS>>[{\"actions\":[],\"conditions\":[{\"description\":\"Day(s) of week\",\"icon\":\"ic_date\",\"title\":\"Days\",\"optionType\":\"DAYSOFWEEK\",\"settings\":{\"text1\":\"Days (5)\",\"text2\":\"Monday, Tuesday, Wednesday, Thursday, Friday\",\"selectedDays\":\"[0,1,2,3,4]\"},\"maxNumber\":0,\"uniqueID\":706033541},{\"description\":\"Time Range\",\"icon\":\"ic_time\",\"title\":\"Time Range\",\"optionType\":\"TIMERANGE\",\"settings\":{\"fromHour\":\"7\",\"toHour\":\"15\",\"toMinute\":\"0\",\"fromMinute\":\"0\",\"text1\":\"Time Range\",\"text2\":\"From 07:00 to 15:00\"},\"maxNumber\":0,\"uniqueID\":1692299036}],\"name\":\"At work\",\"delayed\":false,\"enabled\":true,\"forceRun\":false,\"hasRun\":true,\"matchAllConditions\":true,\"delayRecheckConditions\":false,\"priority\":1,\"profile\":610007126,\"runOnce\":false,\"running\":true,\"delayMinutes\":3,\"uniqueID\":1835553301},{\"actions\":[{\"description\":\"Will make a sheep sound\",\"icon\":\"ic_sound\",\"title\":\"Play Sfen\",\"optionType\":\"ACT_PLAYSFEN\",\"settings\":{\"text1\":\"Play Sfen\",\"text2\":\"Sound of Sfen will be heard\"},\"maxNumber\":0,\"uniqueID\":-1},{\"description\":\"Disable Wifi when conditions met\",\"icon\":\"ic_wifi\",\"title\":\"Disable Wifi\",\"optionType\":\"ACT_WIFIDISABLE\",\"settings\":{\"text1\":\"Disable Wifi\",\"text2\":\"Wifi will be Disabled\"},\"maxNumber\":0,\"uniqueID\":-1}],\"conditions\":[{\"description\":\"Selected battery level\",\"icon\":\"ic_battery\",\"title\":\"Battery level\",\"optionType\":\"BATTERY_LEVEL\",\"settings\":{\"BATTERY_LEVEL_TO\":\"20\",\"BATTERY_LEVEL_FROM\":\"0\",\"text1\":\"Battery level\",\"text2\":\"Battery between 0% and 20%\"},\"maxNumber\":0,\"uniqueID\":1165744599}],\"name\":\"Battery low\",\"delayed\":false,\"enabled\":true,\"forceRun\":false,\"hasRun\":false,\"matchAllConditions\":true,\"delayRecheckConditions\":false,\"priority\":1,\"profile\":-1,\"runOnce\":false,\"running\":false,\"delayMinutes\":3,\"uniqueID\":2039440392},{\"actions\":[{\"description\":\"Will make a sheep sound\",\"icon\":\"ic_sound\",\"title\":\"Play Sfen\",\"optionType\":\"ACT_PLAYSFEN\",\"settings\":{\"text1\":\"Play Sfen\",\"text2\":\"Sound of Sfen will be heard\"},\"maxNumber\":0,\"uniqueID\":-1},{\"description\":\"Will show dialog with text\",\"icon\":\"ic_dialog\",\"title\":\"Dialog with text\",\"optionType\":\"ACT_DIALOGWITHTEXT\",\"settings\":{\"text\":\"Battery full!\",\"text1\":\"Dialog with text\",\"text2\":\"Battery full!\"},\"maxNumber\":0,\"uniqueID\":-1}],\"conditions\":[{\"description\":\"Status of battery\",\"icon\":\"ic_battery\",\"title\":\"Battery status\",\"optionType\":\"BATTERY_STATUS\",\"settings\":{\"BATTERY_STATUS_KEY\":\"3\",\"BATTERY_STATUS\":\"Full\",\"text1\":\"Battery status\",\"text2\":\"Battery is Full\"},\"maxNumber\":0,\"uniqueID\":1297573910}],\"name\":\"Battery full\",\"delayed\":false,\"enabled\":true,\"forceRun\":false,\"hasRun\":false,\"matchAllConditions\":true,\"delayRecheckConditions\":false,\"priority\":1,\"profile\":-1,\"runOnce\":false,\"running\":false,\"delayMinutes\":3,\"uniqueID\":1903268961},{\"actions\":[],\"conditions\":[{\"description\":\"If Headset is connected\",\"icon\":\"ic_headset\",\"title\":\"Headset connected\",\"optionType\":\"HEADSET_CONNECTED\",\"settings\":{\"text1\":\"Headset connected\",\"text2\":\"Headset is Connected\"},\"maxNumber\":0,\"uniqueID\":783402977}],\"name\":\"Headset on\",\"delayed\":false,\"enabled\":true,\"forceRun\":false,\"hasRun\":false,\"matchAllConditions\":true,\"delayRecheckConditions\":false,\"priority\":1,\"profile\":909521167,\"runOnce\":false,\"running\":false,\"delayMinutes\":3,\"uniqueID\":646793162},{\"actions\":[],\"conditions\":[{\"description\":\"Time Range\",\"icon\":\"ic_time\",\"title\":\"Time Range\",\"optionType\":\"TIMERANGE\",\"settings\":{\"fromHour\":\"22\",\"toHour\":\"7\",\"toMinute\":\"0\",\"fromMinute\":\"0\",\"text1\":\"Time Range\",\"text2\":\"From 22:00 to 07:00\"},\"maxNumber\":0,\"uniqueID\":271955113}],\"name\":\"At night\",\"delayed\":false,\"enabled\":true,\"forceRun\":false,\"hasRun\":false,\"matchAllConditions\":true,\"delayRecheckConditions\":false,\"priority\":3,\"profile\":1785221699,\"runOnce\":false,\"running\":false,\"delayMinutes\":3,\"uniqueID\":674702520}]<<>><<PROFILES>>[{\"actions\":[],\"ringtone\":\"content://settings/system/ringtone\",\"notification\":\"content://settings/system/notification_sound\",\"name\":\"Night\",\"callAllowDenies\":[],\"icon\":\"ic_night\",\"defaultRingtone\":true,\"isActive\":false,\"isLocked\":false,\"isLockedFor\":0,\"defaultNotification\":true,\"isVibrate\":true,\"isVolumeButtonsDisable\":false,\"brightnessValue\":80,\"brightnessDefault\":true,\"brightnessAuto\":true,\"uniqueID\":1785221699,\"volumeAlarm\":7,\"volumeMusic\":4,\"volumeNotification\":0,\"volumeRingtone\":4},{\"actions\":[],\"ringtone\":\"content://settings/system/ringtone\",\"notification\":\"content://settings/system/notification_sound\",\"name\":\"Meeting\",\"callAllowDenies\":[],\"icon\":\"ic_work\",\"defaultRingtone\":true,\"isActive\":false,\"isLocked\":true,\"isLockedFor\":1,\"defaultNotification\":true,\"isVibrate\":true,\"isVolumeButtonsDisable\":false,\"brightnessValue\":80,\"brightnessDefault\":true,\"brightnessAuto\":true,\"uniqueID\":1105441116,\"volumeAlarm\":7,\"volumeMusic\":3,\"volumeNotification\":0,\"volumeRingtone\":0},{\"actions\":[],\"ringtone\":\"content://settings/system/ringtone\",\"notification\":\"content://settings/system/notification_sound\",\"name\":\"Normal\",\"callAllowDenies\":[],\"icon\":\"ic_day\",\"defaultRingtone\":true,\"isActive\":false,\"isLocked\":false,\"isLockedFor\":0,\"defaultNotification\":true,\"isVibrate\":true,\"isVolumeButtonsDisable\":false,\"brightnessValue\":80,\"brightnessDefault\":true,\"brightnessAuto\":true,\"uniqueID\":909521167,\"volumeAlarm\":7,\"volumeMusic\":11,\"volumeNotification\":5,\"volumeRingtone\":5},{\"actions\":[],\"ringtone\":\"content://settings/system/ringtone\",\"notification\":\"content://settings/system/notification_sound\",\"name\":\"Work\",\"callAllowDenies\":[],\"icon\":\"ic_work\",\"defaultRingtone\":true,\"isActive\":false,\"isLocked\":false,\"isLockedFor\":0,\"defaultNotification\":true,\"isVibrate\":false,\"isVolumeButtonsDisable\":false,\"brightnessValue\":80,\"brightnessDefault\":true,\"brightnessAuto\":true,\"uniqueID\":610007126,\"volumeAlarm\":7,\"volumeMusic\":3,\"volumeNotification\":0,\"volumeRingtone\":5},{\"actions\":[],\"ringtone\":\"content://settings/system/ringtone\",\"notification\":\"content://settings/system/notification_sound\",\"name\":\"Silent\",\"callAllowDenies\":[],\"icon\":\"ic_deny\",\"defaultRingtone\":true,\"isActive\":false,\"isLocked\":false,\"isLockedFor\":0,\"defaultNotification\":true,\"isVibrate\":false,\"isVolumeButtonsDisable\":false,\"brightnessValue\":80,\"brightnessDefault\":true,\"brightnessAuto\":true,\"uniqueID\":1652943054,\"volumeAlarm\":7,\"volumeMusic\":0,\"volumeNotification\":0,\"volumeRingtone\":0},{\"actions\":[],\"ringtone\":\"content://settings/system/ringtone\",\"notification\":\"content://settings/system/notification_sound\",\"name\":\"Silent \\u0026 Vibrate\",\"callAllowDenies\":[],\"icon\":\"ic_deny\",\"defaultRingtone\":true,\"isActive\":false,\"isLocked\":false,\"isLockedFor\":0,\"defaultNotification\":true,\"isVibrate\":true,\"isVolumeButtonsDisable\":false,\"brightnessValue\":80,\"brightnessDefault\":true,\"brightnessAuto\":true,\"uniqueID\":1331147513,\"volumeAlarm\":7,\"volumeMusic\":0,\"volumeNotification\":0,\"volumeRingtone\":0}]";
+
+                            Util.importSettings(preparedString);
+
+                            refreshCurrentView();
                         }
                     })
                     .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -614,7 +518,7 @@ public class Main extends Activity {
             builder
                     .setIcon(R.drawable.ic_launcher)
                     .setTitle(getString(R.string.app_name))
-                    .setMessage("Sfen is open source and free application. Donations keep Sfen alive.\n\nDo you want to make a donation now?")
+                    .setMessage(getString(R.string.donate_proposal_description))
                     .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -638,16 +542,9 @@ public class Main extends Activity {
 
         }
 
-
-//        else {
-//            System.out.println("sfen is running for the "+ runCount +" time.");
-//
-//        }
-
         /**
          * increase the value of run number
          */
-
         Preferences.getSharedPreferences(this).edit().putInt("RUN_COUNT", ++runCount).apply();
 
 

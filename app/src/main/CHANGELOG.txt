@@ -1,3 +1,12 @@
+25.8.2014
+
+* changed values-sv to values-sv-rSE (Android Locale identifier used to name "values-" directories)
+* added last string before release version to strings.
+* updated about page
+* fixed strings bugs
+* created welcome to sfen dialog with giving option to create some simple events/conditions
+
+
 24.8.2014
 
 * fixed adding new condition (Location) with Location disabled in system settings will trigger exception
@@ -5,6 +14,7 @@
 * fixed timerange condition. what if end time was smaller than start time. meaning end time is next day. but what if current time is after/before midnight?
 * about page is again scrollable
 * created donation dialog (after 5th run). no other nagging windows will appear.
+
 
 23.8.2014
 

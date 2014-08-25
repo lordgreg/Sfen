@@ -207,9 +207,8 @@ Are you sure?</string>
     <string name="wifi_is_disabled">Wifi is disabled. Please turn it on first.</string>
     <string name="pick_wifi">Pick Wifi</string>
     <string name="wifi_pick_one_option">You almost made it! Next time, pick at least one option.</string>
-    <string name="wifi_connected_to">Connected to </string>
-    <string name="wifi_disconnected_from">Disconnected from </string>
-    <string name="wifi_info_suffix">Wifi</string>
+    <string name="wifi_connected_to">Connected to Wifi</string>
+    <string name="wifi_disconnected_from">Disconnected from Wifi</string>
     <string name="cannot_edit_screen_on_off">You cannot edit Screen On/Off Condition. You can only remove it.</string>
     <string name="on">On</string>
     <string name="off">Off</string>
@@ -246,7 +245,7 @@ Are you sure?</string>
     <string name="cannot_edit_wifi_action">You cannot edit Wifi enable/disable action. You can only remove it.</string>
     <string name="wifi_description">Wifi will be %s</string>
     <string name="cannot_edit_mobile_data_action">You cannot edit Mobile data enable/disable action. You can only remove it.</string>
-    <string name="mobile_data_description">Mobile data will be </string>
+    <string name="mobile_data_description">Mobile data will be %s</string>
     <string name="cannot_edit_vibration_action">You cannot edit Vibration type action. You can only remove it.</string>
     <string name="vibration_short">Short</string>
     <string name="vibration_medium">Medium</string>
@@ -338,6 +337,8 @@ Are you sure?</string>
     <string name="profile_changed">Profile has changed. Save before leaving?</string>
     <string name="event_changed">Event has changed. Save before leaving?</string>
     <string name="welcome_to_sfen">Welcome to Sfen!</string>
-    <string name="prepare_simple_events_and_profiles">Do you want Sfen to prepare some simple events and profiles for you?</string>
+    <string name="prepare_simple_events_and_profiles">Do you want Sfen to prepare some simple events and profiles for you?</string><string name="donate_proposal_description">Sfen is open source and free application. Donations keep Sfen alive.
+
+Do you want to make a donation now?</string>
 
 </resources>
