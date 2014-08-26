@@ -1,3 +1,13 @@
+26.8.2014
+
+* fix alarmmanager (alarms) now use ELAPSED_REALTIME_WAKEUP instead of RTC_WAKEUP (first one handles deep sleep better)
+* fix after finishing call, volumes and RINGER_MODE now switched back to previous state
+* fixed values directory again from android string to lang 2string values-XX
++ added languages: Arabic, Swedish, Spanish, Dutch, Slovenian, Serbian (Latin), German, Russian
+* FIXING when creating alarms, editing condition will ALWAYS make different ID (meaning multiple alarms)
+  http://stackoverflow.com/questions/25504606/alarmmanager-with-elapsed-realtime-wakeup-not-updating-pendingintent
+
+
 25.8.2014
 
 * changed values-sv to values-sv-rSE (Android Locale identifier used to name "values-" directories)

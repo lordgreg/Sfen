@@ -96,14 +96,16 @@ public class ReceiverPhoneState extends PhoneStateListener {
                 /**
                  * set ringer mode first, depending on our profile decisions
                  */
-                if (profile.getVolumeRingtone() == 0 && !profile.isVibrate())
+                if (profile.getVolumeNotification() == 0 && !profile.isVibrate()) {
                     audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                }
 
-                else if (profile.getVolumeRingtone() == 0 && profile.isVibrate())
+                else if (profile.getVolumeNotification() == 0 && profile.isVibrate()) {
                     audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-
-                else
+                }
+                else {
                     audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                }
 
 
 

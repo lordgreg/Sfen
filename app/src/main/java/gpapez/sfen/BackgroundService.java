@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
@@ -1153,7 +1154,7 @@ public class BackgroundService extends Service {
          */
         Alarm toDelete = null;
         for (Alarm single : mActiveAlarms) {
-            if (single.getmAlarmID() == e.getUniqueID()) {
+            if (single.getAlarmID() == e.getUniqueID()) {
                 toDelete = single;
             }
         }
@@ -1174,7 +1175,7 @@ public class BackgroundService extends Service {
 
         Alarm delayedAlarm = new Alarm(context, e.getUniqueID());
 
-        delayedAlarm.setmAlarmID(e.getUniqueID());
+        delayedAlarm.setAlarmID(e.getUniqueID());
         delayedAlarm.mIntentExtra = "EVENTDELAYED_"+ e.isDelayRecheckConditions() +"_"+ e.getUniqueID();
         //System.out.println("extra intent for delayed event: "+ delayedAlarm.mIntentExtra);
         delayedAlarm.CreateAlarm(calendar);
@@ -1258,6 +1259,10 @@ public class BackgroundService extends Service {
                      * one at start and one on end+1min
                      */
                     case TIMERANGE:
+
+                        // unique id
+                        int uniqueId = e.getUniqueID() + e.getConditions().indexOf(single);
+
                         //System.out.println("*** TIMERANGE");
 
                         //System.out.println("showing current alarms: "+ single.getAlarms().toString());
@@ -1288,8 +1293,7 @@ public class BackgroundService extends Service {
                             timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("fromMinute")));
                             timeStart.set(Calendar.SECOND, 0);
 
-
-                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 0);
+                            mAlarm = new Alarm(sInstance, uniqueId + 0);
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
@@ -1312,40 +1316,14 @@ public class BackgroundService extends Service {
                             // be tomorrow
                             if (timeEnd.before(timeStart)) {
 
-//                                System.out.println("----------------- "+ timeCurrent.get(Calendar.DATE) +" ~~~ "+ timeEnd.get(Calendar.DATE));
-//                                System.out.println("current date before end date? "+ timeCurrent.before(timeEnd));
-
                                 if (!timeCurrent.before(timeEnd))
                                     timeEnd.add(Calendar.DATE, 1);
 
-//                                System.out.println("----------------- "+ timeCurrent.get(Calendar.DATE) +" ~~~ "+ timeEnd.get(Calendar.DATE));
-//                                System.out.println("current date before end date? "+ timeCurrent.before(timeEnd));
-
-//                                if (timeCurrent.get(Calendar.DATE) == (timeEnd.get(Calendar.DATE)-1)) {
-//
-//                                    System.out.println("+++++++++end day is the same as current day.");
-//
-//
-//                                }
 
                             }
 
 
-//
-//                                timeEnd.add(Calendar.DATE, 1);
-//
-
-
-
-//                            if ( timeEnd.before(timeStart) && timeCurrent.DATE == timeEnd.DATE ) {
-//
-//                                timeEnd.add(Calendar.DATE, -1);
-//
-//                            }
-
-
-
-                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 1);
+                            mAlarm = new Alarm(sInstance, uniqueId + 1);
                             mAlarm.mIntentExtra = "FORCE_RUN";
                             mAlarm.CreateAlarmRepeating(timeEnd, interval);
                             mActiveAlarms.add(mAlarm);
@@ -1357,7 +1335,12 @@ public class BackgroundService extends Service {
 
                             // remove every single one
                             for (Alarm singleAlarm : mActiveAlarms) {
-                                if (singleAlarm.getConditionID() == single.getUniqueID()) {
+//                                System.out.println(singleAlarm.getAlarmID() +" vs "+ (uniqueId+0) +" unid "+ uniqueId);
+//                                System.out.println(singleAlarm.getAlarmID() +" vs "+ (uniqueId+1) +" unid "+ uniqueId);
+                                if (
+                                        singleAlarm.getAlarmID() == (uniqueId+0) ||
+                                        singleAlarm.getAlarmID() == (uniqueId+1)
+                                        ) {
                                     // we found a match in active alarms
                                     //mActiveAlarms.remove(singleAlarm);
                                     mAlarmsDelete.add(singleAlarm);
@@ -1373,6 +1356,9 @@ public class BackgroundService extends Service {
                      */
                     case TIME:
 
+                        // unique id
+                        uniqueId = e.getUniqueID() + e.getConditions().indexOf(single);
+
                         // if enabling event, start single alarm
                         if (e.isEnabled()) {
                             Log.d("sfen", "Creating alarms for condition: "+ single.getTitle() +" of "+ e.getName());
@@ -1386,7 +1372,7 @@ public class BackgroundService extends Service {
                             timeStart.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("minute")));
                             timeStart.set(Calendar.SECOND, 0);
 
-                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 0);
+                            mAlarm = new Alarm(sInstance, uniqueId + 0);
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
@@ -1395,7 +1381,7 @@ public class BackgroundService extends Service {
                             // that's why i've implemented
                             timeStart.add(Calendar.MINUTE, 10);
 
-                            mAlarm = new Alarm(sInstance, single.getUniqueID() + 1);
+                            mAlarm = new Alarm(sInstance, uniqueId + 1);
                             mAlarm.CreateAlarmRepeating(timeStart, interval);
                             mActiveAlarms.add(mAlarm);
 
@@ -1406,7 +1392,10 @@ public class BackgroundService extends Service {
 
                             // remove alarm
                             for (Alarm singleAlarm : mActiveAlarms) {
-                                if (singleAlarm.getConditionID() == single.getUniqueID()) {
+                                if (
+                                        singleAlarm.getAlarmID() == (uniqueId+0) ||
+                                                singleAlarm.getAlarmID() == (uniqueId+1)
+                                        ) {
                                     // we found a match in active alarms
                                     //mActiveAlarms.remove(singleAlarm);
                                     mAlarmsDelete.add(singleAlarm);
@@ -1457,7 +1446,7 @@ public class BackgroundService extends Service {
 
                             // remove alarm
                             for (Alarm singleAlarm : mActiveAlarms) {
-                                if (singleAlarm.getConditionID() == single.getUniqueID()) {
+                                if (singleAlarm.getAlarmID() == single.getUniqueID()) {
                                     // we found a match in active alarms
                                     //mActiveAlarms.remove(singleAlarm);
                                     mAlarmsDelete.add(singleAlarm);
@@ -1574,7 +1563,7 @@ public class BackgroundService extends Service {
         if (mAlarmsDelete.size() > 0) {
             //System.out.println("*** deleting "+ mAlarmsDelete.size() +" alarms.");
             for (Alarm single : mAlarmsDelete) {
-                Log.d("sfen", "Deleting alarm from condition "+ single.getConditionID());
+                Log.d("sfen", "Deleting alarm "+ single.getAlarmID());
                 // stop the alarm
                 single.RemoveAlarm();
 
@@ -1584,9 +1573,6 @@ public class BackgroundService extends Service {
             }
 
             mAlarmsDelete = null;
-
-            // save new alarms to preferences
-            //mPreferences.setPreferences("alarms", mActiveAlarms);
         }
 
 

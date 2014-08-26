@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -20,7 +21,6 @@ public class Alarm {
      */
     private PendingIntent mPendingIntent;
     private AlarmManager mAlarmManager;
-    private int mConditionID;
     private int mAlarmID = new Random().nextInt();
     protected String mIntentExtra = "";
 
@@ -56,7 +56,6 @@ public class Alarm {
             if (!mIntentExtra.equals(""))
                 mIntent.putExtra("ALARM_TRIGGER_EXTRA", mIntentExtra);
 
-
             return PendingIntent.getBroadcast(
                     //mContext,
                     //Main.getInstance(),
@@ -65,6 +64,7 @@ public class Alarm {
                     mAlarmID,
                     mIntent,
                     //new Intent(getClass().getPackage().getName() +".ALARM_TRIGGER").putExtra("ALARM_TRIGGER_EXTRA", mIntentExtra),
+                    //PendingIntent.FLAG_UPDATE_CURRENT
                     PendingIntent.FLAG_UPDATE_CURRENT
             );
 
@@ -81,10 +81,39 @@ public class Alarm {
 
         mAlarmManager = (AlarmManager) mContext.getSystemService(Activity.ALARM_SERVICE);
 
+//        Calendar timeFromBoot = Calendar.getInstance();
+//        timeFromBoot.setTimeInMillis(
+//                Calendar.getInstance().getTimeInMillis() - SystemClock.elapsedRealtime()
+//        );
 
-        mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, getPendingIntent());
-        Log.d("sfen", "Starting repeating alarm at: " + cal.getTime().toString()
+//        Calendar elapsedRealTime = Calendar.getInstance();
+//        elapsedRealTime.setTimeInMillis( SystemClock.elapsedRealtime() );
+//        System.out.println("Elapsed real time is "+
+//                 elapsedRealTime.getTime().toString()
+//        );
+
+//        System.out.println("device booted at: "+ timeFromBoot.getTime().toString());
+//        System.out.println("set time: "+ cal.getTime().toString());
+
+        long startIn = cal.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+//        System.out.println("alarm starting in "+ startIn +" miliseconds. ");
+
+        // USING ELAPSED_REALTIME_WAKEUP need miliseconds
+        mAlarmManager.setRepeating(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + startIn,
+                interval,
+                getPendingIntent()
+        );
+        Log.d("sfen", "Starting repeating alarm (ID: "+ mAlarmID +") at: " + cal.getTime().toString()
                 + " (repeating every " + interval + " miliseconds)");
+
+
+        // USING RTC_WAKEUP
+//        mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, getPendingIntent());
+//        Log.d("sfen", "Starting repeating alarm at: " + cal.getTime().toString()
+//                + " (repeating every " + interval + " miliseconds)");
+
     }
 
     /**
@@ -99,9 +128,22 @@ public class Alarm {
         mAlarmManager = (AlarmManager) mContext.getSystemService(Activity.ALARM_SERVICE);
 
 
-        mAlarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, mPendingIntent);
+        long startIn = cal.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+
+        mAlarmManager.setInexactRepeating(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + startIn,
+                interval,
+                mPendingIntent
+        );
         Log.d("sfen", "Starting Inexact repeating alarm at: " + cal.getTime().toString()
                 + " (repeating every " + interval + " miliseconds)");
+
+
+        // RTC_WAKEUP
+//        mAlarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), interval, mPendingIntent);
+//        Log.d("sfen", "Starting Inexact repeating alarm at: " + cal.getTime().toString()
+//                + " (repeating every " + interval + " miliseconds)");
     }
 
     /**
@@ -111,7 +153,10 @@ public class Alarm {
         mPendingIntent = getPendingIntent();
 
         mAlarmManager = (AlarmManager) mContext.getSystemService(Activity.ALARM_SERVICE);
-        mAlarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), mPendingIntent);
+
+        long startIn = cal.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+
+        mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + startIn, mPendingIntent);
         Log.d("sfen", "Starting alarm at: " + cal.getTime().toString());
     }
 
@@ -122,7 +167,7 @@ public class Alarm {
         mPendingIntent = getPendingIntent();
 
         mAlarmManager = (AlarmManager) mContext.getSystemService(Activity.ALARM_SERVICE);
-        mAlarmManager.set(AlarmManager.RTC_WAKEUP, seconds * 1000, mPendingIntent);
+        mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + (seconds * 1000), mPendingIntent);
 
         Log.d("sfen", "Starting alarm in: " + seconds + " seconds.");
     }
@@ -142,11 +187,11 @@ public class Alarm {
         return mAlarmManager;
     }
 
-    public int getmAlarmID() {
+    public int getAlarmID() {
         return mAlarmID;
     }
 
-    public void setmAlarmID(int mAlarmID) {
+    public void setAlarmID(int mAlarmID) {
         this.mAlarmID = mAlarmID;
     }
 
@@ -154,11 +199,5 @@ public class Alarm {
         return isRepeating;
     }
 
-    public int getConditionID() {
-        return mConditionID;
-    }
 
-    public void setConditionID(int mConditionID) {
-        this.mConditionID = mConditionID;
-    }
 }
