@@ -4,8 +4,10 @@
 * fix after finishing call, volumes and RINGER_MODE now switched back to previous state
 * fixed values directory again from android string to lang 2string values-XX
 + added languages: Arabic, Swedish, Spanish, Dutch, Slovenian, Serbian (Latin), German, Russian
-* FIXING when creating alarms, editing condition will ALWAYS make different ID (meaning multiple alarms)
+* fixed when creating alarms, editing condition will ALWAYS make different ID (meaning multiple alarms)
   http://stackoverflow.com/questions/25504606/alarmmanager-with-elapsed-realtime-wakeup-not-updating-pendingintent
+* fixed pendingintents for alarms get finally deleted properly
+* fixed screen on/off triggers added
 
 
 25.8.2014

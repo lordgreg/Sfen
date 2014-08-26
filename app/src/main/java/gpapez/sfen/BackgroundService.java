@@ -12,7 +12,6 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
@@ -1483,11 +1482,16 @@ public class BackgroundService extends Service {
 
                         break;
 
-//                    case SCREEN_ON:
-//                    case SCREEN_OFF:
-//
-//                        mReceiverFilters.add(LocationManager.MODE_CHANGED_ACTION);
-//                        break;
+                    case SCREEN_ON:
+                    case SCREEN_OFF:
+
+                        //mReceiverFilters.add(LocationManager.MODE_CHANGED_ACTION);
+                        if (e.isEnabled()) {
+                            mReceiverFilters.add("android.intent.action.SCREEN_ON");
+                            mReceiverFilters.add("android.intent.action.SCREEN_OFF");
+                        }
+
+                        break;
 
                     case BLUETOOTH_CONNECTED:
                     case BLUETOOTH_DISCONNECTED:
@@ -1805,5 +1809,18 @@ public class BackgroundService extends Service {
 
     }
 
-
+//    @Override
+//    public void onTaskRemoved(Intent rootIntent) {
+//        //super.onTaskRemoved(rootIntent);
+//
+//        Intent restartService = new Intent(getApplicationContext(),
+//                this.getClass());
+//        restartService.setPackage(getPackageName());
+//        PendingIntent restartServicePI = PendingIntent.getService(
+//                getApplicationContext(), 1, restartService,
+//                PendingIntent.FLAG_ONE_SHOT);
+//        AlarmManager alarmService = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+//        alarmService.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() +1000, restartServicePI);
+//
+//    }
 }

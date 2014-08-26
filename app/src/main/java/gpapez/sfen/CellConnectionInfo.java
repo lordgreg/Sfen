@@ -91,7 +91,7 @@ public class CellConnectionInfo {
          * correct cellID meaning its an corrupted catch
          */
         if (cellId != null || cellId.equals("")) {
-            if (cellId.contains("-1")) {
+            if (cellId.contains("-1") || cellId.contains("0:0:0:0")) {
                 isError = true;
                 errorString = sActivity.getString(R.string.cell_wrong_cell_report, cellId);
                 Log.e("sfen", errorString);
