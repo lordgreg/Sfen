@@ -79,7 +79,7 @@ public class EventActivity extends Activity {
         newView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BackgroundService.getInstance().mUtil.openDialog(sInstance, DialogOptions.optConditions, getString(R.string.pick_condition));
+                Util.openDialog(sInstance, DialogOptions.optConditions(sInstance), getString(R.string.pick_condition));
                 isChanged = true;
             }
         });
@@ -100,7 +100,7 @@ public class EventActivity extends Activity {
             public void onClick(View view) {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
                 Util.actionFrom = Util.ACTION_FROM.EVENT;
-                Util.openDialog(sInstance, DialogOptions.optActions, getString(R.string.pick_action));
+                Util.openDialog(sInstance, DialogOptions.optActions(sInstance), getString(R.string.pick_action));
                 isChanged = true;
             }
         });

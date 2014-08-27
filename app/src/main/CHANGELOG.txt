@@ -1,3 +1,9 @@
+27.8.2014
+
+* fixed strings not getting localized with Dialog Options, Days dialog
+* added 5 seconds to end-date. its possible alarm can trigger few miliseconds BEFORE end-time
+
+
 26.8.2014
 
 * fix alarmmanager (alarms) now use ELAPSED_REALTIME_WAKEUP instead of RTC_WAKEUP (first one handles deep sleep better)

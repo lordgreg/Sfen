@@ -1068,9 +1068,13 @@ public class BackgroundService extends Service {
                 Event.hasAnyRunningEventHigherPriority(e);
         if (isHigherPriorityEventRunning) {
 
-            Log.d("sfen", "Higher priority event is already running. Execution of "+ e.getName() +
-                " stopped.");
+            if (!e.isForceRun())
+                Log.d("sfen", "Higher priority event is already running. Execution of "+ e.getName() +
+                        " stopped.");
 
+            else
+                Log.d("sfen", "Higher priority event is running but we are force running "+
+                        e.getName() +".");
         }
 
         /**
@@ -1307,7 +1311,7 @@ public class BackgroundService extends Service {
                             timeEnd.set(Calendar.HOUR_OF_DAY, Integer.parseInt(single.getSetting("toHour")));
                             timeEnd.set(Calendar.MINUTE, Integer.parseInt(single.getSetting("toMinute")));
                             //timeEnd.add(Calendar.MINUTE, 1);
-                            timeEnd.set(Calendar.SECOND, 0);
+                            timeEnd.set(Calendar.SECOND, 5);
 
 
                             // TIMES CHECK.

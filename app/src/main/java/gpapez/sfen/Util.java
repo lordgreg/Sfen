@@ -66,15 +66,19 @@ public class Util extends Activity {
     protected static ACTION_FROM actionFrom;
 
     // days
-    final static String[] sDays = {
-            Main.getInstance().getString(R.string.day_monday),
-            Main.getInstance().getString(R.string.day_tuesday),
-            Main.getInstance().getString(R.string.day_wednesday),
-            Main.getInstance().getString(R.string.day_thursday),
-            Main.getInstance().getString(R.string.day_friday),
-            Main.getInstance().getString(R.string.day_saturday),
-            Main.getInstance().getString(R.string.day_sunday)};
+    final static String[] sDays(Context context) {
 
+        return new String[] {
+                context.getString(R.string.day_monday),
+                context.getString(R.string.day_tuesday),
+                context.getString(R.string.day_wednesday),
+                context.getString(R.string.day_thursday),
+                context.getString(R.string.day_friday),
+                context.getString(R.string.day_saturday),
+                context.getString(R.string.day_sunday)
+        };
+
+    }
 
     // empty constructor
     public Util() {
@@ -382,7 +386,7 @@ public class Util extends Activity {
                 final ArrayList<Integer> mSelectedDays = new ArrayList<Integer>();
 
                 // array of checked items
-                boolean[] checkedDays = new boolean[sDays.length];
+                boolean[] checkedDays = new boolean[sDays(context).length];
 
                 // editing? then fill boolean with picked days
                 ArrayList<Integer> mDaysFromSettings = null;
@@ -394,7 +398,7 @@ public class Util extends Activity {
 
                     // then enable array of booleans on the index
                     // loop through all days
-                    for (int i = 0; i < sDays.length; i++) {
+                    for (int i = 0; i < sDays(context).length; i++) {
                         if (mDaysFromSettings.indexOf(i) != -1) {
                             checkedDays[i] = true; // <- saving to boolean
                             mSelectedDays.add(i); // <- adding to checked
@@ -423,7 +427,7 @@ public class Util extends Activity {
                                     // Get selected days to string so we will show that in description line
                                     String allDays = "";
                                     for (int i = 0; i < mSelectedDays.size(); i++) {
-                                        allDays += sDays[mSelectedDays.get(i)];
+                                        allDays += sDays(context)[mSelectedDays.get(i)];
 
                                         if ((i + 1) != mSelectedDays.size()) {
                                             allDays += ", ";
@@ -459,7 +463,7 @@ public class Util extends Activity {
 
                             }
                         })
-                        .setMultiChoiceItems(sDays, checkedDays, new DialogInterface.OnMultiChoiceClickListener() {
+                        .setMultiChoiceItems(sDays(context), checkedDays, new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 // selecting/removing choices
@@ -2638,7 +2642,7 @@ public class Util extends Activity {
     }
 
 
-    protected static void importSettings(String importString) {
+    protected static void importSettings(Context context, String importString) {
 
         if (importString.equals("") || importString == null || importString.length() == 0)
             return ;

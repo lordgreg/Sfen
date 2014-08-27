@@ -113,7 +113,7 @@ public class ProfileActivity extends Activity {
             public void onClick(View view) {
                 //Toast.makeText(getBaseContext(), "picking new action", Toast.LENGTH_SHORT).show();
                 Util.actionFrom = Util.ACTION_FROM.PROFILE;
-                Util.openDialog(sInstance, DialogOptions.optActions, getString(R.string.action_pick));
+                Util.openDialog(sInstance, DialogOptions.optActions(sInstance), getString(R.string.action_pick));
             }
         });
         mContainerAction.addView(newAction);
