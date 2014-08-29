@@ -1536,7 +1536,7 @@ public class BackgroundService extends Service {
                         mGeoLocation == null
                         ) {
                     // start GeoLocation class
-                    mGeoLocation = new GeoLocation(sInstance);
+                    //mGeoLocation = new GeoLocation(sInstance);
                     Log.i("sfen", "Enabling Root mode. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
 
                     //mUtil.callRootCommand("");

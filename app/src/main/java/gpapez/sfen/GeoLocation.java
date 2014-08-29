@@ -30,7 +30,6 @@ public class GeoLocation implements
     public enum REQUEST_TYPE {ADD, REMOVE, REMOVE_ALL};
     private REQUEST_TYPE mRequestType;
     private PendingIntent mGeoPendingIntent;
-    private PendingIntent mCurrentIntent;
     private boolean isGeoConnectionInProgress = false;
 
     // Storage for a context from the calling client
@@ -152,14 +151,16 @@ public class GeoLocation implements
             // Create an explicit Intent
             Intent intent = new Intent(mContext,
                     ReceiveTransitionsIntentService.class);
-        /*
-         * Return the PendingIntent
-         */
-            return PendingIntent.getService(
+            /**
+             * Return the PendingIntent
+             */
+            mGeoPendingIntent = PendingIntent.getService(
                     mContext,
                     0,
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
+
+            return mGeoPendingIntent;
         }
     }
 
@@ -248,7 +249,7 @@ public class GeoLocation implements
                                                        PendingIntent requestIntent) {
         // If removing the geofences was successful
         if (statusCode == LocationStatusCodes.SUCCESS) {
-            Log.d("sfen", "All geofences removed ("+ statusCode +").");
+            Log.d("sfen", "All geofences removed.");
 
         } else {
             Log.e("sfen", "Error trying to remove geofences ("+ statusCode +").");
