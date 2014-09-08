@@ -154,18 +154,13 @@ public class GeoLocation implements
             /**
              * Return the PendingIntent
              */
-            mGeoPendingIntent = PendingIntent.getService(
+            return PendingIntent.getService(
                     mContext,
                     0,
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-            return mGeoPendingIntent;
         }
-    }
-
-    public PendingIntent getRequestPendingIntent() {
-        return getTransitionPendingIntent();
     }
 
 

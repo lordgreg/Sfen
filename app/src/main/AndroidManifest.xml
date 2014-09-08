@@ -73,7 +73,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Main" />
         </activity>
-
         <activity
             android:name=".Logs"
             android:label="@string/title_activity_log"
@@ -101,7 +100,7 @@
         <service
             android:name=".ReceiveTransitionsIntentService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="true" />
 
 
         <!-- RECEIVER -->

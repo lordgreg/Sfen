@@ -1527,24 +1527,24 @@ public class BackgroundService extends Service {
             /**
              * checking if we need extra prerequisites for ACTIONS
              */
-            for (DialogOptions single : e.getConditions()) {
-
-                // ROOT?
-                // ACT_MOBILEENABLE, ACT_MOBILEDISABLE
-                if ((single.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE ||
-                        single.getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE) &&
-                        mGeoLocation == null
-                        ) {
-                    // start GeoLocation class
-                    //mGeoLocation = new GeoLocation(sInstance);
-                    Log.i("sfen", "Enabling Root mode. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
-
-                    //mUtil.callRootCommand("");
-                    mSudo.isRootEnabled();
-                }
-
-
-            }
+//            for (DialogOptions single : e.getConditions()) {
+//
+//                // ROOT?
+//                // ACT_MOBILEENABLE, ACT_MOBILEDISABLE
+//                if ((single.getOptionType() == DialogOptions.type.ACT_MOBILEENABLE ||
+//                        single.getOptionType() == DialogOptions.type.ACT_MOBILEDISABLE) &&
+//                        mGeoLocation == null
+//                        ) {
+//                    // start GeoLocation class
+//                    //mGeoLocation = new GeoLocation(sInstance);
+//                    Log.i("sfen", "Enabling Root mode. Needed for "+ single.getTitle() +" in "+ e.getName() +"");
+//
+//                    //mUtil.callRootCommand("");
+//                    mSudo.isRootEnabled();
+//                }
+//
+//
+//            }
 
 
 
