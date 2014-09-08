@@ -65,6 +65,30 @@ public class Event implements Comparable<Event> {
         }
     }
 
+    /**
+     * Create new event from existing event (copy)
+     * @param eventExisting
+     */
+    public Event(Event eventExisting) {
+        this.name = eventExisting.name;
+        this.enabled = eventExisting.enabled;
+        this.running = eventExisting.running;
+        this.matchAllConditions = eventExisting.matchAllConditions;
+        this.forceRun = eventExisting.forceRun;
+        this.runOnce = eventExisting.runOnce;
+        this.hasRun = eventExisting.hasRun;
+        //this.uniqueID = eventExisting.uniqueID;
+        this.resetUniqueId();
+
+        this.delayed = eventExisting.delayed;
+        this.delayMinutes = eventExisting.delayMinutes;
+        this.delayRecheckConditions = eventExisting.delayRecheckConditions;
+        this.priority = eventExisting.priority;
+        this.profile = eventExisting.profile;
+        this.conditions = eventExisting.conditions;
+        this.actions = eventExisting.actions;
+        this.settings = eventExisting.settings;
+    }
 
     /***********************************************************************************************
      * Checks Event for all conditions and returns boolean for every condition

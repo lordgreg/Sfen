@@ -340,5 +340,9 @@ Are you sure?</string>
     <string name="prepare_simple_events_and_profiles">Do you want Sfen to prepare some simple events and profiles for you?</string><string name="donate_proposal_description">Sfen is open source and free application. Donations keep Sfen alive.
 
 Do you want to make a donation now?</string>
+    <string name="event_create_copy">Create Copy</string>
+    <string name="event_copy_of">Copy of %s</string>
+    <string name="event_run_profile_actions">Run event profile/actions</string>
+    <string name="event_new">New event</string>
 
 </resources>

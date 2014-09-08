@@ -257,9 +257,16 @@ public class FragmentEvent extends Fragment {
      */
     private void onLongClickSingleEvent(final Event e, final ViewGroup newRow) {
         // array of options
-        final String[] sOptions = {sInstance.getString(R.string.edit), ((e.isEnabled()) ? 
-                sInstance.getString(R.string.disable) : sInstance.getString(R.string.enable)), 
-                sInstance.getString(R.string.delete)};
+        final String[] sOptions = {
+                sInstance.getString(R.string.edit),
+                ((e.isEnabled()) ?
+                        sInstance.getString(R.string.disable) : sInstance.getString(R.string.enable)),
+                sInstance.getString(R.string.delete),
+                sInstance.getString(R.string.event_create_copy),
+                sInstance.getString(R.string.event_run_profile_actions),
+                sInstance.getString(R.string.event_new)
+
+        };
         // show dialog with more options for single event
         final AlertDialog.Builder builder = new AlertDialog.Builder(Main.getInstance());
         builder
@@ -287,8 +294,7 @@ public class FragmentEvent extends Fragment {
                                 //        getString(R.string.app_name), "", R.drawable.ic_launcher);
                                 BackgroundService.getInstance().sendBroadcast("EVENT_DISABLED");
                                 //Main.getInstance().sendBroadcast("EVENT_DISABLED");
-                            }
-                            else {
+                            } else {
                                 e.setEnabled(true);
                                 // sending broadcast that we've enabled event
                                 BackgroundService.getInstance().sendBroadcast("EVENT_ENABLED");
@@ -314,14 +320,14 @@ public class FragmentEvent extends Fragment {
                             refreshEventsView();
 
                             // enable/disable timers, if any
-                            BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>(){{
+                            BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>() {{
                                 add(e);
                             }});
                         }
                         if (which == 2) {
                             // disable timers, if any
                             e.setEnabled(false);
-                            BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>(){{
+                            BackgroundService.getInstance().updateEventConditionTimers(new ArrayList<Event>() {{
                                 add(e);
                             }});
 
@@ -332,6 +338,50 @@ public class FragmentEvent extends Fragment {
                             // update preferences
                             BackgroundService.getInstance().mPreferences.setPreferences("events",
                                     BackgroundService.getInstance().events);
+                        }
+
+
+                        /**
+                         * create copy of event
+                         */
+                        if (which == 3) {
+
+                            /**
+                             * create copy and disable the newly created one
+                             */
+                            Event eventNew = new Event(e);
+
+                            eventNew.setEnabled(false);
+                            eventNew.setName(sInstance.getString(R.string.event_copy_of, e.getName()));
+
+                            /**
+                             * save it to array of events and update preferences
+                             */
+                            BackgroundService.getInstance().events.add(eventNew);
+
+                            refreshEventsView();
+
+
+                        }
+
+                        /**
+                         * run event profile & actions
+                         */
+                        if (which == 4) {
+
+                            BackgroundService.getInstance().startSingleEvent(e);
+
+                        }
+
+
+                        /**
+                         * new event
+                         */
+                        if (which == 5) {
+
+                            startActivity(new Intent(Main.getInstance(), EventActivity.class));
+
+
                         }
 
                     }

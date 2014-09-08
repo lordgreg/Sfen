@@ -154,7 +154,7 @@ public class GeoLocation implements
             /**
              * Return the PendingIntent
              */
-            return PendingIntent.getService(
+            return PendingIntent.getBroadcast(
                     mContext,
                     0,
                     intent,

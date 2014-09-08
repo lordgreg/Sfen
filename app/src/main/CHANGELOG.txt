@@ -1,3 +1,10 @@
+8.9.2014
+
+* moved geolocation triggering inside broadcastreciever
+* added copy of event into longpress of single event
+* added new event into longpress of single event
+
+
 27.8.2014
 
 * fixed strings not getting localized with Dialog Options, Days dialog
