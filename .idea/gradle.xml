@@ -13,6 +13,7 @@
         </option>
       </GradleProjectSettings>
     </option>
+    <option name="gradleVmOptions" value="-XX:MaxHeapSize=256m -Xmx256m" />
   </component>
 </project>
 

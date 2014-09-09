@@ -149,8 +149,11 @@ public class GeoLocation implements
         else {
 
             // Create an explicit Intent
-            Intent intent = new Intent(mContext,
-                    ReceiveTransitionsIntentService.class);
+//            Intent intent = new Intent(mContext,
+//                    ReceiveTransitionsIntentService.class);
+
+            Intent intent = new Intent("gpapez.sfen.GEOFENCE_RECEIVE");
+
             /**
              * Return the PendingIntent
              */

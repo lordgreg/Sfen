@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -72,6 +73,7 @@ public class BackgroundService extends Service {
 
     // mReceiver object which runs on start
     private Receiver mReceiver;
+    private ReceiverGeoLocation mReceiverGeoLocation;
     protected String receiverAction = "";
 
     protected Util mUtil = new Util();
@@ -212,7 +214,9 @@ public class BackgroundService extends Service {
          */
         mGeoLocation = new GeoLocation(sInstance);
 
-
+        mReceiverGeoLocation = new ReceiverGeoLocation();
+        IntentFilter intentFilter = new IntentFilter("gpapez.sfen.GEOFENCE_RECEIVE");
+        sInstance.registerReceiver(mReceiverGeoLocation, intentFilter);
 
 
         /**

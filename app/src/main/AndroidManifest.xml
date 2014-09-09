@@ -102,14 +102,22 @@
             android:name=".BackgroundService"
             android:enabled="true"
             android:exported="false" />
-        <service
-            android:name=".ReceiveTransitionsIntentService"
-            android:enabled="true"
-            android:exported="true" />
+        <!--<service-->
+            <!--android:name=".ReceiveTransitionsIntentService"-->
+            <!--android:enabled="true"-->
+            <!--android:exported="true" />-->
 
 
         <!-- RECEIVER -->
         <receiver android:name=".Receiver" >
+        </receiver>
+
+        <!-- RECEIVER Geofence -->
+        <receiver android:name=".ReceiverGeoLocation"
+            android:exported="false">
+            <intent-filter >
+                <action android:name="gpapez.sfen.GEOFENCE_RECEIVE"/>
+            </intent-filter>
         </receiver>
 
 
