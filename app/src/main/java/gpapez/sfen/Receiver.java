@@ -56,6 +56,7 @@ public class Receiver extends BroadcastReceiver {
         add(getClass().getPackage().getName() +".ALARM_TRIGGER");
         add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
         add(getClass().getPackage().getName() +".ROOT_GRANTED");
+        add(getClass().getPackage().getName() +".GEOFENCE_RECEIVE");
 
 
 
@@ -113,7 +114,7 @@ public class Receiver extends BroadcastReceiver {
          * otherwise return the process.
          */
         if (!isActionAllowedToRun(action)) {
-            //Log.d("sfen", "Broadcast recieved "+ action +" but not needed.");
+            Log.d("sfen", "Broadcast recieved "+ action +" but not needed.");
             return ;
         }
         else

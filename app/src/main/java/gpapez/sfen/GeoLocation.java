@@ -152,7 +152,7 @@ public class GeoLocation implements
 //            Intent intent = new Intent(mContext,
 //                    ReceiveTransitionsIntentService.class);
 
-            Intent intent = new Intent("gpapez.sfen.GEOFENCE_RECEIVE");
+            Intent intent = new Intent(getClass().getPackage().getName() + ".GEOFENCE_RECEIVE");
 
             /**
              * Return the PendingIntent

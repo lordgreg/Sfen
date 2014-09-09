@@ -112,14 +112,6 @@
         <receiver android:name=".Receiver" >
         </receiver>
 
-        <!-- RECEIVER Geofence -->
-        <receiver android:name=".ReceiverGeoLocation"
-            android:exported="false">
-            <intent-filter >
-                <action android:name="gpapez.sfen.GEOFENCE_RECEIVE"/>
-            </intent-filter>
-        </receiver>
-
 
         <!-- SHORTCUTS -->
         <activity

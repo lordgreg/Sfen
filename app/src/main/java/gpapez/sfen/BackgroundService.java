@@ -73,7 +73,6 @@ public class BackgroundService extends Service {
 
     // mReceiver object which runs on start
     private Receiver mReceiver;
-    private ReceiverGeoLocation mReceiverGeoLocation;
     protected String receiverAction = "";
 
     protected Util mUtil = new Util();
@@ -213,10 +212,6 @@ public class BackgroundService extends Service {
          * GeoLocation library
          */
         mGeoLocation = new GeoLocation(sInstance);
-
-        mReceiverGeoLocation = new ReceiverGeoLocation();
-        IntentFilter intentFilter = new IntentFilter("gpapez.sfen.GEOFENCE_RECEIVE");
-        sInstance.registerReceiver(mReceiverGeoLocation, intentFilter);
 
 
         /**
