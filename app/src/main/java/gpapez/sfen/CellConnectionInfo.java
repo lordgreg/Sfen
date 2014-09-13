@@ -66,6 +66,7 @@ public class CellConnectionInfo {
                     String mccMnc = telephonyManager.getNetworkOperator();
                     setCellType(mccMnc, cell);
                 } else {
+                    this.cellId = "";
                     isError = true;
                     errorString = activity.getString(R.string.no_mobile_connection);
                     Log.e("sfen", errorString);
@@ -73,6 +74,7 @@ public class CellConnectionInfo {
             }
 
         } catch (Exception e) {
+            this.cellId = "";
             isError = true;
             errorString = activity.getString(R.string.no_mobile_connection);
             Log.e("sfen", errorString +"("+ e.toString() +")");
@@ -97,9 +99,9 @@ public class CellConnectionInfo {
     //}
 
 
-    private void setCellError(String cType) {
+    private void setCellError(String cellId, String cType) {
         cellType = cType;
-        cellId = "NULL";
+        this.cellId = cellId;
         isError = true;
         errorString = sActivity.getString(R.string.unknown_cell_type, cellType);
     }
@@ -116,40 +118,36 @@ public class CellConnectionInfo {
                 CellIdentityLte mCellId = ((CellInfoLte) cell).getCellIdentity();
                 cellType = "LTE";
                 //PCI is not part of the identification of the base station, sector is included in CI
-                if (mCellId.getMcc() > 0 && mCellId.getMnc() > 0 && mCellId.getTac() > 0 && mCellId.getCi() > 0) {
-                    int ci = mCellId.getCi() / 256;
-                    //sector is not part of the base station, but the area it covers
-                    int sector = mCellId.getCi() % 256;
-                    cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getTac() + ":" + ci + ":" + sector;
-                } else {
-                    isError = true;
+                int ci = mCellId.getCi() / 256;
+                //sector is not part of the base station, but the area it covers
+                int sector = mCellId.getCi() % 256;
+                cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getTac() + ":" + ci + ":" + sector;
+                if (mCellId.getMcc() <= 0 || mCellId.getMnc() <= 0 || mCellId.getTac() <= 0 || mCellId.getCi() <= 0) {
+                    setCellError(cellId, cellType);
                 }
             } else if (cell instanceof CellInfoGsm) {
                 CellIdentityGsm mCellId = ((CellInfoGsm) cell).getCellIdentity();
                 cellType = "GSM";
-                if (mCellId.getMcc() > 0 && mCellId.getMnc() > 0 && mCellId.getLac() > 0 && mCellId.getCid() > 0) {
                 cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getLac() + ":" + mCellId.getCid();
-                } else {
-                    isError = true;
+                if (mCellId.getMcc() <= 0 || mCellId.getMnc() <= 0 || mCellId.getLac() <= 0 || mCellId.getCid() <= 0) {
+                    setCellError(cellId, cellType);
                 }
             } else if (cell instanceof CellInfoCdma) {
                 CellIdentityCdma mCellId = ((CellInfoCdma) cell).getCellIdentity();
                 cellType = "CDMA";
-                if (mCellId.getNetworkId() > 0 && mCellId.getSystemId() > 0 && mCellId.getBasestationId() > 0) {
-                    cellId = mCellId.getNetworkId() + ":" + mCellId.getSystemId() + ":" +  mCellId.getBasestationId();
-                } else {
-                    isError = true;
+                cellId = mCellId.getNetworkId() + ":" + mCellId.getSystemId() + ":" +  mCellId.getBasestationId();
+                if (mCellId.getNetworkId() <= 0 || mCellId.getSystemId() <= 0 || mCellId.getBasestationId() <= 0) {
+                    setCellError(cellId, cellType);
                 }
             } else if (cell instanceof CellInfoWcdma) {
                 CellIdentityWcdma mCellId = ((CellInfoWcdma) cell).getCellIdentity();
                 cellType = "WCDMA";
-                if (mCellId.getMcc() > 0 && mCellId.getMnc() > 0 && mCellId.getLac() > 0 && mCellId.getCid() > 0) {
-                    cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getLac() + ":" + mCellId.getCid();
-                } else {
-                    isError = true;
+                cellId = mCellId.getMcc() + ":" + mCellId.getMnc() + ":" + mCellId.getLac() + ":" + mCellId.getCid();
+                if (mCellId.getMcc() <= 0 || mCellId.getMnc() <= 0 || mCellId.getLac() <= 0 || mCellId.getCid() <= 0) {
+                    setCellError(cellId, cellType);
                 }
             } else {
-                setCellError(cell.getClass().getSimpleName());
+                setCellError("NULL", cell.getClass().getSimpleName());
                 Log.e("sfen", getError());
             }
         }
@@ -165,22 +163,20 @@ public class CellConnectionInfo {
                 mnc = mccMnc.substring(3, 5);
             }
             GsmCellLocation mCell = (GsmCellLocation) cell;
-            cellType = "GSM";
-            if (mcc.length() > 0 && mnc.length() > 0 && mCell.getLac() > 0 && mCell.getCid() > 0) {
-                cellId = mcc + ":" + mnc + ":" + mCell.getLac() + ":" + mCell.getCid();
-            } else {
-                isError = true;
+            cellType = "GSM/WCDMA";
+            cellId = mcc + ":" + mnc + ":" + mCell.getLac() + ":" + mCell.getCid();
+            if (mcc.length() <= 0 || mnc.length() <= 0 || mCell.getLac() <= 0 || mCell.getCid() <= 0) {
+                setCellError(cellId, cellType);
             }
         } else if (cell instanceof CdmaCellLocation) {
             CdmaCellLocation mCell = (CdmaCellLocation) cell;
             cellType = "CDMA";
-            if (mCell.getNetworkId() > 0 && mCell.getSystemId() > 0 && mCell.getBaseStationId() > 0) {
-                cellId = mCell.getNetworkId() + ":" + mCell.getSystemId() + ":" + mCell.getBaseStationId();
-            } else {
-                isError = true;
+            cellId = mCell.getNetworkId() + ":" + mCell.getSystemId() + ":" + mCell.getBaseStationId();
+            if (mCell.getNetworkId() <= 0 || mCell.getSystemId() <= 0 || mCell.getBaseStationId() <= 0) {
+                setCellError(cellId, cellType);
             }
         } else {
-            setCellError(cell.getClass().getSimpleName());
+            setCellError("NULL", cell.getClass().getSimpleName());
             Log.e("sfen", getError());
         }
     }

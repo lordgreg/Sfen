@@ -729,11 +729,18 @@ public class Event implements Comparable<Event> {
                     CellConnectionInfo cellInfo = new CellConnectionInfo(Main.getInstance());
 
                     if (cellInfo.isError()) {
-                        Log.d("sfen", cellInfo.getError());
+                        Log.d("sfen", "Incorrect cell: " + cellInfo.getError());
 
+                        //TODO: A single errorcell is ignored (handled as previous cell), so not a single roam moves out of area
                         conditionResults.add(false);
+                        //cellInfo=prevCellInfo;
+                        //if (cellInfo != null && !cellInfo.isError()) {
+                        //    Log.d("sfen", "Using previous cell: " + cellInfo.getCellId());
+                        //}
                     }
-                    else {
+                    //prevCellInfo = cellInfo;
+
+                    if (cellInfo != null && !cellInfo.isError()) {
                         // we received cellinfo, find a match now
 
                         // parse to ArrayList first
@@ -743,7 +750,7 @@ public class Event implements Comparable<Event> {
                         // current cell is in saved cells, we have a match.
                         // depending if we need CELL_IN or CELL_OUT
                         // current cell is stored
-                        Cell tempCell = new Cell(cellInfo.getCellId(), Calendar.getInstance());
+                        Cell tempCell = new Cell(cellInfo);
 
 
                         if (mCells.contains(tempCell)) {
@@ -763,7 +770,6 @@ public class Event implements Comparable<Event> {
                             else
                                 conditionResults.add(true);
                         }
-
                     }
 
                     break;
