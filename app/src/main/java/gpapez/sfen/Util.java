@@ -1038,94 +1038,64 @@ public class Util extends Activity {
             case CELL_IN:
             case CELL_OUT:
 
+                /**
+                 * get cells from HISTORY
+                 */
+                ArrayList<Cell> mHistoryCells = Cell.getSavedCellsFromPreferences();
+                /**
+                 * get CURRENT cell
+                 * (in history cells if recording)
+                 */
+                CellConnectionInfo cellInfo = new CellConnectionInfo(context);
+
+                if (!cellInfo.isError()) {
+                    Cell tempCell = new Cell(cellInfo);
+
+                    // add current cell if not in history
+                    if (!mHistoryCells.contains(tempCell)) {
+                        mHistoryCells.add(tempCell);
+                    }
+                }
+
+                /**
+                 * get cells from settings
+                 */
+                ArrayList<Cell> mCellsFromSettings = gson.fromJson(opt.getSetting("selectedcell"),
+                            new TypeToken<List<Cell>>() {
+                            }.getType());
+                if (mCellsFromSettings == null) {
+                    mCellsFromSettings = new ArrayList<Cell>();
+                }
+                ArrayList<Cell> otherCells = new ArrayList<Cell>();
+
+                // if we have cells stored, add them to selected cells
+                // and add them to visible cells
+                // set time from history if it exists (dont care if cells are error)
+                for (Cell single : mHistoryCells) {
+                    int i = mCellsFromSettings.indexOf(single);
+                    if (i >= 0) {
+                        mCellsFromSettings.set(i, single);
+                    } else {
+                        otherCells.add(single);
+                    }
+                }
+                /**
+                 * sort descending
+                 */
+                Collections.sort(mCellsFromSettings, Collections.reverseOrder());
+                Collections.sort(otherCells, Collections.reverseOrder());
+
                 // array of ALL items
                 final ArrayList<Cell> mCellsToShow = new ArrayList<Cell>();
 
                 // array of SELECTED items
                 final ArrayList<Cell> mCellsSelected = new ArrayList<Cell>();
 
-                /**
-                 * get cells from settings
-                 */
-                ArrayList<Cell> mCellsFromSettings = null;
-                if (isEditing) {
-                    mCellsFromSettings = gson.fromJson(opt.getSetting("selectedcell"),
-                            new TypeToken<List<Cell>>(){}.getType());
+                mCellsSelected.addAll(mCellsFromSettings);
+                mCellsToShow.addAll(mCellsFromSettings);
+                mCellsToShow.addAll(otherCells);
 
-                    // if we have cells stored, add them to selected cells
-                    // and add them to visible cells
-                    if (mCellsFromSettings != null) {
-                        /**
-                         * sort descending
-                         */
-                        Collections.sort(mCellsFromSettings, Collections.reverseOrder());
-
-
-                        mCellsToShow.addAll(mCellsFromSettings);
-                        //mCellsSelected.addAll(mCellsFromSettings);
-                    }
-                }
-
-                /**
-                 * get cells from HISTORY
-                 */
-                ArrayList<Cell> mHistoryCells = Cell.getSavedCellsFromPreferences();
-                if (mHistoryCells != null) {
-
-                    if (mHistoryCells.size() > 0) {
-
-                        /**
-                         * sort history descending
-                         */
-                        Collections.sort(mHistoryCells, Collections.reverseOrder());
-
-                        /**
-                         * check if history cell is already listed in preferences.
-                         */
-                        for (Cell single : mHistoryCells) {
-
-                            /**
-                             * current cell from history NOT in saved cells
-                             */
-                            if (!mCellsToShow.contains(single))
-                                mCellsToShow.add(single);
-
-                        }
-
-                    }
-
-                }
-
-
-                /**
-                 * get CURRENT cell
-                 */
-                CellConnectionInfo cellInfo = new CellConnectionInfo(context);
-
-                if (!cellInfo.isError()) {
-                    Cell tempCell = new Cell(cellInfo.getCellId(), Calendar.getInstance());
-
-                    // does our list contain current cell?
-                    // if not, add it
-                    if (!mCellsToShow.contains(tempCell)) {
-
-                        mCellsToShow.add(tempCell);
-
-                    }
-
-                    // if cells to show contains current cell, update its date
-                    else {
-
-                        mCellsToShow.set(
-                                mCellsToShow.indexOf(tempCell),
-                                tempCell
-                        );
-
-                    }
-                }
-
-
-                /**
+                 /**
                  *
                  * dialog start
                  *
@@ -1133,8 +1103,6 @@ public class Util extends Activity {
                 //inflater = LayoutInflater.from(context);
                 final View dialogViewCell = inflater.inflate(R.layout.dialog_pick_condition, null);
                 final ViewGroup mCellTowers = (ViewGroup) dialogViewCell.findViewById(R.id.condition_pick);
-
-
 
                 //builder = new AlertDialog.Builder(context);
                 Util.showMessageBox(context.getString(R.string.click_to_select_deselect), false);

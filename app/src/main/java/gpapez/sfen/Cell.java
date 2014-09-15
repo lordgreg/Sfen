@@ -20,36 +20,29 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
-/**
- * Created by Gregor on 11.8.2014.
- */
 public class Cell implements Comparable<Cell> {
 
+    //A collection of CellConnectionInfo info, stored in preferences
     private String cellId;
+    private boolean isError;
     private Calendar storeDate;
 
-    protected static ArrayList<Cell> selectedCells = new ArrayList<Cell>();
-
-    public Cell(String cellId, Calendar storeDate) {
-        this.cellId = cellId;
-        this.storeDate = storeDate;
+    public Cell(CellConnectionInfo cellInfo) {
+        this.cellId = cellInfo.getCellId();
+        this.isError = cellInfo.isError();
+        this.storeDate = Calendar.getInstance();
     }
-
 
     public String getCellId() {
         return cellId;
     }
 
-    public void setCellId(String cellId) {
-        this.cellId = cellId;
+    public boolean isError() {
+        return isError;
     }
 
     public Calendar getStoreDate() {
         return storeDate;
-    }
-
-    public void setStoreDate(Calendar storeDate) {
-        this.storeDate = storeDate;
     }
 
     /**
@@ -59,22 +52,19 @@ public class Cell implements Comparable<Cell> {
      */
     protected static ArrayList<Cell> getSavedCellsFromPreferences() {
 
-        /**
-         * get profiles from preferences
+         /**
+         * get cells from preferences
          */
-        Preferences mPreferences = new Preferences(Main.getInstance());
-
-
-        if (mPreferences == null) {
-
-            return null;
-
+        ArrayList<Cell> cells = null;
+        if (BackgroundService.getInstance().mPreferences != null) {
+            cells = (ArrayList<Cell>) BackgroundService.getInstance().mPreferences
+                    .getPreferences("cells", Preferences.REQUEST_TYPE.CELLS);
         }
 
-
-        return (ArrayList<Cell>) mPreferences
-                .getPreferences("cells", Preferences.REQUEST_TYPE.CELLS);
-
+        if (cells == null) {
+            cells = new ArrayList<Cell>();
+        }
+        return cells;
     }
 
 
@@ -292,42 +282,23 @@ public class Cell implements Comparable<Cell> {
      */
     protected static void openCellTowersHistoryDialog(Context context) {
 
-        /**
-         * get cells from preferences
-         */
-        ArrayList<Cell> cells = (ArrayList<Cell>)BackgroundService.getInstance().mPreferences
-                .getPreferences("cells", Preferences.REQUEST_TYPE.CELLS);
-
-        if (cells == null) {
-            cells = new ArrayList<Cell>();
-        }
+        ArrayList<Cell> cells = getSavedCellsFromPreferences();
 
         /**
          * sort the array
          */
         Collections.sort(cells, Collections.reverseOrder());
 
-//        // dummy
-//        cells.add(
-//                new Cell(
-//                        "13:1337:13371338",
-//                        Calendar.getInstance()
-//                )
-//        );
-
         if (cells.size() == 0) {
 
             Util.showMessageBox(context.getString(R.string.cells_no_cells_to_show), false);
             return ;
-
         }
 
 
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View dialogView = inflater.inflate(R.layout.dialog_pick_condition, null);
         final ViewGroup mCellTowers = (ViewGroup) dialogView.findViewById(R.id.condition_pick);
-
-
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -362,8 +333,11 @@ public class Cell implements Comparable<Cell> {
         for (final Cell single : cells) {
             final ViewGroup newRow = (ViewGroup) inflater.inflate(R.layout.dialog_cellid_single, mCellTowers, false);
 
-
-            ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId());
+            String errStr ="";
+            if(single.isError()) {
+                errStr=" (error)";
+            }
+            ((TextView) newRow.findViewById(android.R.id.text1)).setText(single.getCellId()+ errStr);
             ((TextView) newRow.findViewById(android.R.id.text2))
                     .setText(Util.getDateLong(single.getStoreDate(),context));
 
@@ -399,14 +373,14 @@ public class Cell implements Comparable<Cell> {
                     /**
                      * remove cellID from history array
                      */
-                    removeCellIdFromArray(single.getCellId());
+                    removeCellIdFromArray(single);
                 }
             });
 
             //newRow = null;
 
 
-            dialog.show();
+            //dialog.show();
 
         }
 
@@ -425,57 +399,89 @@ public class Cell implements Comparable<Cell> {
 
     /**
      *
-     * Add new Cell ID into history array
-     * (if not there yet)
+     * Add new Cell ID to history array if recording
      *
      */
-    protected static void addCellIdToArray(String cellId) {
+    protected static void recordCellId(CellConnectionInfo cellInfo) {
+        /**
+         * retrieve permanent info
+         */
+        boolean isRecordingPermanent =
+                Preferences
+                        .getSharedPreferences().getBoolean("CellRecordPermanent", false);
+
+        /**
+         * permanent recording saves all cells
+         */
+        if (isRecordingPermanent) {
+            Cell.addCellIdToArray(cellInfo);
+        }
+
+        /**
+         * permanent is disabled, then check times
+         */
+        else {
+            /**
+             * saving new cell id to preferences?
+             */
+            Calendar calendarUntil = null;
+            try {
+                Gson gson = new Gson();
+                calendarUntil = gson.fromJson(
+                        Preferences
+                                .getSharedPreferences().getString("CellRecordUntil", null),
+                        Calendar.class
+                );
+            } catch (Exception e) {
+            }
+
+            /**
+             * is saved date there?
+             */
+            if (calendarUntil != null) {
+                Calendar calendar = Calendar.getInstance();
+
+                /**
+                 * save new id into array IF save time meets conditions
+                 */
+                if (calendarUntil.after(calendar)) {
+                    Cell.addCellIdToArray(cellInfo);
+                }
+
+                /**
+                 * if until date did already passed current date, clear it from settings
+                 */
+                else {
+                    // update date in preferences with empty string
+                    BackgroundService.getInstance().mPreferences.setPreferences(
+                            "CellRecordUntil", new String()
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * Add new Cell ID to history array
+     * (update time if in list)
+     *
+     */
+    protected static void addCellIdToArray(CellConnectionInfo cellInfo) {
 
         /**
          * get cells from preferences
          */
-        ArrayList<Cell> cells = (ArrayList<Cell>)BackgroundService.getInstance().mPreferences
-                .getPreferences("cells", Preferences.REQUEST_TYPE.CELLS);
+        ArrayList<Cell> cells = getSavedCellsFromPreferences();
 
-        if (cells == null) {
-            cells = new ArrayList<Cell>();
-        }
+        Cell cell = new Cell(cellInfo);
 
-        /**
-         * if cellid already exists, update it & skip adding
-         */
-        boolean cellAlreadyExist = false;
-        for (Cell single : cells) {
-
-            if (single.getCellId().equals(cellId)) {
-                Log.d("sfen", "CellId "+ cellId +" already exists in array. Updating.");
-                single.setStoreDate(Calendar.getInstance());
-
-                cells.set(
-                        cells.indexOf(single),
-                        single
-                );
-
-                cellAlreadyExist = true;
-
-                Log.d("sfen", "Updating Cell "+ cellId +" in history array.");
-
-                break;
-            }
-        }
-
-        /**
-         * update cells array with new entry
-         */
-        if (!cellAlreadyExist) {
-            cells.add(
-                    new Cell(
-                            cellId,
-                            Calendar.getInstance()
-                    )
-            );
-
-            Log.d("sfen", "Storing Cell "+ cellId +" into history array.");
+        //Add cell, unordered list
+        int i = cells.indexOf(cell);
+        if (i >= 0) {
+            cells.set(i, cell);
+        } else {
+            cells.add(cell);
         }
 
         /**
@@ -484,57 +490,27 @@ public class Cell implements Comparable<Cell> {
         BackgroundService.getInstance().mPreferences.setPreferences(
                 "cells", cells
         );
-
-
-
     }
-
 
 
     /**
      *
-     * Add new Cell ID into history array
+     * Remove Cell ID from history array
      * (if not there yet)
      *
      */
-    protected static void removeCellIdFromArray(String cellId) {
+    protected static void removeCellIdFromArray(Cell cell) {
 
-        /**
-         * get cells from preferences
-         */
-        ArrayList<Cell> cells = (ArrayList<Cell>)BackgroundService.getInstance().mPreferences
-                .getPreferences("cells", Preferences.REQUEST_TYPE.CELLS);
-
-        if (cells == null) {
-            cells = new ArrayList<Cell>();
-        }
-
-        /**
-         * create arraylist of items to be removed
-         */
-        ArrayList<Cell> cellsToBeRemoved = new ArrayList<Cell>();
-
-        for (Cell single : cells) {
-
-            if (single.getCellId().equals(cellId))
-                cellsToBeRemoved.add(single);
-        }
-
-        /**
-         * update cells array with new entry
-         */
-        cells.removeAll(cellsToBeRemoved);
-
+        ArrayList<Cell> cells = getSavedCellsFromPreferences();
+        cells.remove(cell);
         /**
          * set new preferences
          */
-        Log.d("sfen", "Cell "+ cellId +" deleted from history array.");
+        Log.d("sfen", "Cell "+ cell.cellId +" deleted from history array.");
 
         BackgroundService.getInstance().mPreferences.setPreferences(
                 "cells", cells
         );
-
-
     }
 
 
@@ -548,7 +524,6 @@ public class Cell implements Comparable<Cell> {
 
         else
             return false;
-
     }
 
     @Override
@@ -563,7 +538,5 @@ public class Cell implements Comparable<Cell> {
     @Override
     public int compareTo(Cell another) {
         return storeDate.compareTo(another.getStoreDate());
-
-        //return 0;
     }
 }

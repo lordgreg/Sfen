@@ -197,104 +197,30 @@ public class ReceiverPhoneState extends PhoneStateListener {
          * if new location doesn't throw any errors, continue, otherwise, stop actions
          *
          */
-        String cellId = "";
 
         CellConnectionInfo cellInfo = new CellConnectionInfo(Main.getInstance());
 
-        if (cellInfo.isError()) {
-//            Log.d("sfen", "No mobile: "+ cellInfo.getError());
-            return ;
-        }
-
-        else
-            cellId = cellInfo.getCellId();
-
-
-        Log.d("sfen", "Got mobile cell: " + cellInfo.getCellId());
+        Log.d("sfen", "Got mobile cell: " + cellInfo.getCellId()+ ":" + cellInfo.isError()+ ":" + cellInfo.getError());
 
         // when we change cells, we have to wake up to send broadcast
+        // TBD: Is wakelock required to log?
         PowerManager pm = (PowerManager) BackgroundService.getInstance()
                 .getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sfen");
         mWakeLock.acquire();
 
+        Cell.recordCellId(cellInfo);
 
-        /**
-         * retrieve permanent info
-         */
-        boolean isRecordingPermanent =
-                Preferences
-                        .getSharedPreferences().getBoolean("CellRecordPermanent", false);
-
-
-
-
-        /**
-         * permanent recording saves all cells
-         */
-        if (isRecordingPermanent) {
-
-            Cell.addCellIdToArray(cellId);
-
+        if (cellInfo.isError()) {
+            Log.d("sfen", "No mobile: "+ cellInfo.getError());
         }
-
-        /**
-         * permanent is disabled, then check times
-         */
         else {
-
-
-            /**
-             * saving new cell id to preferences?
-             */
-            Calendar calendar = Calendar.getInstance();
-            Calendar calendarUntil = null;
-            try {
-                Gson gson = new Gson();
-                calendarUntil = gson.fromJson(
-                        Preferences
-                                .getSharedPreferences().getString("CellRecordUntil", null),
-                        Calendar.class
-                );
-            } catch (Exception e) {
-            }
-
-            /**
-             * is saved date there?
-             */
-            if (calendarUntil != null) {
-
-                /**
-                 * save new id into array IF save time meets conditions
-                 */
-                if (calendarUntil.after(calendar)) {
-
-                    Cell.addCellIdToArray(cellId);
-
-
-                }
-
-                /**
-                 * if until date did already passed current date, clear it from settings
-                 */
-                else {
-
-                    // update date in preferences with empty string
-                    BackgroundService.getInstance().mPreferences.setPreferences(
-                            "CellRecordUntil", new String()
-                    );
-
-                }
-
-            }
-
-        }
-
 
         /**
          * send broadcast when CELL LOCATION CHANGES
          */
         BackgroundService.getInstance().sendBroadcast("CELL_LOCATION_CHANGED");
+        }
 
         // close down the wakelock
         mWakeLock.release();
