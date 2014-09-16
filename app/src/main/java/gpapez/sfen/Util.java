@@ -1066,15 +1066,6 @@ public class Util extends Activity {
                 if (mCellsFromSettings == null) {
                     mCellsFromSettings = new ArrayList<Cell>();
                 }
-                //Temp fix for duplicated entries, Regression in pull request #61, 3a2335d
-                ArrayList<Cell> cell2 = new ArrayList<Cell>();
-                for (Cell single : mCellsFromSettings) {
-                    if (!cell2.contains(single)) {
-                        cell2.add(single);
-                    }
-                }
-                mCellsFromSettings = cell2;
-                //END fix
 
                 ArrayList<Cell> otherCells = new ArrayList<Cell>();
 
