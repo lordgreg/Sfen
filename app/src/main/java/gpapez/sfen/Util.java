@@ -1066,6 +1066,16 @@ public class Util extends Activity {
                 if (mCellsFromSettings == null) {
                     mCellsFromSettings = new ArrayList<Cell>();
                 }
+                //Temp fix for duplicated entries, Regression in pull request #61, 3a2335d
+                ArrayList<Cell> cell2 = new ArrayList<Cell>();
+                for (Cell single : mCellsFromSettings) {
+                    if (!cell2.contains(single)) {
+                        cell2.add(single);
+                    }
+                }
+                mCellsFromSettings = cell2;
+                //END fix
+
                 ArrayList<Cell> otherCells = new ArrayList<Cell>();
 
                 // if we have cells stored, add them to selected cells
@@ -1151,8 +1161,6 @@ public class Util extends Activity {
 
 
                                 addNewConditionOrAction(context, cond, index);
-
-
                             }
                         })
                         .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -1187,10 +1195,6 @@ public class Util extends Activity {
                     if (isEditing) {
                         if (mCellsFromSettings.contains(single)) {
                             newRow.setSelected(true);
-
-                            // also, add this cell to "selected" array
-                            mCellsSelected.add(single);
-
                         }
                     }
 
