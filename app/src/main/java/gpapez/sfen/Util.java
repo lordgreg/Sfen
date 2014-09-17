@@ -1066,6 +1066,7 @@ public class Util extends Activity {
                 if (mCellsFromSettings == null) {
                     mCellsFromSettings = new ArrayList<Cell>();
                 }
+
                 ArrayList<Cell> otherCells = new ArrayList<Cell>();
 
                 // if we have cells stored, add them to selected cells
@@ -1151,8 +1152,6 @@ public class Util extends Activity {
 
 
                                 addNewConditionOrAction(context, cond, index);
-
-
                             }
                         })
                         .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -1187,10 +1186,6 @@ public class Util extends Activity {
                     if (isEditing) {
                         if (mCellsFromSettings.contains(single)) {
                             newRow.setSelected(true);
-
-                            // also, add this cell to "selected" array
-                            mCellsSelected.add(single);
-
                         }
                     }
 
