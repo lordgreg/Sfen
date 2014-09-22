@@ -18,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -2090,12 +2092,18 @@ public class Util extends Activity {
 
                 final PackageManager pm = context.getPackageManager();
 
-                for (final PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_META_DATA)) {
+                List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+                Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(pm));
+                //Collections.sort(apps, new PackageInfo.);
+
+
+                for (final ApplicationInfo applicationInfo : apps) {
                     //if ((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
                     //    break;
                     // don't show apps that don't have launch activity
-                    if (pm.getLaunchIntentForPackage(packageInfo.packageName) != null ||
-                            (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0
+                    if (pm.getLaunchIntentForPackage(applicationInfo.packageName) != null
+////                            ||
+////                            (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0
                             ) {
 
 
@@ -2109,12 +2117,14 @@ public class Util extends Activity {
                         //newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, mContainerOptions, false);
                         newRow = (ViewGroup) inflater.inflate(R.layout.dialog_pick_single, installedApps, false);
 
-                        ((TextView) newRow.findViewById(android.R.id.text1)).setText(packageInfo.applicationInfo.loadLabel(pm).toString());
-                        ((TextView) newRow.findViewById(android.R.id.text2)).setText(packageInfo.packageName);
+                        ((TextView) newRow.findViewById(android.R.id.text1)).setText(applicationInfo.loadLabel(pm).toString());
+                        ((TextView) newRow.findViewById(android.R.id.text2)).setText(applicationInfo.packageName);
+
+//                    Log.e("sfen", ">>> "+ pm.getLaunchIntentForPackage(applicationInfo.packageName));
 
 
                         ((ImageButton) newRow.findViewById(R.id.dialog_icon))
-                                .setImageDrawable(packageInfo.applicationInfo.loadIcon(pm));
+                                .setImageDrawable(applicationInfo.loadIcon(pm));
 
                         // create onclick listener
                         newRow.setOnClickListener(new View.OnClickListener() {
@@ -2130,10 +2140,10 @@ public class Util extends Activity {
 
                                 cond.setSetting("text1",
                                         context.getString(R.string.open_application_description2,
-                                                packageInfo.applicationInfo.loadLabel(pm).toString())
+                                                applicationInfo.loadLabel(pm).toString())
                                 );
-                                cond.setSetting("text2", packageInfo.packageName);
-                                cond.setSetting("packagename", packageInfo.packageName);
+                                cond.setSetting("text2", applicationInfo.packageName);
+                                cond.setSetting("packagename", applicationInfo.packageName);
 
 
 
@@ -2169,6 +2179,8 @@ public class Util extends Activity {
                 break;
 
 
+
+
             /**
              * ACT: open shortcut
              */
@@ -2181,24 +2193,24 @@ public class Util extends Activity {
                 }
 
                 final int REQUEST_PICK_SHORTCUT = 0x100;
-                final int REQUEST_CREATE_SHORTCUT = 0x200;
 
-                final Intent intent = new Intent(Intent.ACTION_PICK_ACTIVITY);
-                intent.putExtra(Intent.EXTRA_INTENT, new Intent(Intent.ACTION_CREATE_SHORTCUT));
-                intent.putExtra(Intent.EXTRA_TITLE, context.getString(R.string.select_shortcut));
+                final Intent intent2 = new Intent(Intent.ACTION_PICK_ACTIVITY);
+
+                intent2.putExtra(Intent.EXTRA_INTENT, new Intent(Intent.ACTION_CREATE_SHORTCUT));
+                intent2.putExtra(Intent.EXTRA_TITLE, context.getString(R.string.select_shortcut));
 
 
 
-                AsyncTask<Void,Void,Void> mAsyncTask = new AsyncTask<Void, Void, Void>() {
+                AsyncTask mAsyncTask = new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... voids) {
 
 
                             if (actionFrom == ACTION_FROM.PROFILE)
-                                ProfileActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+                                ProfileActivity.getInstance().startActivityForResult(intent2, REQUEST_PICK_SHORTCUT);
 
                             if (actionFrom == ACTION_FROM.EVENT)
-                                EventActivity.getInstance().startActivityForResult(intent, REQUEST_PICK_SHORTCUT);
+                                EventActivity.getInstance().startActivityForResult(intent2, REQUEST_PICK_SHORTCUT);
 
 
                             return null;

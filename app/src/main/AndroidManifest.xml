@@ -102,10 +102,10 @@
             android:name=".BackgroundService"
             android:enabled="true"
             android:exported="false" />
-        <!--<service-->
-            <!--android:name=".ReceiveTransitionsIntentService"-->
-            <!--android:enabled="true"-->
-            <!--android:exported="true" />-->
+        <service
+            android:name=".ReceiveTransitionsIntentService"
+            android:enabled="true"
+            android:exported="true" />
 
 
         <!-- RECEIVER -->

@@ -73,6 +73,7 @@ public class ProfileActivity extends Activity {
     final int REQUEST_NOTIFICATION_RESULT = 4;
     final int REQUEST_FILEMANAGER_SHORTCUT = 101;
 
+
     // options hashmap
 
 
@@ -1131,6 +1132,7 @@ public class ProfileActivity extends Activity {
         /**
          * if requestCode is REQUEST_PICK_SHORTCUT, we're continuing on creating shortcut
          */if (resultCode == RESULT_OK) switch (requestCode) {
+
 
             case REQUEST_PICK_SHORTCUT:
                 startActivityForResult(data, REQUEST_CREATE_SHORTCUT);

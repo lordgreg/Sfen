@@ -651,6 +651,7 @@ public class BackgroundService extends Service {
 
                 case ACT_PLAYSOUND:
                     break;
+
                 case ACT_OPENAPPLICATION:
 
                     String packageName = act.getSetting("packagename");
@@ -1512,6 +1513,15 @@ public class BackgroundService extends Service {
 
                         if (e.isEnabled())
                             mReceiverFilters.add("android.intent.action.HEADSET_PLUG");
+
+                        break;
+
+                    case CELL_IN:
+                    case CELL_OUT:
+
+                        if (e.isEnabled())
+                            mReceiverFilters.add(getClass().getPackage().getName() +".CELL_LOCATION_CHANGED");
+
 
                         break;
 

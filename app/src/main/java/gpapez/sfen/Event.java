@@ -528,7 +528,7 @@ public class Event implements Comparable<Event> {
                     // add 1 second to current if we got a trigger just on the same second as start
                     // time
                     Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.SECOND, 1);
+                    cal.add(Calendar.SECOND, 10);
 
                     Calendar cStart = Calendar.getInstance();
                     Calendar cEnd = Calendar.getInstance();

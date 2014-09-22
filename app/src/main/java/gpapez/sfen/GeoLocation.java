@@ -149,15 +149,15 @@ public class GeoLocation implements
         else {
 
             // Create an explicit Intent
-//            Intent intent = new Intent(mContext,
-//                    ReceiveTransitionsIntentService.class);
+            Intent intent = new Intent(mContext,
+                    ReceiveTransitionsIntentService.class);
 
-            Intent intent = new Intent(getClass().getPackage().getName() + ".GEOFENCE_RECEIVE");
+//            Intent intent = new Intent(getClass().getPackage().getName() + ".GEOFENCE_RECEIVE");
 
             /**
              * Return the PendingIntent
              */
-            return PendingIntent.getBroadcast(
+            return PendingIntent.getService(
                     mContext,
                     0,
                     intent,

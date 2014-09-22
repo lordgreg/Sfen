@@ -92,10 +92,10 @@ public class Receiver extends BroadcastReceiver {
     // every X seconds, wakelock will wake up our device;
     // set time here (miliseconds!)
     //final long WAKELOCK_TIMER = 5 * 60 * 1000;
-    final long WAKELOCK_TIMER = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+//    final long WAKELOCK_TIMER = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 
     // wakelock object which will store our alarm status
-    Alarm mAlarmWakeLock = null;
+//    Alarm mAlarmWakeLock = null;
 
     boolean mCallBroadcast = true;
 
@@ -114,7 +114,7 @@ public class Receiver extends BroadcastReceiver {
          * otherwise return the process.
          */
         if (!isActionAllowedToRun(action)) {
-            Log.d("sfen", "Broadcast recieved "+ action +" but not needed.");
+//            Log.d("sfen", "Broadcast recieved "+ action +" but not needed.");
             return ;
         }
         else
